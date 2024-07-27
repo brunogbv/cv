@@ -35,8 +35,9 @@ nginx:
 	docker exec -it cv-app nginx -g 'daemon off;'
 
 serve:
+	make stop-container
+	make remove-container
 	make run
-	make nginx
 
 all:
 	make clean
