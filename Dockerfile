@@ -60,8 +60,8 @@ RUN ln -s /etc/nginx/sites-available/valerio.dev /etc/nginx/sites-enabled/valeri
 EXPOSE 80 443
 
 # Copy the script to obtain SSL certificate
-COPY /app/dist/init-letsencrypt.sh /init-letsencrypt.sh
-RUN chmod +x /init-letsencrypt.sh
+COPY init-letsencrypt.sh /app/init-letsencrypt.sh
+RUN chmod +x /app/init-letsencrypt.sh
 
 # Start Nginx and run the script to obtain SSL certificate
 CMD ["sh", "-c", "/init-letsencrypt.sh && nginx -g 'daemon off;'"]
