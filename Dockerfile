@@ -53,6 +53,7 @@ RUN apk update && \
 
 RUN mkdir /etc/nginx/sites-available
 RUN mkdir /etc/nginx/sites-enabled
+RUN mkdir -p /usr/share/nginx/html/.well-known/acme-challenge
 COPY valerio.dev /etc/nginx/sites-available/valerio.dev
 RUN ln -s /etc/nginx/sites-available/valerio.dev /etc/nginx/sites-enabled/valerio.dev
 
@@ -64,4 +65,4 @@ COPY init-letsencrypt.sh /app/init-letsencrypt.sh
 RUN chmod +x /app/init-letsencrypt.sh
 
 # Start Nginx and run the script to obtain SSL certificate
-RUN /app/init-letsencrypt.sh && nginx -g 'daemon off'
+RUN /app/init-letsencrypt.sh && nginx -g 'daemon off;'
