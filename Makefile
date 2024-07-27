@@ -10,19 +10,19 @@ copy:
 	docker cp cv-app:/usr/share/nginx/html .
 
 stop-container:
-	-docker stop cv-app > /dev/null
+	-docker stop cv-app > /dev/null 2>&1
 
 remove-container:
-	-docker rm cv-app > /dev/null
+	-docker rm cv-app > /dev/null 2>&1
 
 remove-image:
-	-docker image rm cv:latest > /dev/null
+	-docker image rm cv:latest > /dev/null 2>&1
 
 clean:
 	echo "Cleaning up artifacts..."
-	make stop-container > /dev/null 2>&1
-	make remove-container > /dev/null 2>&1
-	make remove-image > /dev/null 2>&1
+	make stop-container
+	make remove-container
+	make remove-image
 
 html:
 	make clean
