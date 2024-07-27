@@ -56,7 +56,7 @@ RUN mkdir /etc/nginx/sites-enabled
 COPY valerio.dev /etc/nginx/sites-available/valerio.dev
 RUN ln -s /etc/nginx/sites-available/valerio.dev /etc/nginx/sites-enabled/valerio.dev
 
-# Expose port 80
+# Expose ports 80 and 443
 EXPOSE 80 443
 
 # Copy the script to obtain SSL certificate
