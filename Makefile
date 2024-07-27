@@ -2,16 +2,16 @@ build:
 	docker build -t cv .
 
 run:
-	docker run -d -p 80:8080 -p 443:8081 --name my-running-app cv:latest
+	docker run -d -p 80:8080 -p 443:8081 --name cv-app cv:latest
 
 copy:
-	docker cp my-running-app:/usr/share/nginx/html .
+	docker cp cv-app:/usr/share/nginx/html .
 
 stop-container:
-	-docker stop my-running-app
+	-docker stop cv-app
 
 remove-container:
-	-docker rm my-running-app
+	-docker rm cv-app
 
 remove-image:
 	-docker image rm cv:latest
