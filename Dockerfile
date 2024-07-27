@@ -21,6 +21,9 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 USER $USERNAME
 
+# Change ownership of the working directory to the user
+RUN sudo chown -R $USERNAME:$USERNAME $WORKDIR
+
 RUN sudo wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 RUN sudo apt-get update && sudo apt-get install -y ./google-chrome-stable_current_amd64.deb && \
   sudo rm google-chrome-stable_current_amd64.deb && \
@@ -34,9 +37,6 @@ RUN npm ci
 
 # Copy the rest of the application code to the working directory
 COPY . .
-
-# Change ownership of the working directory to the user
-RUN sudo chown -R $USERNAME:$USERNAME $WORKDIR
 
 # Build the application
 RUN npm run build
