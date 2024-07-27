@@ -42,4 +42,4 @@ serve:
 all:
 	make clean
 	make build
-	make serve
+	make run
