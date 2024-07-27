@@ -57,7 +57,7 @@ COPY valerio.dev /etc/nginx/sites-available/valerio.dev
 RUN ln -s /etc/nginx/sites-available/valerio.dev /etc/nginx/sites-enabled/valerio.dev
 
 # Expose ports 80 and 443
-EXPOSE 8080 8081
+EXPOSE 80 443
 
 # Copy the script to obtain SSL certificate
 RUN mkdir -p /usr/share/nginx/html/.well-known/acme-challenge

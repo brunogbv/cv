@@ -4,7 +4,7 @@ build:
 	docker build -t cv .
 
 run:
-	docker run -d -p 80:8080 -p 443:8081 --name cv-app cv:latest > /dev/null
+	docker run -d -p 80:80 -p 443:443 --name cv-app cv:latest > /dev/null
 
 copy:
 	docker cp cv-app:/usr/share/nginx/html .
