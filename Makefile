@@ -13,8 +13,8 @@ clean:
 	docker image rm cv:latest
 
 html:
-	make clean
+	make clean >> /dev/null
 	make build
 	make run
 	make copy
-	make clean
+	make clean >> /dev/null
