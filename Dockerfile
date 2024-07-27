@@ -48,8 +48,8 @@ FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 RUN apk update && \
-    apk add --no-cache certbot-nginx bash && \
-    rm -rf /var/cache/apk/*
+  apk add --no-cache certbot-nginx bash && \
+  rm -rf /var/cache/apk/*
 
 RUN mkdir /etc/nginx/sites-available
 RUN mkdir /etc/nginx/sites-enabled
@@ -61,7 +61,7 @@ EXPOSE 80 443
 
 # Copy the script to obtain SSL certificate
 RUN mkdir -p /usr/share/nginx/html/.well-known/acme-challenge
-RUN mkdir /etc/letsencrypt/live/
+RUN mkdir -p /etc/letsencrypt/live/
 COPY init-letsencrypt.sh /app/init-letsencrypt.sh
 RUN chmod +x /app/init-letsencrypt.sh
 
