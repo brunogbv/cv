@@ -21,4 +21,4 @@ html:
 
 serve:
 	make build
-	docker run -d -p 80:80 --name my-running-app cv:latest
+	docker run -d -p 80:80 -p 443:443 --name my-running-app cv:latest

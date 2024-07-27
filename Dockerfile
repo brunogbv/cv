@@ -47,8 +47,21 @@ FROM nginx:alpine
 # Copy the built files from the builder stage to the nginx web root directory
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose port 80
-EXPOSE 80
+RUN apk update && \
+    apk add --no-cache certbot-nginx bash && \
+    rm -rf /var/cache/apk/*
 
-# Start the Nginx server
-CMD ["nginx", "-g", "daemon off;"]
+RUN mkdir /etc/nginx/sites-available
+RUN mkdir /etc/nginx/sites-enabled
+COPY /app/dist/valerio.dev /etc/nginx/sites-available/valerio.dev
+RUN ln -s /etc/nginx/sites-available/valerio.dev /etc/nginx/sites-enabled/valerio.dev
+
+# Expose port 80
+EXPOSE 80 443
+
+# Copy the script to obtain SSL certificate
+COPY init-letsencrypt.sh /init-letsencrypt.sh
+RUN chmod +x /init-letsencrypt.sh
+
+# Start Nginx and run the script to obtain SSL certificate
+CMD ["sh", "-c", "/init-letsencrypt.sh && nginx -g 'daemon off;'"]
