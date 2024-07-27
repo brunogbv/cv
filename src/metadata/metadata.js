@@ -6,36 +6,36 @@ module.exports = {
     'Email': '<a href="mailto:bruno@valerio.dev"><i class="fa fa-envelope fact-icon"></i>bruno@valerio.dev</a>'
   },
   skills: [
-    ['Distributed Systems', 100]
-    ['Teamwork', 100]
-    ['Communication', 90]
-    ['Leadership', 80]
-    ['People Management', 70]
-    ['Functional Programming', 70]
-    ['Object-Oriented Programming', 100]
-    ['Reactive Programming', 100]
-    ['Event Driven Architecture', 100]
-    ['CQRS', 90]
-    ['Microservices', 100]
-    ['Cloud Native Apps', 100]
-    ['AWS', 80]
-    ['GCP', 40]
-    ['REST API', 100]
-    ['gRPC', 100]
-    ['GraphQL', 60]
-    ['Akka Stack', 100]
-    ['Split-Brain Resolver', 80]
-    ['CAP Theorem', 100]
-    ['Apache Cassandra', 70]
-    ['Apache Flink', 100]
-    ['Apache Kafka', 100]
-    ['SQL', 100]
-    ['Redis', 100]
-    ['Elasticsearch', 70]
-    ['Scala', 100]
-    ['Kotlin', 80]
-    ['Java', 80]
-    ['Go', 60]
+    ['Distributed Systems', 100],
+    ['Teamwork', 100],
+    ['Communication', 90],
+    ['Leadership', 80],
+    ['People Management', 70],
+    ['Functional Programming', 70],
+    ['Object-Oriented Programming', 100],
+    ['Reactive Programming', 100],
+    ['Event Driven Architecture', 100],
+    ['CQRS', 90],
+    ['Microservices', 100],
+    ['Cloud Native Apps', 100],
+    ['AWS', 80],
+    ['GCP', 40],
+    ['REST API', 100],
+    ['gRPC', 100],
+    ['GraphQL', 60],
+    ['Akka Stack', 100],
+    ['Split-Brain Resolver', 80],
+    ['CAP Theorem', 100],
+    ['Apache Cassandra', 70],
+    ['Apache Flink', 100],
+    ['Apache Kafka', 100],
+    ['SQL', 100],
+    ['Redis', 100],
+    ['Elasticsearch', 70],
+    ['Scala', 100],
+    ['Kotlin', 80],
+    ['Java', 80],
+    ['Go', 60],
     ['C++', 80]
   ],
   positions: [
