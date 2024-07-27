@@ -18,3 +18,6 @@ html:
 	make run
 	make copy
 	make clean
+
+serve:
+	docker run -d -p 8080:80 --name my-running-app cv:latest
