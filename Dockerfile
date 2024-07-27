@@ -53,7 +53,9 @@ RUN apk update && \
 
 RUN mkdir /etc/nginx/sites-available
 RUN mkdir /etc/nginx/sites-enabled
-COPY valerio.dev /etc/nginx/sites-available/valerio.dev
+COPY .nginx/valerio.dev /etc/nginx/sites-available/valerio.dev
+RUN rm /etc/nginx/conf.d/default.conf
+COPY .nginx/nginx.conf /etc/nginx/conf.d/nginx.conf
 RUN ln -s /etc/nginx/sites-available/valerio.dev /etc/nginx/sites-enabled/valerio.dev
 
 # Expose ports 80 and 443
