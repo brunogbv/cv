@@ -19,10 +19,10 @@ remove-image:
 	-docker image rm cv:latest >> /dev/null
 
 clean:
-	@echo "Cleaning up artifacts..."
-	@make stop-container
-	@make remove-container
-	@make remove-image
+	echo "Cleaning up artifacts..."
+	make stop-container > /dev/null 2>&1
+	make remove-container > /dev/null 2>&1
+	make remove-image > /dev/null 2>&1
 
 html:
 	make clean
