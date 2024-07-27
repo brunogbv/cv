@@ -13,7 +13,10 @@ a {
     text-decoration: none;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
     color: #000000;
 }
 
@@ -156,5 +159,5 @@ h1, h2, h3, h4 {
 .skills-bar::after {
     display: block;
     content: '•••••';
-    color: var(--bs-primary);
+    color: red;
 }

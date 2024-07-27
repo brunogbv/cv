@@ -1,10 +1,24 @@
 module.exports = {
   name: 'Bruno Guilhermo de Barros Valério',
   title: 'Engineering Manager | Flink',
-  facts: {
-    'Residence': '<a href="https://www.google.com/maps/place/Berlim/@52.5063862,13.0951097,10z/data=!4m6!3m5!1s0x47a84e373f035901:0x42120465b5e3b70!8m2!3d52.5200066!4d13.404954!16zL20vMDE1NnE?entry=ttu"></i>Berlin</a>',
-    'Email': '<a href="mailto:bruno@valerio.dev"><i class="fa fa-envelope fact-icon"></i>bruno@valerio.dev</a>'
-  },
+  facts: [
+    {
+      icon: '<i class="fa-solid fa-location-dot fact-icon"></i>',
+      value: '<a href="https://www.google.com/maps/place/Berlin/@52.5200066,13.404954">Berlin, Germany</a>'
+    },
+    {
+      icon: '<i class="fa-solid fa-envelope fact-icon"></i>',
+      value: '<a href="mailto:bruno@valerio.dev">bruno@valerio.dev</a>'
+    },
+    {
+      icon: '<i class="fa-brands fa-linkedin fact-icon"></i>',
+      value: '<a href="https://www.linkedin.com/in/brunogbv">brunogbv</a>'
+    },
+    {
+      icon: '<i class="fa-brands fa-github fact-icon"></i>',
+      value: '<a href="https://github.com/brunogbv/">brunogbv</a>'
+    }
+  ],
   skills: [
     ['Distributed Systems', 100],
     ['Teamwork', 100],
