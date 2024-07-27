@@ -61,5 +61,6 @@ typings/
 .idea
 
 # Website dest
-dist
+dist/
+html/
 .DS_Store
