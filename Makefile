@@ -7,9 +7,6 @@ run:
 copy:
 	docker cp my-running-app:/usr/share/nginx/html .
 
-run:
-	docker run -d -p 80:80 -p 443:443 --name my-running-app cv:latest
-
 stop-container:
 	-docker stop my-running-app
 
