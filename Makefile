@@ -7,10 +7,22 @@ run:
 copy:
 	docker cp my-running-app:/usr/share/nginx/html .
 
-clean:
+run:
+	docker run -d -p 80:80 -p 443:443 --name my-running-app cv:latest
+
+stop-container:
 	-docker stop my-running-app
+
+remove-container:
 	-docker rm my-running-app
+
+remove-image:
 	-docker image rm cv:latest
+
+clean:
+	make stop-container
+	make remove-container
+	make remove-image
 
 html:
 	make clean
@@ -21,5 +33,6 @@ html:
 
 serve:
 	make build
-	-docker stop my-running-app
+	make stop-container
+	make remove-container
 	docker run -d -p 80:80 -p 443:443 --name my-running-app cv:latest

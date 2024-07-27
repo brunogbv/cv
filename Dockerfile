@@ -64,4 +64,4 @@ COPY init-letsencrypt.sh /app/init-letsencrypt.sh
 RUN chmod +x /app/init-letsencrypt.sh
 
 # Start Nginx and run the script to obtain SSL certificate
-RUN /init-letsencrypt.sh && nginx -g 'daemon off'
+RUN /app/init-letsencrypt.sh && nginx -g 'daemon off'
