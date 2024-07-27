@@ -8,13 +8,13 @@ copy:
 	docker cp my-running-app:/usr/share/nginx/html .
 
 clean:
-	docker stop my-running-app
-	docker rm my-running-app
-	docker image rm cv:latest
+	-docker stop my-running-app
+	-docker rm my-running-app
+	-docker image rm cv:latest
 
 html:
-	make clean >> /dev/null
+	make clean
 	make build
 	make run
 	make copy
-	make clean >> /dev/null
+	make clean
