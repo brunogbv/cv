@@ -2,7 +2,7 @@ build:
 	docker build -t cv .
 
 run:
-	docker run -d --name my-running-app cv:latest
+	docker run -d -p 80:8080 -p 443:8081 --name my-running-app cv:latest
 
 copy:
 	docker cp my-running-app:/usr/share/nginx/html .
@@ -35,4 +35,4 @@ serve:
 	make build
 	make stop-container
 	make remove-container
-	docker run -d -p 80:80 -p 443:443 --name my-running-app cv:latest
+	make run
