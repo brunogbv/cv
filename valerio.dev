@@ -3,14 +3,8 @@ server {
     listen [::]:80;
     server_name valerio.dev www.valerio.dev;
 
-    location / {
-        root /usr/share/nginx/html;
-        index index.html;
-    }
-
-    location /.well-known/acme-challenge/ {
-        root /usr/share/nginx/html;
-    }
+    # Redirect HTTP to HTTPS
+    return 301 https://$host$request_uri;
 }
 
 server {
