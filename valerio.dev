@@ -1,5 +1,6 @@
 server {
     listen 80;
+    listen [::]:80;
     server_name valerio.dev www.valerio.dev;
 
     location / {
@@ -14,6 +15,7 @@ server {
 
 server {
     listen 443 ssl;
+    listen [::]:443;
     server_name valerio.dev www.valerio.dev;
 
     ssl_certificate /etc/letsencrypt/live/valerio.dev/fullchain.pem;
