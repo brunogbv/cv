@@ -1,3 +1,5 @@
+MAKEFLAGS += -s
+
 build:
 	docker build -t cv .
 
@@ -17,10 +19,10 @@ remove-image:
 	-docker image rm cv:latest >> /dev/null
 
 clean:
-	echo "Cleaning up artifacts..."
-	make stop-container
-	make remove-container
-	make remove-image
+	@echo "Cleaning up artifacts..."
+	@make stop-container
+	@make remove-container
+	@make remove-image
 
 html:
 	make clean
