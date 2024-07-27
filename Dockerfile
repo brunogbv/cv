@@ -67,4 +67,3 @@ RUN chmod +x /app/init-letsencrypt.sh
 
 # Start Nginx and run the script to obtain SSL certificate
 RUN /app/init-letsencrypt.sh
-RUN nginx -g 'daemon off;'
