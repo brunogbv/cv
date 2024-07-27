@@ -53,7 +53,6 @@ RUN apk update && \
 
 RUN mkdir /etc/nginx/sites-available
 RUN mkdir /etc/nginx/sites-enabled
-RUN mkdir -p /usr/share/nginx/html/.well-known/acme-challenge
 COPY valerio.dev /etc/nginx/sites-available/valerio.dev
 RUN ln -s /etc/nginx/sites-available/valerio.dev /etc/nginx/sites-enabled/valerio.dev
 
@@ -61,6 +60,8 @@ RUN ln -s /etc/nginx/sites-available/valerio.dev /etc/nginx/sites-enabled/valeri
 EXPOSE 80 443
 
 # Copy the script to obtain SSL certificate
+RUN mkdir -p /usr/share/nginx/html/.well-known/acme-challenge
+RUN mkdir /etc/letsencrypt/live/
 COPY init-letsencrypt.sh /app/init-letsencrypt.sh
 RUN chmod +x /app/init-letsencrypt.sh
 
