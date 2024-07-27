@@ -13,6 +13,7 @@ clean:
 	docker image rm cv:latest
 
 html:
+	make clean
 	make build
 	make run
 	make copy
