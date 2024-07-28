@@ -71,4 +71,4 @@ COPY init-letsencrypt.sh /app/init-letsencrypt.sh
 RUN chmod +x /app/init-letsencrypt.sh
 
 # Run the init-letsencrypt.sh script during container startup
-CMD ["/bin/bash", "-c", "/app/init-letsencrypt.sh"]
+CMD ["/bin/bash", "-c", "nginx -g 'daemon off;'"]
