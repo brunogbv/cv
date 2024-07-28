@@ -5,10 +5,10 @@ build:
 	docker build -t cv .
 
 lint:
-	docker run \
+	docker run --rm \
 		-e LOG_LEVEL=INFO \
 		-e RUN_LOCAL=true \
-		-e DEFAULT_BRANCH=main \
+    --env-file "config/lint/super-linter.env" \
 		-v $(shell pwd):/tmp/lint \
 		ghcr.io/super-linter/super-linter:latest
 

@@ -31,38 +31,8 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 USER $USERNAME
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci
-
-# Copy the rest of the application code to the working directory
+# Copy the application code to the working directory
 COPY . .
 
-# Build the application
-RUN npm run build
-
-# Use a lightweight base image
-FROM nginx:alpine
-
-# Copy the built files from the builder stage to the nginx web root directory
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# RUN apk update && \
-#   apk add --no-cache certbot-nginx bash && \
-#   rm -rf /var/cache/apk/*
-
-# RUN mkdir /etc/nginx/sites-available && mkdir /etc/nginx/sites-enabled
-# COPY .nginx/temp.conf /etc/nginx/sites-available/valerio.dev
-# COPY .nginx/valerio-ssl.dev /etc/nginx/sites-available/valerio-ssl.dev
-# COPY .nginx/nginx.conf /etc/nginx/nginx.conf
-# RUN ln -s /etc/nginx/sites-available/valerio.dev /etc/nginx/sites-enabled/valerio.dev
-
-# Expose ports 80 and 443
-EXPOSE 80 443
-
-# Copy the script to obtain SSL certificate
-RUN mkdir -p /usr/share/nginx/html/.well-known/acme-challenge
-RUN mkdir -p /etc/letsencrypt/live/
-
+# Install dependencies
+RUN npm ci && npm run build
