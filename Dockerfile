@@ -14,17 +14,13 @@ RUN groupadd --gid $USER_GID $USERNAME \
   #
   # [Optional] Add sudo support. Omit if you don't need to install software after connecting.
   && apt-get update \
+  && apt-get install -y $(ldd chrome | grep not | awk '{print $1}') \
   && apt-get install -y sudo \
   && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
   && chmod 0440 /etc/sudoers.d/$USERNAME \
   && chown -R $USERNAME:$USERNAME $WORKDIR
 
 USER $USERNAME
-
-RUN sudo wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN sudo apt-get update && sudo apt-get install -y ./google-chrome-stable_current_amd64.deb && \
-  sudo rm google-chrome-stable_current_amd64.deb && \
-  sudo apt install -f
 
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
