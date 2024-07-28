@@ -49,16 +49,15 @@ FROM nginx:alpine
 # Copy the built files from the builder stage to the nginx web root directory
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-RUN apk update && \
-  apk add --no-cache certbot-nginx bash && \
-  rm -rf /var/cache/apk/*
+# RUN apk update && \
+#   apk add --no-cache certbot-nginx bash && \
+#   rm -rf /var/cache/apk/*
 
-RUN mkdir /etc/nginx/sites-available
-RUN mkdir /etc/nginx/sites-enabled
-COPY .nginx/temp.conf /etc/nginx/sites-available/valerio.dev
-COPY .nginx/valerio-ssl.dev /etc/nginx/sites-available/valerio-ssl.dev
-COPY .nginx/nginx.conf /etc/nginx/nginx.conf
-RUN ln -s /etc/nginx/sites-available/valerio.dev /etc/nginx/sites-enabled/valerio.dev
+# RUN mkdir /etc/nginx/sites-available && mkdir /etc/nginx/sites-enabled
+# COPY .nginx/temp.conf /etc/nginx/sites-available/valerio.dev
+# COPY .nginx/valerio-ssl.dev /etc/nginx/sites-available/valerio-ssl.dev
+# COPY .nginx/nginx.conf /etc/nginx/nginx.conf
+# RUN ln -s /etc/nginx/sites-available/valerio.dev /etc/nginx/sites-enabled/valerio.dev
 
 # Expose ports 80 and 443
 EXPOSE 80 443
