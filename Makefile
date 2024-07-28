@@ -34,6 +34,12 @@ html:
 nginx:
 	docker exec -it cv-app nginx -g 'daemon off;'
 
+restart-nginx:
+  docker exec -it cv-app nginx -s reload
+
+certificates:
+	docker exec -it cv-app certbot --nginx -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
+
 serve:
 	make stop-container
 	make remove-container
