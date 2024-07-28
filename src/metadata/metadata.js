@@ -56,10 +56,10 @@ module.exports = {
     {
       title: 'Software Developer at Stone Pagamentos, Rio de Janeiro',
       period: 'July 2017 - April 2019',
-      skills: [`Scala`, `Akka`, `Akka Streams`, `Akka Cluster`, `Akka HTTP`, `Apache Kafka`, `MySQL`, `RabbitMQ`, `InfluxDB`, `Docker`, `Microservices`, `REST API`, `Reactive Programming`, `Functional Programming`, `Elasticsearch`, `Logstash`, `Kibana`, `Grafana`],
+      skills: ['Scala', 'Akka', 'Akka Streams', 'Akka Cluster', 'Akka HTTP', 'Apache Kafka', 'MySQL', 'RabbitMQ', 'InfluxDB', 'Docker', 'Microservices', 'REST API', 'Reactive Programming', 'Functional Programming', 'Elasticsearch', 'Logstash', 'Kibana', 'Grafana'],
       contents: `
 Developed concurrent systems in Scala, focusing on real-time data monitoring and processing. Utilized Functional Programming, Domain-Driven Design (DDD), Command Query Responsibility Segregation (CQRS), and Event Sourcing to build highly available, fault-tolerant, and horizontally scalable systems. Implemented and integrated technologies such as Akka, Akka Cluster, Akka Streams, Apache Kafka, Apache ZooKeeper, Apache Flink, RabbitMQ, InfluxDB, MySQL and MongoDB. Created REST APIs to enable seamless internet-based communication for these systems.
 `
-    },
+    }
   ]
 };
