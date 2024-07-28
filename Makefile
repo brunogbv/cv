@@ -49,7 +49,7 @@ certificates:
 
 nginx-ssl-config:
 	echo "Creating SSL configuration..."
-	docker cp .nginx/valerio-ssl.dev cv-app:/etc/nginx/sites-available/valerio.dev
+	docker exec cv-app cp /etc/nginx/sites-available/valerio-ssl.dev /etc/nginx/sites-available/valerio.dev
 
 serve:
 	make stop-container
