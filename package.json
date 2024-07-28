@@ -1,28 +1,27 @@
 {
-  "name": "cv-template",
-  "description": "The Curriculum Vitae Template",
+  "name": "cv",
+  "description": "Bruno Guilhermo de Barros Valério's CV",
   "scripts": {
     "build": "node src/build.js",
     "watch": "chokidar '**/*' -i 'dist/**/*' -c 'npm run build'",
     "prestart": "npm run build",
     "start": "npm run watch & live-server dist",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sneas/cv-project.git"
+    "url": "git+https://github.com/brunogbv/cv.git"
   },
   "keywords": [
     "cv",
     "resume"
   ],
-  "author": "Dmytro Snisarenko <dmytro@sneas.io>",
+  "author": "Bruno Guilhermo de Barros Valério <bruno@valerio.dev>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sneas/cv-project/issues"
+    "url": "https://github.com/brunogbv/cv/issues"
   },
-  "homepage": "https://github.com/sneas/cv-project#readme",
+  "homepage": "https://github.com/brunogbv/cv#readme",
   "devDependencies": {
     "chokidar-cli": "^3.0.0",
     "dayjs": "^1.11.4",
@@ -35,6 +34,8 @@
     "markdown": "^0.5.0",
     "puppeteer": "^16.1.0",
     "speakingurl": "^14.0.1",
+    "stylelint": "^16.7.0",
+    "stylelint-config-standard": "^36.0.1",
     "watch": "^1.0.2"
   }
 }
