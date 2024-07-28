@@ -51,9 +51,8 @@ serve:
 	make stop-container
 	make remove-container
 	make run
-	make restart-nginx
 
 all:
 	make clean
 	make build
-	make serve
+	make run
