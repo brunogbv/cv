@@ -50,9 +50,9 @@ certificates:
 serve:
 	make stop-container
 	make remove-container
+	make run
 	make certificates
 	make restart-nginx
-	make run
 
 all:
 	make clean
