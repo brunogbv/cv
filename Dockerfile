@@ -55,7 +55,7 @@ EXPOSE 80 443
 
 # Copy the script to obtain SSL certificate
 RUN mkdir -p /usr/share/nginx/html/.well-known/acme-challenge
-RUN mkdir -p /etc/letsencrypt/live/valerio.dev
+RUN mkdir -p /etc/letsencrypt/live/
 COPY init-letsencrypt.sh /app/init-letsencrypt.sh
 RUN chmod +x /app/init-letsencrypt.sh
 
