@@ -47,12 +47,20 @@ certificates:
 	echo "Creating certificates..."
 	docker exec -it cv-app certbot --nginx -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
 
+nginx-ssl-config:
+	echo "Creating SSL configuration..."
+	docker cp .nginx/valerio-ssl.dev cv-app:/etc/nginx/sites-available/valerio.dev
+
 serve:
 	make stop-container
 	make remove-container
 	make run
+	make certificates
+	make nginx-ssl-config
+	make restart-nginx
+
 
 all:
 	make clean
 	make build
-	make run
+	make serve
