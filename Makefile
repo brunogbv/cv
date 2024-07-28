@@ -51,7 +51,6 @@ serve:
 	make stop-container
 	make remove-container
 	make run
-	make certificates
 	make restart-nginx
 
 all:
