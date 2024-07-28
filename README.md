@@ -2,6 +2,8 @@
 
 [![Super-Linter](https://github.com/brunogbv/cv/actions/workflows/superlinter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
 
+Hosted at: [https://valerio.dev](https://valerio.dev)
+
 You are a fantastic developer. Keep your CV on GitHub, exploiting Node.js GitHub Action. Host it on GitHub Pages. Have both HTML and PDF versions automatically generated and consistent.
 
 <img src="https://raw.githubusercontent.com/dheereshagrwal/colored-icons/f926a9cacef437021842aa53029d1b73fb03de15/svg/nodejs.svg" alt="nodejs Logo" width="40" height="40" /> &nbsp; &nbsp;
@@ -10,7 +12,7 @@ You are a fantastic developer. Keep your CV on GitHub, exploiting Node.js GitHub
 <img src="https://raw.githubusercontent.com/dheereshagrwal/colored-icons/f926a9cacef437021842aa53029d1b73fb03de15/svg/css.svg" alt="css Logo" width="40" height="40" /> &nbsp; &nbsp;
 <img src="https://raw.githubusercontent.com/dheereshagrwal/colored-icons/f926a9cacef437021842aa53029d1b73fb03de15/svg/js.svg" alt="js Logo" width="40" height="40" />
 
-## What does this project do?
+<!-- ## What does this project do?
 
 * Helps you to manage your CV as a web app (HTML + CSS + JS).
 * Automatically generates and publishes HTML and PDF version on every push to `main`.
@@ -18,6 +20,7 @@ You are a fantastic developer. Keep your CV on GitHub, exploiting Node.js GitHub
 Demo: [http://sneas.github.io/cv-template](http://sneas.github.io/cv-template).
 
 Real world example: [http://sneas.github.io/cv](http://sneas.github.io/cv).
+
 
 ## Motivation
 
@@ -46,4 +49,4 @@ The project uses [HandlebarsJS](https://github.com/wycats/handlebars.js/) as a t
 
 The main HTML template is located in [src/templates/index.html](src/templates/index.html). Metadata for the template could be found in [src/metadata/metadata.js](src/metadata/metadata.js).
 
-Don't forget to update [src/assets/favicon.ico](src/assets/favicon.ico). You can generate a new favicon out of your photo with [icoconvert.com](http://icoconvert.com/).
+Don't forget to update [src/assets/favicon.ico](src/assets/favicon.ico). You can generate a new favicon out of your photo with [icoconvert.com](http://icoconvert.com/). -->
