@@ -57,7 +57,7 @@ certificates:
 
 certificates-compose:
 	echo "Creating certificates..."
-	docker-compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ --dry-run -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
+	docker-compose run --rm certbot certonly --webroot --webroot-path /usr/share/nginx/html --dry-run -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
 
 nginx-ssl-config:
 	echo "Creating SSL configuration..."
