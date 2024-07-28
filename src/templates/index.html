@@ -82,17 +82,17 @@
         <div class="border-bottom border-2 border-print-0 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
             <h2 class="mb-4">Professional Experience</h2>
             {{#each positions}}
-            <div class="row d-block d-md-flex{{#unless @last}} mb-5{{/unless}}">
+            <div class="row d-block d-md-flex {{#unless @last}}mb-5{{/unless}}">
                 <div class="col-md-2 pt-1">
                     {{ period }}
                 </div>
                 <div class="col-md-10">
                     <h3 class="fs-4 fw-normal">{{ title }}</h3>
 
-                    <div>{{{markdown contents }}}</div>
+                    <div>{{{markdown contents}}}</div>
 
                     <p>
-                        {{#each skills }}
+                        {{#each skills}}
                         <span class="badge text-body border border-1">{{ this }}</span>
                         {{/each}}
                     </p>

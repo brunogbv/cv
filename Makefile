@@ -4,9 +4,20 @@ build:
 	echo "Building image..."
 	docker build -t cv .
 
+lint:
+	docker run --rm \
+		-e LOG_LEVEL=INFO \
+		-e RUN_LOCAL=true \
+    --env-file "config/lint/super-linter.env" \
+		-v $(shell pwd):/tmp/lint \
+		ghcr.io/super-linter/super-linter:latest
+
 run:
 	echo "Running container..."
 	docker run -d -p 80:80 -p 443:443 --name cv-app cv:latest > /dev/null
+
+exec:
+	docker exec -it cv-app /bin/bash
 
 copy:
 	docker cp cv-app:/usr/share/nginx/html .
@@ -47,6 +58,10 @@ certificates:
 	echo "Creating certificates..."
 	docker exec -it cv-app certbot --nginx -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
 
+certificates-compose:
+	echo "Creating certificates..."
+	docker-compose run --rm certbot certonly --webroot --webroot-path /usr/share/nginx/html --dry-run -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
+
 nginx-ssl-config:
 	echo "Creating SSL configuration..."
 	docker exec cv-app cp /etc/nginx/sites-available/valerio-ssl.dev /etc/nginx/sites-available/valerio.dev
@@ -58,7 +73,6 @@ serve:
 	make certificates
 	make nginx-ssl-config
 	make restart-nginx
-
 
 all:
 	make clean
