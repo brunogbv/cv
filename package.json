@@ -6,7 +6,7 @@
     "watch": "chokidar '**/*' -i 'dist/**/*' -c 'npm run build'",
     "prestart": "npm run build",
     "start": "npm run watch & live-server dist",
-    "predeploy": "npm run build",
+    "predeploy": "npm run build"
   },
   "repository": {
     "type": "git",
