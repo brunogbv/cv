@@ -16,6 +16,9 @@ run:
 	echo "Running container..."
 	docker run -d -p 80:80 -p 443:443 --name cv-app cv:latest > /dev/null
 
+exec:
+	docker exec -it cv-app /bin/bash
+
 copy:
 	docker cp cv-app:/usr/share/nginx/html .
 
@@ -70,7 +73,6 @@ serve:
 	make certificates
 	make nginx-ssl-config
 	make restart-nginx
-
 
 all:
 	make clean
