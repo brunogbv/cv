@@ -1,6 +1,8 @@
 # Use a base image with Node.js installed
 FROM node:14 AS builder
 
+HEALTHCHECK CMD curl --fail http://localhost:3000 || exit 1",
+
 ARG USERNAME=builder
 ARG USER_UID=1001
 ARG USER_GID=$USER_UID

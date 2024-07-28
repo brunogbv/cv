@@ -4,6 +4,14 @@ build:
 	echo "Building image..."
 	docker build -t cv .
 
+lint:
+	docker run \
+		-e LOG_LEVEL=INFO \
+		-e RUN_LOCAL=true \
+		-e DEFAULT_BRANCH=main \
+		-v $(shell pwd):/tmp/lint \
+		ghcr.io/super-linter/super-linter:latest
+
 run:
 	echo "Running container..."
 	docker run -d -p 80:80 -p 443:443 --name cv-app cv:latest > /dev/null
@@ -46,6 +54,10 @@ restart-nginx:
 certificates:
 	echo "Creating certificates..."
 	docker exec -it cv-app certbot --nginx -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
+
+certificates-compose:
+	echo "Creating certificates..."
+	docker-compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ --dry-run -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
 
 nginx-ssl-config:
 	echo "Creating SSL configuration..."

@@ -25,10 +25,25 @@ jobs:
           # super-linter needs the full git history to get the
           # list of files that changed across commits
           fetch-depth: 0
-      - uses: actions/checkout@v2
-      
+
       - name: Super-linter
         uses: super-linter/super-linter@v6.7.0  # x-release-please-version
         env:
           # To report GitHub Actions status checks
+          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_CSS: true
+          VALIDATE_DOCKERFILE_HADOLINT: true
+          VALIDATE_GITHUB_ACTIONS: true
+          VALIDATE_HTML: true
+          VALIDATE_JAVASCRIPT_STANDARD: true
+          VALIDATE_TYPESCRIPT_STANDARD: true
+          VALIDATE_JSX: true
+          VALIDATE_JSON: true
+          VALIDATE_XML: true
+          VALIDATE_YAML: true
+          VALIDATE_MARKDOWN: true
+
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: main
+          IGNORE_GITIGNORED_FILES: true
+          LINTER_RULES_PATH: config/lint/
