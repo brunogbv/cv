@@ -20,6 +20,9 @@
     <div class="container page">
         <div class="border-bottom border-2 border-print-0 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
             <div class="row">
+                <div class="col-4 col-md-3 col-lg-2 offset-lg-1 d-block align-self-center text-center">
+                    <img src="photo.jpg" class="rounded-circle img-fluid" alt="Personal photo">
+                </div>
                 <div class="col-print-6 col-12 col-md-4 d-flex justify-content-between flex-column">
                     <div>
                         <h1 class="mb-0">{{ name }}</h1>
@@ -38,9 +41,9 @@
                         </p>
                     </div>
                 </div>
-                <div class="col-4 col-md-3 col-lg-2 offset-lg-1 d-block align-self-center text-center">
+                <!-- <div class="col-4 col-md-3 col-lg-2 offset-lg-1 d-block align-self-center text-center">
                     <img src="photo.jpg" class="rounded-circle img-fluid" alt="Personal photo">
-                </div>
+                </div> -->
                 <div class="col-print-6 col-12 col-md-5 offset-lg-1 col-lg-4">
                     <ul class="list-group list-group-flush">
                         {{#each facts}}
@@ -60,7 +63,7 @@
                 <div class="col-print-1 col-5 col-md-3 col-lg-2 text-right">
                     <small>{{ this.[0] }}</small>
                 </div>
-                <div class="col-print-1 col-5 col-md-3 col-lg-2">
+                <div class="col-print-1 col-5 col-md-3 col-lg-2 offset-1 offset-lg-2 offset-md-4">
                     <div class="skills">
                         <div class="skills-bar" style="width: {{ this.[1] }}%"></div>
                     </div>
