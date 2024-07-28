@@ -69,6 +69,3 @@ RUN mkdir -p /usr/share/nginx/html/.well-known/acme-challenge
 RUN mkdir -p /etc/letsencrypt/live/
 COPY init-letsencrypt.sh /app/init-letsencrypt.sh
 RUN chmod +x /app/init-letsencrypt.sh
-
-# Run the init-letsencrypt.sh script during container startup
-CMD ["/bin/bash", "-c", "nginx -g 'daemon off;'"]
