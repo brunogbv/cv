@@ -27,8 +27,6 @@ RUN apt-get update \
 # Create the user
 RUN groupadd --gid $USER_GID $USERNAME \
   && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-  #
-  && apt-get update \
   && chown -R $USERNAME:$USERNAME $WORKDIR
 
 USER $USERNAME
