@@ -9,12 +9,12 @@ services:
     restart: always
     volumes:
       - ./config/nginx/:/etc/nginx/:ro
-      - ./config/certbot/www/:/var/www/certbot/:ro
+      - ./config/nginx/html/:/usr/share/nginx/html/:ro
   certbot:
     depends_on:
       nginx:
         condition: service_healthy
     image: certbot/certbot:latest
     volumes:
-      - ./config/certbot/www/:/var/www/certbot/:rw
       - ./config/certbot/conf/:/etc/letsencrypt/:rw
+      - ./config/nginx/html/:/usr/share/nginx/html/:rw
