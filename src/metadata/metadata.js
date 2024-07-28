@@ -62,4 +62,4 @@ Developed concurrent systems in Scala, focusing on real-time data monitoring and
 `
     }
   ]
-};
+}

@@ -2,7 +2,7 @@
 
 [![Super-Linter](https://github.com/brunogbv/cv/actions/workflows/superlinter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
 
-You are a fantastic developer. Keep your CV on GitHub, exploiting Node.js GitHub action. Host it on GitHub Pages. Have both HTML and PDF versions automatically generated and consistent.
+You are a fantastic developer. Keep your CV on GitHub, exploiting Node.js GitHub Action. Host it on GitHub Pages. Have both HTML and PDF versions automatically generated and consistent.
 
 <img src="https://raw.githubusercontent.com/dheereshagrwal/colored-icons/f926a9cacef437021842aa53029d1b73fb03de15/svg/nodejs.svg" alt="nodejs Logo" width="40" height="40" /> &nbsp; &nbsp;
 <img src="https://raw.githubusercontent.com/dheereshagrwal/colored-icons/f926a9cacef437021842aa53029d1b73fb03de15/svg/npm.svg" alt="npm Logo" width="40" height="40" /> &nbsp; &nbsp;
@@ -27,8 +27,8 @@ The idea behind **The Curriculum Vitae Template** is to provide anyone with a qu
 
 ## Installation
 
-1. Create a new repo out of this template by clicking [this link](https://github.com/sneas/cv-template/generate).
-1. Clone the newly created repo.
+1. Create a new repository out of this template by clicking [this link](https://github.com/sneas/cv-template/generate).
+1. Clone the newly created repository.
 1. Install project dependencies with `npm install`.
 1. Run `npm run deploy` to initialize `gh-pages`. This is a one time action. Further deployments will be initiated by GitHub Actions on every push to `main`.
 

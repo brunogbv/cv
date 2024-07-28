@@ -1,23 +1,16 @@
 name: Lint
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
+
+permissions:
+  contents: read
+  packages: read
+  statuses: write
 
 jobs:
   build:
     name: Lint
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: read
-      statuses: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
