@@ -43,9 +43,11 @@ certificates:
 serve:
 	make stop-container
 	make remove-container
+	make certificates
+	make restart-nginx
 	make run
 
 all:
 	make clean
 	make build
-	make run
+	make serve
