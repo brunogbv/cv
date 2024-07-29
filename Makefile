@@ -31,30 +31,26 @@ build-no-cache:
 	make copy
 	make remove-app-builder
 
-build-webserver-local:
-	make clean
-	echo "Building webserver..."
-	docker buildx build --build-arg SITE_NAME=valerio-local.dev -t valerio.dev:local
-
-app-builder-logs:
+logs-app-builder-:
 	docker compose logs -f app-builder
 
-webserver-logs:
+logs-webserver:
 	docker compose logs -f webserver
 
-certbot-logs:
+logs-certbot:
 	docker compose logs -f certbot
-
-run:
-	docker compose up -d
-
-remove-app-builder:
-	echo "Removing build container..."
-	docker rm -f app-builder
 
 stop-webserver:
 	echo "Stopping webserver..."
 	-docker stop webserver > /dev/null 2>&1
+
+remove-app-builder:
+	echo "Removing build container..."
+	-docker rm -f app-builder > /dev/null 2>&1
+
+remove-certbot:
+	echo "Removing certbot..."
+	-docker rm-f webserver > /dev/null 2>&1
 
 remove-webserver:
 	echo "Removing container..."
@@ -66,16 +62,22 @@ restart-webserver:
 
 certificates:
 	echo "Creating certificates..."
-	docker exec -it cv-app certbot --nginx -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
-
-certificates-compose:
-	echo "Creating certificates..."
-	# docker compose run --rm certbot certonly --webroot --webroot-path /usr/share/nginx/html --dry-run -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
-	docker compose up -d certbot
+	docker compose up certbot
+	make copy-certificates
+	make remove-certbot
 
 webserver-ssl-config:
 	echo "Creating SSL configuration..."
 	docker exec webserver cp /etc/nginx/sites-available/valerio-ssl.dev /etc/nginx/sites-available/valerio.dev
+
+webserver-restart-nginx:
+	echo "Restarting nginx..."
+	docker exec webserver nginx -s reload
+
+webserver-upgrade-to-https:
+	make certificates
+	make webserver-ssl-config
+	make webserver-restart-nginx
 
 webserver-stop:
 	echo "Downing webserver..."
@@ -83,21 +85,17 @@ webserver-stop:
 
 #Adds localhost to nginx server_name
 webserver-local:
-	make build-webserver-local
+	make clean
+	echo "Hosting nginx..."
+	docker buildx build --build-arg SITE_NAME=valerio-local.conf -t valerio.dev:local
 	docker compose up -d webserver
+
 webserver:
-	echo "Going online..."
+	echo "Hosting nginx..."
 	docker compose up -d --build webserver
 
-online:
-	docker compose down
-	make remove-container
-	make run
-	make certificates
-	make nginx-ssl-config
-	make restart-nginx
-
 all:
-	make clean
 	make build
-	make serve
+	make webserver
+	make webserver-upgrade-to-https
+
