@@ -74,11 +74,11 @@ webserver-stop:
 
 webserver-local:
 	echo "Going online..."
-	docker up -d --build --build-args SITE_NAME=valerio-local.dev webserver
+	docker up --build --build-args SITE_NAME=valerio-local.dev webserver
 
 webserver:
 	echo "Going online..."
-	docker up -d --build --build-args SITE_NAME=valerio.dev webserver
+	docker up --build --build-args SITE_NAME=valerio.dev webserver
 
 online:
 	docker compose down
