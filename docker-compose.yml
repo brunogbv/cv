@@ -32,7 +32,7 @@ services:
           "http://valerio.dev:80/healthcheck"
         ]
       start_period: 5s # Add this line to set a start delay
-      interval: 5s
+      interval: 20s
       timeout: 2s
       retries: 3
 
