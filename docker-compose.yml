@@ -7,7 +7,6 @@ services:
     image: cv:latest
     build:
       context: .
-    # restart: always
     volumes:
       - ./dist/:/app/dist/:rw
 
@@ -19,7 +18,7 @@ services:
     ports:
       - 8080:80
       - 443:443
-    # restart: always
+    restart: always
     volumes:
       - ./dist/:/usr/share/nginx/html/:ro
       - certs:/etc/letsencrypt:ro
