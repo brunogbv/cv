@@ -63,7 +63,6 @@ restart-webserver:
 certificates:
 	echo "Creating certificates..."
 	docker compose up certbot
-	make copy-certificates
 	make remove-certbot
 
 webserver-ssl-config:
