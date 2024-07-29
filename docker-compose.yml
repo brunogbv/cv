@@ -23,6 +23,8 @@ services:
       - ./dist/:/usr/share/nginx/html/:ro
       - certs:/etc/letsencrypt:ro
       # - ./config/certbot/:/usr/share/nginx/html/:ro
+    extra_hosts:
+      - "valerio.dev:127.0.0.1"
     healthcheck:
       test:
         [
