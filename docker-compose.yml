@@ -4,7 +4,7 @@ version: '3'
 services:
   buildserver:
     container_name: buildserver
-    image: cv:latest
+    image: cv-compose:latest
     build:
       context: .
     volumes:
@@ -45,7 +45,22 @@ services:
     volumes:
       - ./dist/:/usr/share/nginx/html/:rw
       - certs:/etc/letsencrypt:rw
-    entrypoint: ["certbot", "certonly", "--webroot", "-w", "/usr/share/nginx/html", "--email", "bruno@valerio.dev", "--agree-tos", "--no-eff-email", "-d", "valerio.dev", "-d", "www.valerio.dev"]
+    entrypoint:
+      [
+        "certbot",
+        "certonly",
+        "--webroot",
+        "-w",
+        "/usr/share/nginx/html",
+        "--email",
+        "bruno@valerio.dev",
+        "--agree-tos",
+        "--no-eff-email",
+        "-d",
+        "valerio.dev",
+        "-d",
+        "www.valerio.dev"
+      ]
 
 volumes:
   certs:
