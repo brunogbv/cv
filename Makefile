@@ -17,7 +17,7 @@ build:
 	echo "Building page..."
 	docker compose up -d --build app-builder
 	docker cp app-builder:/app/dist/ ./dist
-	docker rm app-builder
+	make remove-app-builder
 
 build-no-cache:
 	make clean
@@ -25,7 +25,7 @@ build-no-cache:
 	docker buildx build --no-cache -t cv:latest .
 	docker run --name app-builder cv:compose
 	docker cp app-builder:/app/dist/ ./dist
-	docker rm app-builder
+	docker rm -f app-builder
 
 app-builder-logs:
 	docker compose logs -f app-builder
@@ -39,14 +39,17 @@ certbot-logs:
 run:
 	docker compose up -d
 
+remove-app-builder:
+	echo "Removing build container..."
+	docker rm -f app-builder
+
 stop-webserver:
 	echo "Stopping webserver..."
 	-docker stop webserver > /dev/null 2>&1
 
 remove-webserver:
-	make stop-webserver
 	echo "Removing container..."
-	-docker rm cv-app > /dev/null 2>&1
+	-docker rm -f webserver > /dev/null 2>&1
 
 restart-webserver:
 	echo "Restarting webserver..."
