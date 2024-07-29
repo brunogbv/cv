@@ -1,7 +1,7 @@
 server {
     listen 80;
     listen [::]:80;
-    server_name valerio.dev www.valerio.dev;
+    server_name localhost valerio.dev www.valerio.dev;
 
     location /.well-known/acme-challenge/ {
         root /usr/share/nginx/html;
