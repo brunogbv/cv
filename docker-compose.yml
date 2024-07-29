@@ -1,21 +1,69 @@
 ---
-version: '3'
-
 services:
+  app-builder:
+    container_name: app-builder
+    image: cv:compose
+    build:
+      context: .
+    volumes:
+      - html:/app/dist/:rw
+
   webserver:
-    image: nginx:latest
+    container_name: webserver
+    image: valerio.dev:latest
+    build:
+      context: ./config/nginx/
+      args:
+        - SITE_NAME=valerio.dev
     ports:
       - 80:80
       - 443:443
     restart: always
     volumes:
-      - ./config/nginx/:/etc/nginx/:ro
-      - ./config/nginx/html/:/usr/share/nginx/html/:ro
+      - html:/usr/share/nginx/html/:ro
+      - certs:/etc/letsencrypt:ro
+      # - ./config/certbot/:/usr/share/nginx/html/:ro
+    extra_hosts:
+      - "valerio.dev:127.0.0.1"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://valerio.dev:80/healthcheck"
+        ]
+      start_period: 5s # Add this line to set a start delay
+      interval: 20s
+      timeout: 2s
+      retries: 3
+
   certbot:
+    container_name: certbot
     depends_on:
-      nginx:
+      webserver:
         condition: service_healthy
     image: certbot/certbot:latest
     volumes:
-      - ./config/certbot/conf/:/etc/letsencrypt/:rw
-      - ./config/nginx/html/:/usr/share/nginx/html/:rw
+      - html:/usr/share/nginx/html/:rw
+      - certs:/etc/letsencrypt:rw
+    entrypoint:
+      [
+        "certbot",
+        "certonly",
+        "--webroot",
+        "-w",
+        "/usr/share/nginx/html",
+        "--email",
+        "bruno@valerio.dev",
+        "--agree-tos",
+        "--no-eff-email",
+        "-d",
+        "valerio.dev",
+        "-d",
+        "www.valerio.dev"
+      ]
+
+volumes:
+  certs:
+  html:

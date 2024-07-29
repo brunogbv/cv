@@ -1,8 +1,11 @@
 MAKEFLAGS += -s
 
-build:
-	echo "Building image..."
-	docker build -t cv .
+# Build the page using local environment
+# Dependencies: npm, node
+make page:
+	echo "Building page..."
+	rm -rf ./dist/
+	npm run build
 
 lint:
 	docker run --rm \
@@ -12,69 +15,92 @@ lint:
 		-v $(shell pwd):/tmp/lint \
 		ghcr.io/super-linter/super-linter:latest
 
-run:
-	echo "Running container..."
-	docker run -d -p 80:80 -p 443:443 --name cv-app cv:latest > /dev/null
+# Build the page using dockerized environment
+# Useful for deploying the page to a server when certificates are already created
+# output will be stored in the container's /app/dist folder and mounted to shared volume cv_dist
+build:
+	echo "Building page..."
+	make remove-app-builder
+	docker compose up --build app-builder
 
-exec:
-	docker exec -it cv-app /bin/bash
-
-copy:
-	docker cp cv-app:/usr/share/nginx/html .
-
-stop-container:
-	echo "Stopping container..."
-	-docker stop cv-app > /dev/null 2>&1
-
-remove-container:
-	echo "Removing container..."
-	-docker rm cv-app > /dev/null 2>&1
-
-remove-image:
-	echo "Removing image..."
-	-docker image rm cv:latest > /dev/null 2>&1
-
-clean:
-	echo "Cleaning up artifacts..."
-	make stop-container
-	make remove-container
-	make remove-image
-
-html:
-	make clean
+# Build the page using dockerized environment and copy files to local dist folder
+# Useful for building the page without having to install dependencies on local machine
+# Same as make page, but no dependency requirements on local machine
+dev-build:
+	echo "Building page..."
+	make remove-app-builder
 	make build
-	make run
-	make copy
-	make clean
+	docker cp app-builder:/app/dist ./dist
 
-nginx:
-	docker exec -it cv-app nginx -g 'daemon off;'
+# Get the logs of the app-builder, useful for debugging build issues
+logs-app-builder-:
+	docker compose logs -f app-builder
 
-restart-nginx:
-	echo "Restarting Nginx..."
-	docker exec -it cv-app nginx -s reload
+# Get the logs of the webserver, useful for debugging nginx issues
+logs-webserver:
+	docker compose logs -f webserver
 
+# Get the logs of the certbot, useful for debugging issues when creating certificates
+logs-certbot:
+	docker compose logs -f certbot
+
+# Useful if you need to remove the app-builder container
+remove-app-builder:
+	echo "Removing build container..."
+	-docker rm -f app-builder > /dev/null 2>&1
+
+# Useful if you need to remove the certbot container
+remove-certbot:
+	echo "Removing certbot..."
+	-docker rm-f webserver > /dev/null 2>&1
+
+# Create certificates using dockerized certbot
+# certs are stored in ./certbot/conf/live/valerio.dev/ and mounted to shared volume cv_certs
 certificates:
 	echo "Creating certificates..."
-	docker exec -it cv-app certbot --nginx -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
+	docker compose up certbot
+	make remove-certbot
 
-certificates-compose:
-	echo "Creating certificates..."
-	docker-compose run --rm certbot certonly --webroot --webroot-path /usr/share/nginx/html --dry-run -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
-
-nginx-ssl-config:
+# Updates the nginx configuration to use the newly created certificates
+# Enables SSL and redirects all HTTP traffic to HTTPS
+webserver-ssl-config:
 	echo "Creating SSL configuration..."
-	docker exec cv-app cp /etc/nginx/sites-available/valerio-ssl.dev /etc/nginx/sites-available/valerio.dev
+	docker exec webserver cp /etc/nginx/sites-available/valerio-ssl.conf /etc/nginx/sites-available/valerio.dev
 
-serve:
-	make stop-container
-	make remove-container
-	make run
+# Restarts the nginx server to apply new configurations
+webserver-restart-nginx:
+	echo "Restarting nginx..."
+	docker exec webserver nginx -s reload
+
+# Upgrades the webserver to use HTTPS
+# This is the main command to run to enable HTTPS on the webserver
+webserver-upgrade-to-https:
 	make certificates
-	make nginx-ssl-config
-	make restart-nginx
+	make webserver-ssl-config
+	make webserver-restart-nginx
 
+# Downs the webserver
+down:
+	echo "Downing webserver..."
+	docker compose down
+
+# Adds localhost to nginx server_name
+# Useful for local development
+webserver-local:
+	echo "Hosting nginx..."
+	docker buildx build --build-arg SITE_NAME=valerio-local.conf -t valerio.dev:local
+	docker compose up -d webserver
+
+# Starts the webserver
+webserver:
+	echo "Hosting nginx..."
+	docker compose up -d --build webserver
+
+# Full build and deploy
+# Useful for deploying the page to a server for the first time
+# Avoid running this command if you are just updating the page as it will recreate the certificates
 all:
-	make clean
 	make build
-	make serve
+	make webserver
+	make webserver-upgrade-to-https
+
