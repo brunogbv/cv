@@ -1,12 +1,10 @@
 ---
 services:
-  buildserver:
-    container_name: buildserver
+  app-builder:
+    container_name: app-builder
     image: cv-compose:latest
     build:
       context: .
-    volumes:
-      - ./dist/:/app/dist/:rw
 
   webserver:
     container_name: webserver

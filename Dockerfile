@@ -1,13 +1,8 @@
 # Use a base image with Node.js installed
 FROM node:14 AS builder
 
-HEALTHCHECK CMD curl --fail http://localhost:3000 || exit 1",
-
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-ARG USERNAME=builder
-ARG USER_UID=1001
-ARG USER_GID=$USER_UID
 ARG WORKDIR=/app
 # Set the working directory
 WORKDIR $WORKDIR
@@ -23,13 +18,6 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends google-chrome-stable=127.0.6533.72-1 fonts-ipafont-gothic=00303-18 fonts-wqy-zenhei=0.9.45-7 \
   fonts-thai-tlwg=1:0.7.1-1 fonts-kacst=2.01+mry-14 fonts-freefont-ttf=20120503-9 libxss1=1:1.2.3-1 \
   && rm -rf /var/lib/apt/lists/*
-
-# Create the user
-RUN groupadd --gid $USER_GID $USERNAME \
-  && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-  && chown -R $USERNAME:$USERNAME $WORKDIR
-
-USER $USERNAME
 
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
