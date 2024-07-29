@@ -78,7 +78,7 @@ webserver-upgrade-to-https:
 	make webserver-ssl-config
 	make webserver-restart-nginx
 
-webserver-stop:
+down:
 	echo "Downing webserver..."
 	docker compose down
 
