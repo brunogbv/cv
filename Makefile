@@ -1,12 +1,9 @@
 MAKEFLAGS += -s
 
-clean:
-	echo "Cleaning up artifacts..."
-	rm -rf ./dist
-
-copy:
-	echo "Copying dist..."
-	docker cp app-builder:/app/dist/ ./dist
+make page:
+	echo "Building page..."
+	rm -rf ./dist/
+	npm run build
 
 lint:
 	docker run --rm \
@@ -17,18 +14,17 @@ lint:
 		ghcr.io/super-linter/super-linter:latest
 
 build:
-	make clean
+	make remove-app-builder
+	# docker volume rm cv_html
 	echo "Building page..."
-	docker compose up -d --build app-builder
-	make copy
+	docker compose up --build app-builder
 	make remove-app-builder
 
 build-no-cache:
-	make clean
 	echo "Building page..."
+	make remove-app-builder
 	docker buildx build --no-cache -t cv:latest .
 	docker run --name app-builder cv:compose
-	make copy
 	make remove-app-builder
 
 logs-app-builder-:
@@ -84,7 +80,6 @@ down:
 
 #Adds localhost to nginx server_name
 webserver-local:
-	make clean
 	echo "Hosting nginx..."
 	docker buildx build --build-arg SITE_NAME=valerio-local.conf -t valerio.dev:local
 	docker compose up -d webserver

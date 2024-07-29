@@ -5,6 +5,8 @@ services:
     image: cv:compose
     build:
       context: .
+    volumes:
+      - html:/app/dist/:rw
 
   webserver:
     container_name: webserver
@@ -18,7 +20,7 @@ services:
       - 443:443
     restart: always
     volumes:
-      - ./dist/:/usr/share/nginx/html/:ro
+      - html:/usr/share/nginx/html/:ro
       - certs:/etc/letsencrypt:ro
       # - ./config/certbot/:/usr/share/nginx/html/:ro
     extra_hosts:
@@ -43,7 +45,7 @@ services:
         condition: service_healthy
     image: certbot/certbot:latest
     volumes:
-      - ./dist/:/usr/share/nginx/html/:rw
+      - html:/usr/share/nginx/html/:rw
       - certs:/etc/letsencrypt:rw
     entrypoint:
       [
@@ -64,3 +66,4 @@ services:
 
 volumes:
   certs:
+  html:
