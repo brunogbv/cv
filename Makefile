@@ -1,8 +1,24 @@
 MAKEFLAGS += -s
 
 build:
-	echo "Building image..."
-	docker build -t cv .
+	make clean
+	echo "Building page..."
+	docker compose up --build app-builder
+	docker cp app-builder:/app/dist/ ./dist
+	docker rm app-builder
+
+clean:
+	echo "Cleaning up artifacts..."
+	rm -rf ./dist
+
+app-builder-logs:
+	docker compose logs -f app-builder
+
+webserver-logs:
+	docker compose logs -f webserver
+
+certbot-logs:
+	docker compose logs -f certbot
 
 lint:
 	docker run --rm \
@@ -15,9 +31,6 @@ lint:
 run:
 	echo "Running container..."
 	docker run -d -p 80:80 -p 443:443 --name cv-app cv:latest > /dev/null
-
-exec:
-	docker exec -it cv-app /bin/bash
 
 copy:
 	docker cp cv-app:/usr/share/nginx/html .
@@ -33,12 +46,6 @@ remove-container:
 remove-image:
 	echo "Removing image..."
 	-docker image rm cv:latest > /dev/null 2>&1
-
-clean:
-	echo "Cleaning up artifacts..."
-	make stop-container
-	make remove-container
-	make remove-image
 
 html:
 	make clean
