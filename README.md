@@ -18,7 +18,7 @@ You are a fantastic developer. Keep your CV on GitHub, exploiting Node.js GitHub
 * Dockerized for easy building and deployment.
 * Github Actions for CI/CD. (Currently only for CI, CD is manual for now)
 
-# WIP...
+## WIP
 
 
 <!-- ## What does this project do?
