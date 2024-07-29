@@ -61,14 +61,27 @@ certificates:
 
 certificates-compose:
 	echo "Creating certificates..."
-	docker-compose run --rm certbot certonly --webroot --webroot-path /usr/share/nginx/html --dry-run -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
+	# docker compose run --rm certbot certonly --webroot --webroot-path /usr/share/nginx/html --dry-run -d valerio.dev -d www.valerio.dev --non-interactive --agree-tos --email bruno@valerio.dev
+	docker compose up -d certbot
 
 webserver-ssl-config:
 	echo "Creating SSL configuration..."
 	docker exec webserver cp /etc/nginx/sites-available/valerio-ssl.dev /etc/nginx/sites-available/valerio.dev
 
-serve:
-	make stop-container
+webserver-stop:
+	echo "Downing webserver..."
+	docker compose down
+
+webserver-local:
+	echo "Going online..."
+	docker up -d --build --build-args SITE_NAME=valerio-local.dev webserver
+
+webserver:
+	echo "Going online..."
+	docker up -d --build --build-args SITE_NAME=valerio.dev webserver
+
+online:
+	docker compose down
 	make remove-container
 	make run
 	make certificates
