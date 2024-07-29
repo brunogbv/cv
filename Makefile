@@ -67,7 +67,7 @@ certificates:
 
 webserver-ssl-config:
 	echo "Creating SSL configuration..."
-	docker exec webserver cp /etc/nginx/sites-available/valerio-ssl.dev /etc/nginx/sites-available/valerio.dev
+	docker exec webserver cp /etc/nginx/sites-available/valerio-ssl.conf /etc/nginx/sites-available/valerio.dev
 
 webserver-restart-nginx:
 	echo "Restarting nginx..."
