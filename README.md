@@ -12,6 +12,13 @@ You are a fantastic developer. Keep your CV on GitHub, exploiting Node.js GitHub
 <img src="https://raw.githubusercontent.com/dheereshagrwal/colored-icons/f926a9cacef437021842aa53029d1b73fb03de15/svg/css.svg" alt="css Logo" width="40" height="40" /> &nbsp; &nbsp;
 <img src="https://raw.githubusercontent.com/dheereshagrwal/colored-icons/f926a9cacef437021842aa53029d1b73fb03de15/svg/js.svg" alt="js Logo" width="40" height="40" />
 
+## What does this project do?
+
+* Helps you to manage your CV as a web app (HTML + CSS + JS).
+* Dockerized for easy building and deployment.
+* Github Actions for CI/CD. (Currently only for CI, CD is manual for now)
+* 
+
 <!-- ## What does this project do?
 
 * Helps you to manage your CV as a web app (HTML + CSS + JS).

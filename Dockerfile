@@ -29,4 +29,4 @@ RUN npm ci
 COPY . .
 
 # Build the application
-CMD ["npm", "run", "build"]
+CMD ["make", "page"]
