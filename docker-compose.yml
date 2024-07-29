@@ -2,7 +2,7 @@
 services:
   app-builder:
     container_name: app-builder
-    image: cv-compose:latest
+    image: cv:compose
     build:
       context: .
 
