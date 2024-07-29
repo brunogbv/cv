@@ -7,6 +7,13 @@ build:
 	docker cp app-builder:/app/dist/ ./dist
 	docker rm app-builder
 
+build-no-cache:
+	make clean
+	echo "Building page..."
+	docker compose up --build --no-cache app-builder
+	docker cp app-builder:/app/dist/ ./dist
+	docker rm app-builder
+
 clean:
 	echo "Cleaning up artifacts..."
 	rm -rf ./dist
