@@ -11,6 +11,8 @@ services:
     image: valerio.dev:latest
     build:
       context: ./config/nginx/
+      args:
+        - SITE_NAME=valerio.dev
     ports:
       - 8080:80
       - 443:443

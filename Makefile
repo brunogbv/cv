@@ -4,6 +4,10 @@ clean:
 	echo "Cleaning up artifacts..."
 	rm -rf ./dist
 
+copy:
+	echo "Copying dist..."
+	docker cp app-builder:/app/dist/ ./dist
+
 lint:
 	docker run --rm \
 		-e LOG_LEVEL=INFO \
@@ -16,7 +20,7 @@ build:
 	make clean
 	echo "Building page..."
 	docker compose up -d --build app-builder
-	docker cp app-builder:/app/dist/ ./dist
+	make copy
 	make remove-app-builder
 
 build-no-cache:
@@ -24,8 +28,13 @@ build-no-cache:
 	echo "Building page..."
 	docker buildx build --no-cache -t cv:latest .
 	docker run --name app-builder cv:compose
-	docker cp app-builder:/app/dist/ ./dist
-	docker rm -f app-builder
+	make copy
+	make remove-app-builder
+
+build-webserver-local:
+	make clean
+	echo "Building webserver..."
+	docker buildx build --build-arg SITE_NAME=valerio-local.dev -t valerio.dev:local
 
 app-builder-logs:
 	docker compose logs -f app-builder
@@ -72,13 +81,13 @@ webserver-stop:
 	echo "Downing webserver..."
 	docker compose down
 
+#Adds localhost to nginx server_name
 webserver-local:
-	echo "Going online..."
-	docker compose up -d --build --build-args SITE_NAME=valerio-local.dev webserver
-
+	make build-webserver-local
+	docker compose up -d webserver
 webserver:
 	echo "Going online..."
-	docker compose up -d --build --build-args SITE_NAME=valerio.dev webserver
+	docker compose up -d --build webserver
 
 online:
 	docker compose down
