@@ -20,7 +20,7 @@ RUN apt-get update \
   && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
   && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
   && apt-get update \
-  && apt-get install -y --no-install-recommends google-chrome-stable=127.0.6533.72 fonts-ipafont-gothic=00303-18 fonts-wqy-zenhei=0.9.45-7 \
+  && apt-get install -y --no-install-recommends google-chrome-stable=127.0.6533.72-1 fonts-ipafont-gothic=00303-18 fonts-wqy-zenhei=0.9.45-7 \
   fonts-thai-tlwg=1:0.7.1-1 fonts-kacst=2.01+mry-14 fonts-freefont-ttf=20120503-9 libxss1=1:1.2.3-1 \
   && rm -rf /var/lib/apt/lists/*
 
