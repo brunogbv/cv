@@ -1,5 +1,5 @@
 # Use a base image with Node.js installed
-FROM node:14 AS builder
+FROM node:20-alpine AS builder
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
