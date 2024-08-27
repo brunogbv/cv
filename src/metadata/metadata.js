@@ -66,7 +66,7 @@ module.exports = {
     {
       title: 'Engineering Manager at Flink, Berlin',
       period: 'November 2023 – Present',
-      skills: ['Stakeholder Management', 'Product & Engineering', 'Go', 'GCP', 'Kubernetes', `PostgreSQL`, `Redis`, 'Terraform', 'Helm', 'ArgoCD', 'Docker', `Datadog`, `PagerDuty`, `incident.io`, 'Microservices', 'REST API', `Object-Oriented Programming`,],
+      skills: ['Stakeholder Management', 'Product & Engineering', 'Go', 'GCP', 'Kubernetes', 'PostgreSQL', 'Redis', 'Terraform', 'Helm', 'ArgoCD', 'Docker', 'Datadog', 'PagerDuty', 'incident.io', 'Microservices', 'REST API', 'Object-Oriented Programming'],
       contents: `
 Hired based on previous experience at Delivery Hero to manage the dispatching team, responsible for core operations at Flink.
 
@@ -84,7 +84,7 @@ We have successfully achieved the first two goals, reaching record high rider ut
     {
       title: 'Engineering Manager at Delivery Hero, Berlin',
       period: 'May 2022 – November 2023',
-      skills: ['Stakeholder Management', 'Product & Engineering', 'Scala', 'Akka', 'Akka Streams', 'Akka Cluster', 'Akka HTTP', 'Akka Persistence', 'AWS', 'Kubernetes', `PostgreSQL`, `Redis`, 'Terraform', 'Helm', 'Spinnaker', 'Docker', `Prometheus`, `Grafana`, `Datadog`, `OpsGenie`, 'Microservices', 'REST API', 'Reactive Programming', 'Functional Programming', `Object-Oriented Programming`,],
+      skills: ['Stakeholder Management', 'Product & Engineering', 'Scala', 'Akka', 'Akka Streams', 'Akka Cluster', 'Akka HTTP', 'Akka Persistence', 'AWS', 'Kubernetes', 'PostgreSQL', 'Redis', 'Terraform', 'Helm', 'Spinnaker', 'Docker', 'Prometheus', 'Grafana', 'Datadog', 'OpsGenie', 'Microservices', 'REST API', 'Reactive Programming', 'Functional Programming', 'Object-Oriented Programming'],
       contents: `
 Transitioned to Engineering Manager role with a focus on hiring and rebuilding the routing-infra team. Took on additional responsibilities to maintain operations during the hiring process and challenged existing practices to address various issues:
 
@@ -123,7 +123,7 @@ I addressed all the problems above and looked into extra initiatives that I also
     {
       title: 'Senior Software Engineer at Delivery Hero, Berlin',
       period: 'February 2021 – May 2022',
-      skills: ['Scala', 'Akka', 'Akka Streams', 'Akka Cluster', 'Akka HTTP', 'Akka Persistence', 'AWS', 'Kubernetes', `PostgreSQL`, `Redis`, 'Terraform', 'Helm', 'Spinnaker', 'Docker', `Prometheus`, `Grafana`, `Datadog`, `OpsGenie`, 'Microservices', 'REST API', 'Reactive Programming', 'Functional Programming', `Object-Oriented Programming`,],
+      skills: ['Scala', 'Akka', 'Akka Streams', 'Akka Cluster', 'Akka HTTP', 'Akka Persistence', 'AWS', 'Kubernetes', 'PostgreSQL', 'Redis', 'Terraform', 'Helm', 'Spinnaker', 'Docker', 'Prometheus', 'Grafana', 'Datadog', 'OpsGenie', 'Microservices', 'REST API', 'Reactive Programming', 'Functional Programming', 'Object-Oriented Programming'],
       contents: `
 Contributed to the growth of the Routing team into a domain comprising three teams: routing-infra, routing-optimization, and routing-experimentation. Operated within a highly cross-functional team environment, emphasizing collaboration and communication to manage a single, large-scale production service.
 
@@ -141,7 +141,7 @@ Key Achievements:
     {
       title: 'Software Engineer at Delivery Hero, Berlin',
       period: 'January 2020 – February 2021',
-      skills: ['Scala', 'Akka', 'Akka Streams', 'Akka Cluster', 'Akka HTTP', 'Akka Persistence', 'AWS', 'Kubernetes', `PostgreSQL`, `Redis`, 'Terraform', 'Helm', 'Spinnaker', 'Docker', `Prometheus`, `Grafana`, `Datadog`, `OpsGenie`, 'Microservices', 'REST API', 'Reactive Programming', 'Functional Programming', `Object-Oriented Programming`,],
+      skills: ['Scala', 'Akka', 'Akka Streams', 'Akka Cluster', 'Akka HTTP', 'Akka Persistence', 'AWS', 'Kubernetes', 'PostgreSQL', 'Redis', 'Terraform', 'Helm', 'Spinnaker', 'Docker', 'Prometheus', 'Grafana', 'Datadog', 'OpsGenie', 'Microservices', 'REST API', 'Reactive Programming', 'Functional Programming', 'Object-Oriented Programming'],
       contents: `
 Working on the Logistics department, Routing Team. Maintained and developed the dispatch service operating in 50+ countries, a tier 0 service solving complex Vehicle Routing Problems (VRP). Optimized order-courier connections to reduce delivery times, minimize distance covered, and maximize rider utilization rates. Utilized CQRS and Akka to build horizontally scalable, highly available systems for enhanced customer, rider, and restaurant experiences.
 
@@ -157,7 +157,7 @@ Key Achievements:
     {
       title: 'Sr. Software Engineer at iU Pay, Rio de Janeiro',
       period: 'April 2019 – December 2019',
-      skills: ['Scala', 'Akka', 'Akka Streams', 'Akka Cluster', 'Akka HTTP', 'Akka Persistence', 'CQRS', 'Apache Kafka', 'Docker', 'Microservices', 'REST API', 'Reactive Programming', 'Functional Programming', `Object-Oriented Programming`,],
+      skills: ['Scala', 'Akka', 'Akka Streams', 'Akka Cluster', 'Akka HTTP', 'Akka Persistence', 'CQRS', 'Apache Kafka', 'Docker', 'Microservices', 'REST API', 'Reactive Programming', 'Functional Programming', 'Object-Oriented Programming'],
       contents: `
 First engineer to join this startup which was successfully sold to a estabilished fintech in less than 2 years. Small team of 5 engineers, CTO, CEO and COO. Managerless, reporting directly to CTO. Developed a real-time fast payment solution in Scala heavily focused on reactive programming and architecture. Leveraged the full Akka stack, including the recently released Akka Typed, to enhance type safety. Utilized Apache Cassandra as the primary database and Apache Kafka as the streaming platform.
 `
@@ -165,7 +165,7 @@ First engineer to join this startup which was successfully sold to a estabilishe
     {
       title: 'Software Developer at Stone Pagamentos, Rio de Janeiro',
       period: 'July 2017 - April 2019',
-      skills: ['Scala', 'Akka', 'Akka Streams', 'Akka Cluster', 'Akka HTTP', 'Apache Kafka', 'MySQL', 'RabbitMQ', 'InfluxDB', 'Docker', 'Microservices', 'REST API', 'Reactive Programming', 'Functional Programming', `Object-Oriented Programming`, 'Elasticsearch', 'Logstash', 'Kibana', 'Grafana'],
+      skills: ['Scala', 'Akka', 'Akka Streams', 'Akka Cluster', 'Akka HTTP', 'Apache Kafka', 'MySQL', 'RabbitMQ', 'InfluxDB', 'Docker', 'Microservices', 'REST API', 'Reactive Programming', 'Functional Programming', 'Object-Oriented Programming', 'Elasticsearch', 'Logstash', 'Kibana', 'Grafana'],
       contents: `
 Developed concurrent systems in Scala, focusing on real-time data monitoring and processing. Utilized Functional Programming, Domain-Driven Design (DDD), Command Query Responsibility Segregation (CQRS), and Event Sourcing to build highly available, fault-tolerant, and horizontally scalable systems. Implemented and integrated technologies such as Akka, Akka Cluster, Akka Streams, Apache Kafka, Apache ZooKeeper, Apache Flink, RabbitMQ, InfluxDB, MySQL and MongoDB. Created REST APIs to enable seamless internet-based communication for these systems.
 `
@@ -175,56 +175,56 @@ Developed concurrent systems in Scala, focusing on real-time data monitoring and
     {
       title: 'Reactive Architecture: Building Scalable Systems, Lightbend Academy',
       period: 'June 2020',
-      skills: ['Reactive Programming', `Distributed Systems`, 'Functional Programming', 'Event Driven Architecture', 'CQRS', 'Microservices', 'Cloud Native Apps', 'Akka Stack'],
+      skills: ['Reactive Programming', 'Distributed Systems', 'Functional Programming', 'Event Driven Architecture', 'CQRS', 'Microservices', 'Cloud Native Apps', 'Akka Stack'],
       contents: `
 `
     },
     {
       title: 'Reactive Architecture: CQRS and Event Sourcing, Lightbend Academy',
       period: 'June 2020',
-      skills: ['Reactive Programming', `Distributed Systems`, 'Functional Programming', 'Event Driven Architecture', 'CQRS', 'Event Sourcing', 'Microservices', 'Cloud Native Apps', 'Akka Stack'],
+      skills: ['Reactive Programming', 'Distributed Systems', 'Functional Programming', 'Event Driven Architecture', 'CQRS', 'Event Sourcing', 'Microservices', 'Cloud Native Apps', 'Akka Stack'],
       contents: `
 `
     },
     {
       title: 'Reactive Architecture: Distributed Messaging Patterns, Lightbend Academy',
       period: 'June 2020',
-      skills: ['Reactive Programming', `Distributed Systems`, 'Functional Programming', 'Event Driven Architecture', 'Microservices', 'Cloud Native Apps', 'Akka Stack'],
+      skills: ['Reactive Programming', 'Distributed Systems', 'Functional Programming', 'Event Driven Architecture', 'Microservices', 'Cloud Native Apps', 'Akka Stack'],
       contents: `
 `
     },
     {
       title: 'Reactive Architecture: Domain Driven Design, Lightbend Academy',
       period: 'April 2020',
-      skills: ['Reactive Programming', `Distributed Systems`, 'Functional Programming', 'DDD', 'Microservices', 'Cloud Native Apps', 'Akka Stack'],
+      skills: ['Reactive Programming', 'Distributed Systems', 'Functional Programming', 'DDD', 'Microservices', 'Cloud Native Apps', 'Akka Stack'],
       contents: `
 `
     },
     {
       title: 'Reactive Architecture: Reactive Microservices, Lightbend Academy',
       period: 'April 2020',
-      skills: ['Reactive Programming', `Distributed Systems`, 'Functional Programming', 'Event Sourcing', 'Microservices', 'Cloud Native Apps', 'Akka Stack'],
+      skills: ['Reactive Programming', 'Distributed Systems', 'Functional Programming', 'Event Sourcing', 'Microservices', 'Cloud Native Apps', 'Akka Stack'],
       contents: `
 `
     },
     {
       title: 'Akka Cluster Fundamentals, Lightbend Academy',
       period: 'March 2020',
-      skills: ['Reactive Programming', `Distributed Systems`, 'Functional Programming', 'Split Brain Resolver', 'Akka Cluster', 'Microservices', 'Cloud Native Apps', 'Akka Stack', 'Split-Brain Resolver'],
+      skills: ['Reactive Programming', 'Distributed Systems', 'Functional Programming', 'Split Brain Resolver', 'Akka Cluster', 'Microservices', 'Cloud Native Apps', 'Akka Stack', 'Split-Brain Resolver'],
       contents: `
 `
     },
     {
       title: 'Akka Streams for Scala Professional, Lightbend Academy',
       period: 'March 2020',
-      skills: ['Reactive Programming', `Reactive Streams`, 'Functional Programming', 'Microservices', 'Cloud Native Apps', 'Akka Streams', 'Event Consumption Backpressure (Dynamic Push-Pull)',],
+      skills: ['Reactive Programming', 'Reactive Streams', 'Functional Programming', 'Microservices', 'Cloud Native Apps', 'Akka Streams', 'Event Consumption Backpressure (Dynamic Push-Pull)'],
       contents: `
 `
     },
     {
       title: 'Reactive Architecture: Introduction to Reactive Systems, Lightbend Academy',
       period: 'March 2020',
-      skills: ['Reactive Programming', `Fault Tolerance`, 'Scalability', 'Availability','Event Driven Architecture',],
+      skills: ['Reactive Programming', 'Fault Tolerance', 'Scalability', 'Availability', 'Event Driven Architecture'],
       contents: `
 `
     },
@@ -248,7 +248,7 @@ Developed concurrent systems in Scala, focusing on real-time data monitoring and
       skills: ['English', 'Communication', 'Listening', 'Speaking', 'Reading', 'Writing'],
       contents: `
 `
-    },
+    }
   ],
   competitions: [
     {
@@ -274,6 +274,6 @@ Developed concurrent systems in Scala, focusing on real-time data monitoring and
       period: 'June 2007',
       contents: `
 `
-    },
-  ],
+    }
+  ]
 }
