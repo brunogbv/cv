@@ -4,7 +4,7 @@ MAKEFLAGS += -s
 # Dependencies: npm, node
 make page:
 	echo "Building page..."
-	rm -rf ./dist/
+	-rm -rf ./dist/ > /dev/null 2>&1
 	npm run build
 
 lint:
@@ -33,7 +33,7 @@ dev-build:
 	docker cp app-builder:/app/dist ./dist
 
 # Get the logs of the app-builder, useful for debugging build issues
-logs-app-builder-:
+logs-app-builder:
 	docker compose logs -f app-builder
 
 # Get the logs of the webserver, useful for debugging nginx issues
