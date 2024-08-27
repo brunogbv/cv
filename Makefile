@@ -52,13 +52,21 @@ remove-app-builder:
 # Useful if you need to remove the certbot container
 remove-certbot:
 	echo "Removing certbot..."
-	-docker rm-f webserver > /dev/null 2>&1
+	-docker rm-f certbot > /dev/null 2>&1
+	-docker rm-f certbot-dry-run > /dev/null 2>&1
 
 # Create certificates using dockerized certbot
 # certs are stored in ./certbot/conf/live/valerio.dev/ and mounted to shared volume cv_certs
 certificates:
 	echo "Creating certificates..."
 	docker compose up certbot
+	make remove-certbot
+
+# Create certificates using dockerized certbot
+# certs are stored in ./certbot/conf/live/valerio.dev/ and mounted to shared volume cv_certs
+certificates-dry-run:
+	echo "Creating certificates (dry run)..."
+	docker compose up certbot-dry-run
 	make remove-certbot
 
 # Updates the nginx configuration to use the newly created certificates

@@ -64,6 +64,33 @@ services:
         "www.valerio.dev"
       ]
 
+  certbot-dry-run:
+    container_name: certbot
+    depends_on:
+      webserver:
+        condition: service_healthy
+    image: certbot/certbot:latest
+    volumes:
+      - html:/usr/share/nginx/html/:rw
+      - certs:/etc/letsencrypt:rw
+    entrypoint:
+      [
+        "certbot",
+        "certonly",
+        "--webroot",
+        "--dry-run",
+        "-w",
+        "/usr/share/nginx/html",
+        "--email",
+        "bruno@valerio.dev",
+        "--agree-tos",
+        "--no-eff-email",
+        "-d",
+        "valerio.dev",
+        "-d",
+        "www.valerio.dev"
+      ]
+
 volumes:
   certs:
   html:
