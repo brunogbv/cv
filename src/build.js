@@ -25,7 +25,7 @@ const template = handlebars.compile(source)
 const pdfFileName = `${getSlug(templateData.name)}.${getSlug(templateData.title)}.pdf`
 const html = template({
   ...templateData,
-  // baseUrl: `https://${username()}.github.io/${repoName.sync()}`,
+  baseUrl: 'https://valerio.dev',
   pdfFileName,
   updated: dayjs().format('MMMM D, YYYY')
 })

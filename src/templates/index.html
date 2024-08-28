@@ -18,33 +18,27 @@
 
 <body>
     <div class="container page">
-        <div class="border-bottom border-2 border-print-0 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
+        <div class="border-bottom border-2 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
             <div class="row">
-                <div class="col-4 col-md-3 col-lg-2 offset-lg-1 d-block align-self-center text-center">
+                <div class="col-md-3 col-print-4 d-block align-self-center text-center pb-print-0 mb-print-0">
                     <img src="photo.jpg" class="rounded-circle img-fluid" alt="Personal photo">
                 </div>
-                <div class="col-print-6 col-12 col-md-4 d-flex justify-content-between flex-column">
+                <div class="col-md-4 col-print-4 d-flex justify-content-between flex-column">
                     <div>
                         <h1 class="mb-0">{{ name }}</h1>
                         <div class="fs-3">{{ title }}</div>
                     </div>
                     <div>
                         <p>
-                            <time datetime="{{ buildinfo.date }}" class="small">Last update: {{ updated }}</time>
-                        </p>
-                        <p>
-                            <span class="screen"><a href="{{ pdfFileName }}"><i class="far fa-file-pdf"></i>Download PDF
-                                    version</a></span>
-                            <!-- <span class="print">Up-to-date version of CV is available at <a href="{{ baseUrl }}"
-                                                                                        class="text-nowrap"><i
-                            class="fab fa-github" aria-hidden="true"></i>{{ baseUrl }}</a></span> -->
+                            <time datetime="{{ buildinfo.date }}" class="small mb-print-1 pb-print-0">Last update: {{
+                                updated }}</time>
                         </p>
                     </div>
                 </div>
                 <!-- <div class="col-4 col-md-3 col-lg-2 offset-lg-1 d-block align-self-center text-center">
                     <img src="photo.jpg" class="rounded-circle img-fluid" alt="Personal photo">
                 </div> -->
-                <div class="col-print-6 col-12 col-md-5 offset-lg-1 col-lg-4">
+                <div class="col-print-4 col-12 col-md-5 offset-lg-1 col-lg-4">
                     <ul class="list-group list-group-flush">
                         {{#each facts}}
                         <li class="list-group-item d-flex justify-content-between align-items-start">
@@ -52,25 +46,33 @@
                         </li>
                         {{/each}}
                     </ul>
+                    <span class="screen">
+                        <div class="pdf-download-container">
+                            <a href="{{ pdfFileName }}"><i class="far fa-file-pdf"></i>Download PDF version</a>
+                        </div>
+                    </span>
+                    <span class="print">
+                        <img src="url-qr-code.svg" class="img-fluid col-6 col-print-6" alt="QR Code">
+                    </span>
                 </div>
             </div>
         </div>
 
-        <div class="border-bottom border-2 border-print-0 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
-            <h3 class="h2 screen mb-4">About me</h3>
+        <div class="border-bottom border-2 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
+            <h2 class="mb-4">About me</h2>
             <div class="row align-items-center">
                 <div>{{{markdown about_me}}}</div>
             </div>
         </div>
 
-        <div class="border-bottom border-2 border-print-0 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
-            <h3 class="h2 screen mb-4">Skills</h3>
+        <div class="border-bottom border-2 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
+            <h2 class="mb-4">Skills</h2>
             <div class="row align-items-center">
                 {{#each skills}}
-                <div class="col-print-1 col-5 col-md-3 col-lg-2 text-right">
+                <div class="col-print-skills col-5 col-md-2 col-lg-2 text-right">
                     <small>{{ this.[0] }}</small>
                 </div>
-                <div class="col-print-1 col-5 col-md-3 col-lg-2 offset-1 offset-lg-2 offset-md-4">
+                <div class="col-print-skills col-5 col-md-2 col-lg-2 offset-1 offset-lg-2 offset-md-4">
                     <div class="skills">
                         <div class="skills-bar" style="width: {{ this.[1] }}%"></div>
                     </div>
@@ -79,17 +81,10 @@
             </div>
         </div>
 
-        <!-- <div class="border-bottom border-2 border-print-0 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
-        English poet, playwright and actor, widely regarded as the greatest writer in the English language
-        and the world's pre-eminent dramatist. Often called England's national poet and the "Bard of Avon".
-        My extant work is including collaborations, consist of approximately 38 plays, 154 sonnets,
-        two long narrative poems and a few other verses, some of uncertain authorship.
-    </div> -->
-
-        <div class="border-bottom border-2 border-print-0 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
+        <div class="border-bottom border-2 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
             <h2 class="mb-4">Professional Experience</h2>
             {{#each positions}}
-            <div class="row d-block d-md-flex {{#unless @last}}mb-5{{/unless}}">
+            <div class="row-cols-1 d-block d-md-flex {{#unless @last}}mb-5{{/unless}}">
                 <div class="col-md-2 pt-1">
                     {{ period }}
                 </div>
@@ -108,15 +103,10 @@
             {{/each}}
         </div>
 
-        <!-- <div class="border-bottom border-2 border-print-0 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
-        <h2 class="mb-4">Education</h2>
-        <div>Control and Automation Engineering - UFRJ]</div>
-    </div> -->
-
         <h2 class="mb-4">Additional Experience</h2>
 
         {{#each experience}}
-        <div class="row d-block d-md-flex {{#unless @last}}mb-5{{/unless}}">
+        <div class="row-cols-1 d-block d-md-flex {{#unless @last}}mb-5{{/unless}}">
             <div class="col-md-2 pt-1">
                 {{ period }}
             </div>
@@ -137,7 +127,7 @@
         <h2 class="mb-4">Robotics Competitions</h2>
 
         {{#each competitions}}
-        <div class="row d-block d-md-flex {{#unless @last}}mb-5{{/unless}}">
+        <div class="row-cols-1 d-block d-md-flex {{#unless @last}}mb-5{{/unless}}">
             <div class="col-md-2 pt-1">
                 {{ period }}
             </div>

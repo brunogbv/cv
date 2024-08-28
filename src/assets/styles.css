@@ -27,6 +27,8 @@ h4 {
 
     body {
         font-size: 0.7rem;
+        margin-left: 2cm; /* Adjust the value as needed */
+        margin-right: 2cm; /* Adjust the value as needed */
     }
 
     a {
@@ -103,14 +105,40 @@ h4 {
 }
 
 @media print {
+    .row {
+        display: flex !important; /* Ensure flexbox layout is applied */
+        flex-wrap: wrap; /* Allow wrapping */
+    }
+    .col-print-skills {
+        flex: 0 0 50%; /* Take up 50% of the width to create two columns */
+        max-width: 50%; /* Ensure the column does not exceed 50% width */
+    }
+    .offset-1, .offset-lg-2, .offset-md-4 {
+        margin-left: 0 !important; /* Remove offsets for print */
+    }
+
     .col-print-1 {
         flex: 0 0 8.3333%;
         max-width: 8.3333%;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .col-print-6 {
         flex: 0 0 50%;
         max-width: 50%;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .col-print-4 {
+        flex: 0 0 33%;
+        max-width: 33%;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .border-print-0 {
@@ -121,8 +149,26 @@ h4 {
         padding-bottom: 0 !important;
     }
 
+    .mb-print-0 {
+        margin-bottom: 0 !important;
+    }
+
     .mb-print-1 {
         margin-bottom: 1rem !important;
+    }
+
+    .row-cols-1 {
+        display: flex !important; /* Ensure flexbox layout is applied */
+        flex-wrap: nowrap; /* Prevent wrapping */
+    }
+    .col-md-2, .col-md-10 {
+        flex: 0 0 auto; /* Prevent columns from resizing */
+    }
+    .col-md-2 {
+        width: 16.666667%; /* Ensure the column takes up the correct width */
+    }
+    .col-md-10 {
+        width: 83.333333%; /* Ensure the column takes up the correct width */
     }
 }
 
@@ -133,8 +179,15 @@ h4 {
 }
 
 @page {
-    size: auto;
+    size: A4;
     margin: 10mm;
+}
+
+.pdf-download-container {
+    display: flex;
+    align-items: center; /* Center vertically */
+    justify-content: left; /* Center horizontally, if needed */
+    height: 50%; /* Ensure the container takes up the full height of its parent */
 }
 
 .skills {

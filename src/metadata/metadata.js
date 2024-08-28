@@ -1,6 +1,6 @@
 module.exports = {
   name: 'Bruno Guilhermo de Barros Valério',
-  title: 'Engineering Manager | Flink',
+  title: 'Engineering Manager',
   facts: [
     {
       icon: '<i class="fa-solid fa-location-dot fact-icon"></i>',
