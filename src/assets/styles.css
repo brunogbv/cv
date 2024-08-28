@@ -27,10 +27,7 @@ h4 {
 
     body {
         font-size: 0.7rem;
-        margin-top: 2cm;    /* Adjust the value as needed */
-        margin-bottom: 2cm; /* Adjust the value as needed */
-        margin-left: 2cm;   /* Adjust the value as needed */
-        margin-right: 2cm;  /* Adjust the value as needed */
+        margin: 2cm;    /* Adjust the value as needed */
     }
 
     a {
