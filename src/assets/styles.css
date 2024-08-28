@@ -109,10 +109,12 @@ h4 {
         display: flex !important; /* Ensure flexbox layout is applied */
         flex-wrap: wrap; /* Allow wrapping */
     }
+
     .col-print-skills {
         flex: 0 0 50%; /* Take up 50% of the width to create two columns */
         max-width: 50%; /* Ensure the column does not exceed 50% width */
     }
+
     .offset-1, .offset-lg-2, .offset-md-4 {
         margin-left: 0 !important; /* Remove offsets for print */
     }
@@ -161,14 +163,17 @@ h4 {
         display: flex !important; /* Ensure flexbox layout is applied */
         flex-wrap: nowrap; /* Prevent wrapping */
     }
+
     .col-md-2, .col-md-10 {
         flex: 0 0 auto; /* Prevent columns from resizing */
     }
+
     .col-md-2 {
-        width: 16.666667%; /* Ensure the column takes up the correct width */
+        width: 16.6667%; /* Ensure the column takes up the correct width */
     }
+
     .col-md-10 {
-        width: 83.333333%; /* Ensure the column takes up the correct width */
+        width: 83.3333%; /* Ensure the column takes up the correct width */
     }
 }
 
@@ -179,7 +184,7 @@ h4 {
 }
 
 @page {
-    size: A4;
+    size: a4;
     margin: 10mm;
 }
 
