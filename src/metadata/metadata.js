@@ -217,7 +217,7 @@ Developed concurrent systems in Scala, focusing on real-time data monitoring and
     {
       title: 'Akka Streams for Scala Professional, Lightbend Academy',
       period: 'March 2020',
-      skills: ['Reactive Programming', 'Reactive Streams', 'Functional Programming', 'Microservices', 'Cloud Native Apps', 'Akka Streams', 'Event Consumption Backpressure (Dynamic Push-Pull)'],
+      skills: ['Reactive Programming', 'Reactive Streams', 'Functional Programming', 'Microservices', 'Cloud Native Apps', 'Akka Streams'],
       contents: `
 `
     },

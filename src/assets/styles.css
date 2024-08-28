@@ -20,11 +20,6 @@ h4 {
     color: #000;
 }
 
-html, body {
-    max-width: 100%;
-    overflow-x: hidden;
-}
-
 @media print {
     :root {
         --bs-body-color: #000;
