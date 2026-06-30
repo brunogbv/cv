@@ -98,7 +98,7 @@ HTTP before certs exist.
 
 ### Deployment flow
 
-```
+```text
 make build ─▶ html volume ─▶ webserver (nginx :80, valerio.dev config, /healthcheck)
                                    │
                    make webserver-upgrade-to-https

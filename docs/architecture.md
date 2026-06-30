@@ -6,7 +6,7 @@ backend, database, or client-side framework — the page is plain HTML/CSS produ
 
 ## Directory layout
 
-```
+```text
 .
 ├── src/
 │   ├── build.js                  # Build entrypoint: data + template → dist/
@@ -51,7 +51,7 @@ The whole build is `src/build.js`, run via `node src/build.js` (wrapped by `npm 
    freshly written `dist/index.html` as a `file://` URL (waiting for `networkidle0`), and prints
    an **A4** PDF with **2.54 cm** margins to `dist/<pdfFileName>`.
 
-```
+```text
 metadata.js ─┐
              ├─▶ Handlebars ─▶ dist/index.html ─▶ Puppeteer ─▶ dist/<name>.<title>.pdf
 index.html ──┘                      ▲

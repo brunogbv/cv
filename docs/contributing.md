@@ -42,7 +42,7 @@ A well-formed issue has:
 
 Reference the issue in the PR description with a closing keyword so it auto-closes on merge:
 
-```
+```text
 Closes #123
 ```
 
