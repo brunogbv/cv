@@ -2,7 +2,7 @@
 
 ## Overview
 
-Personal CV / résumé site for Bruno Valério, hosted at https://valerio.dev. It's a small
+Personal CV / résumé site for Bruno Valério, hosted at <https://valerio.dev>. It's a small
 Node.js static-site generator: CV content lives in a JavaScript data file, is rendered through
 Handlebars into a single HTML page, and a matching PDF is produced with Puppeteer. The output is
 served as static files behind nginx (Docker Compose) with Let's Encrypt TLS via certbot. CI is
