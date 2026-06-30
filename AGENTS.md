@@ -64,11 +64,9 @@ with a clear imperative title, a type label (`documentation` / `enhancement` / `
 
 ## Required Skills
 
-- No Flink language-specific skills apply here — this is a personal JavaScript/Node project, not a
-  Flink Go/Python service. JavaScript follows `standard` style and CSS follows
-  `stylelint-config-standard`, both enforced by Super-Linter.
-- Required skills (when applicable) carry org-wide conventions that aren't repeated in this file;
-  invoke any relevant skill before writing or modifying code.
+- This is a small JavaScript/Node project with no language-specific required skills.
+- JavaScript follows `standard` style and CSS follows `stylelint-config-standard`, both enforced by
+  Super-Linter (see [`docs/ci-cd.md`](docs/ci-cd.md)).
 
 ## Security
 
