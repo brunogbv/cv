@@ -46,8 +46,14 @@ Deploy is **manual**:
 ## Testing Instructions
 
 - There are **no** unit or integration tests in this repo.
-- The quality gate is linting via Super-Linter, run on every push/PR
-  (`.github/workflows/superlinter.yml`). Run it locally with `make lint`.
+- **Validate locally before pushing.** Run `make lint` before opening or updating a PR — it runs
+  the *same* Super-Linter image CI uses (linting is the only CI gate), so you catch failures
+  locally instead of waiting on the push-and-wait PR cycle. See [`docs/ci-cd.md`](docs/ci-cd.md)
+  for details and caveats.
+- Linting via Super-Linter runs on every push/PR (`.github/workflows/superlinter.yml`); `make lint`
+  reproduces it locally.
+- The Vercel deploy-preview check runs server-side and is **not** reproduced by `make lint`; it can
+  only be validated after pushing.
 - Enabled linters (`config/lint/super-linter.env`): JavaScript (`standard` style), CSS
   (stylelint + `stylelint-config-standard`), HTML, Dockerfile (hadolint), JSON, YAML, Markdown,
   XML, and GitHub Actions. `src/templates/*` is excluded from linting.
