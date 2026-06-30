@@ -1,0 +1,81 @@
+# AGENTS.md
+
+## Overview
+
+Personal CV / résumé site for Bruno Valério, hosted at https://valerio.dev. It's a small
+Node.js static-site generator: CV content lives in a JavaScript data file, is rendered through
+Handlebars into a single HTML page, and a matching PDF is produced with Puppeteer. The output is
+served as static files behind nginx (Docker Compose) with Let's Encrypt TLS via certbot. CI is
+lint-only (Super-Linter); deployment is manual.
+
+## Architecture
+
+- **Build pipeline (`src/build.js`)** — reads content from `src/metadata/metadata.js`, compiles
+  `src/templates/index.html` with Handlebars, writes `dist/index.html`, copies `src/assets/` into
+  `dist/`, then renders the PDF via `src/utils/pdf.js` (headless Chrome / Puppeteer).
+- **Content vs. presentation** — edit CV content (name, title, facts, skills, experience) in
+  `src/metadata/metadata.js`. Page markup is in `src/templates/index.html`; styling in
+  `src/assets/styles.css`. Markdown inside content fields is rendered by
+  `src/utils/helpers/markdown.js`.
+- **Output** — everything is generated into `dist/` (gitignored). Never hand-edit `dist/`.
+- **Deploy stack (`docker-compose.yml`)** — `app-builder` builds into a shared `html` volume;
+  `webserver` is nginx serving that volume (config in `config/nginx/`); `certbot` /
+  `certbot-dry-run` issue Let's Encrypt certs for `valerio.dev` + `www.valerio.dev`.
+
+## Building and Running
+
+**Always interact with this repo through the `Makefile`.** Before running an ad-hoc `npm`,
+`docker`, or `docker compose` command, check the `Makefile` for a target that already does the job
+and run that instead — the targets encode the correct flags, container names, volumes, and step
+ordering. The targets are commented; read the `Makefile` to find the right one. The only common
+task not wrapped by a target is the local watch dev server (`npm start`).
+
+- `npm start` — build + watch + live-server dev server (needs node/npm locally).
+- `make page` — one-off local build into `dist/` (needs node/npm).
+- `make dev-build` — dockerized build that copies output into local `dist/` (no local node needed).
+- `make build` — dockerized build into the shared `html` volume (used for deploy).
+- The Docker build pins `node:14` and Chrome 127 for Puppeteer; local builds use your system node.
+
+Deploy is **manual**:
+
+- `make webserver` — start nginx.
+- `make webserver-upgrade-to-https` — issue certs, enable SSL config, reload nginx.
+- `make all` — first-time full build + serve + HTTPS. Recreates certs — do **not** use for routine
+  content updates.
+
+## Testing Instructions
+
+- There are **no** unit or integration tests in this repo.
+- The quality gate is linting via Super-Linter, run on every push/PR
+  (`.github/workflows/superlinter.yml`). Run it locally with `make lint`.
+- Enabled linters (`config/lint/super-linter.env`): JavaScript (`standard` style), CSS
+  (stylelint + `stylelint-config-standard`), HTML, Dockerfile (hadolint), JSON, YAML, Markdown,
+  XML, and GitHub Actions. `src/templates/*` is excluded from linting.
+- After content or template changes, run `make page` and open `dist/index.html` to verify both the
+  HTML and the generated PDF render correctly.
+
+## Issue Tracking
+
+Work is tracked in **GitHub Issues, Milestones, and Projects** — see
+[`docs/contributing.md`](docs/contributing.md). Before starting non-trivial work, raise an issue
+with a clear imperative title, a type label (`documentation` / `enhancement` / `bug` /
+`maintenance`), and a body covering **Context**, an **Acceptance criteria** checklist, and
+**References**. Group related issues under a milestone, and link PRs to issues with `Closes #<n>`.
+
+## Required Skills
+
+- No Flink language-specific skills apply here — this is a personal JavaScript/Node project, not a
+  Flink Go/Python service. JavaScript follows `standard` style and CSS follows
+  `stylelint-config-standard`, both enforced by Super-Linter.
+- Required skills (when applicable) carry org-wide conventions that aren't repeated in this file;
+  invoke any relevant skill before writing or modifying code.
+
+## Security
+
+- Never commit credentials — use environment variables or secure secret management.
+- Ensure `.env`, `.env.local`, and `.envrc` are in `.gitignore`.
+- Let's Encrypt enforces strict rate limits. Always test certificate changes with
+  `make certificates-dry-run` before running `make certificates` / `make webserver-upgrade-to-https`,
+  or you risk being temporarily blocked from issuing certs.
+- No application secrets are stored in the repo; the certbot email (`bruno@valerio.dev`) in
+  `docker-compose.yml` is intentionally public.
