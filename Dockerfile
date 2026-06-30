@@ -9,7 +9,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # make (for `make page`), Chromium for Puppeteer, and fonts for broad charset
-# coverage (Chinese, Japanese, Arabic, etc.).
+# coverage (Latin, Chinese, Japanese).
 # hadolint ignore=DL3008
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \

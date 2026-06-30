@@ -2,7 +2,7 @@ const Puppeteer = require('puppeteer')
 
 module.exports = async function buildPdf (inputFile, outputFile) {
   const browser = await Puppeteer.launch({
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
   })
   const page = await browser.newPage()
   await page.goto(`file://${inputFile}`, {

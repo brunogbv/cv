@@ -23,7 +23,7 @@ backend, database, or client-side framework — the page is plain HTML/CSS produ
 ├── config/
 │   ├── lint/super-linter.env     # Super-Linter configuration (see ci-cd.md)
 │   └── nginx/                    # Webserver image + site configs (see ci-cd.md)
-├── Dockerfile                    # Builder image: node:14 + Chrome for Puppeteer
+├── Dockerfile                    # Builder image: node:22-bookworm-slim + Chromium
 ├── docker-compose.yml            # Services: app-builder, webserver, certbot
 ├── Makefile                      # Dev, build, and deploy commands
 ├── package.json                  # npm scripts + dependencies
@@ -104,9 +104,10 @@ Font Awesome `<i>` tags and `<a>` links.
 
 ## Runtime & dependencies
 
-- Local builds use your system Node.js. The **Docker** builder image pins `node:14` and installs
-  a fixed Chrome build (127) plus CJK/Thai/Arabic fonts so Puppeteer can render the PDF
-  consistently inside the container (`Dockerfile`).
+- Local builds use your system Node.js. The **Docker** builder image is based on
+  `node:22-bookworm-slim` and installs the distro **Chromium** (used by Puppeteer via
+  `PUPPETEER_EXECUTABLE_PATH`, with `PUPPETEER_SKIP_DOWNLOAD=true`) plus Latin/CJK fonts so
+  Puppeteer can render the PDF inside the container (`Dockerfile`).
 - Key npm dependencies (`package.json`): `handlebars` (templating), `puppeteer` (PDF),
   `fs-extra` (file ops), `dayjs` (dates), `speakingurl` (slugs), `markdown` (Markdown→HTML),
   plus dev tooling: `live-server` + `chokidar-cli`/`watch` (dev server), `stylelint`, and
