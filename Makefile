@@ -1,17 +1,22 @@
 MAKEFLAGS += -s
 
-.PHONY: page lint build dev-build \
+.PHONY: clean page lint build dev-build \
 	logs-app-builder logs-webserver logs-certbot \
 	remove-app-builder remove-certbot \
 	certificates certificates-dry-run \
 	webserver-ssl-config webserver-restart-nginx webserver-upgrade-to-https \
 	down webserver-local webserver all
 
+# Remove build artifacts
+clean:
+	echo "Cleaning up..."
+	-rm -rf ./dist/ > /dev/null 2>&1
+
 # Build the page using local environment
 # Dependencies: npm, node
 page:
+	$(MAKE) clean
 	echo "Building page..."
-	-rm -rf ./dist/ > /dev/null 2>&1
 	npm run build
 
 lint:
