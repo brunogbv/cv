@@ -18,6 +18,13 @@ You are a fantastic developer. Keep your CV on GitHub, exploiting Node.js GitHub
 * Dockerized for easy building and deployment.
 * Github Actions for CI/CD. (Currently only for CI, CD is manual for now)
 
+## Documentation
+
+Developer documentation lives in [`docs/`](docs/):
+
+- [Architecture](docs/architecture.md) — code structure, the build pipeline, the content data model, and how the site is served.
+- [CI/CD](docs/ci-cd.md) — GitHub Actions workflows and the manual Docker-based deployment.
+
 ## Dependencies
 
 This project leverages Docker and Docker Compose for building and deploying the page. It's recommended to install Docker and Docker Compose to streamline the development process and avoid the need for local dependencies.
