@@ -1,8 +1,15 @@
 MAKEFLAGS += -s
 
+.PHONY: page lint build dev-build \
+	logs-app-builder logs-webserver logs-certbot \
+	remove-app-builder remove-certbot \
+	certificates certificates-dry-run \
+	webserver-ssl-config webserver-restart-nginx webserver-upgrade-to-https \
+	down webserver-local webserver all
+
 # Build the page using local environment
 # Dependencies: npm, node
-make page:
+page:
 	echo "Building page..."
 	-rm -rf ./dist/ > /dev/null 2>&1
 	npm run build
@@ -11,7 +18,7 @@ lint:
 	docker run --rm \
 		-e LOG_LEVEL=INFO \
 		-e RUN_LOCAL=true \
-    --env-file "config/lint/super-linter.env" \
+		--env-file "config/lint/super-linter.env" \
 		-v $(shell pwd):/tmp/lint \
 		ghcr.io/super-linter/super-linter:latest
 
@@ -20,7 +27,7 @@ lint:
 # output will be stored in the container's /app/dist folder and mounted to shared volume cv_dist
 build:
 	echo "Building page..."
-	make remove-app-builder
+	$(MAKE) remove-app-builder
 	docker compose up --build app-builder
 
 # Build the page using dockerized environment and copy files to local dist folder
@@ -28,8 +35,8 @@ build:
 # Same as make page, but no dependency requirements on local machine
 dev-build:
 	echo "Building page..."
-	make remove-app-builder
-	make build
+	$(MAKE) remove-app-builder
+	$(MAKE) build
 	docker cp app-builder:/app/dist ./dist
 
 # Get the logs of the app-builder, useful for debugging build issues
@@ -52,22 +59,22 @@ remove-app-builder:
 # Useful if you need to remove the certbot container
 remove-certbot:
 	echo "Removing certbot..."
-	-docker rm-f certbot > /dev/null 2>&1
-	-docker rm-f certbot-dry-run > /dev/null 2>&1
+	-docker rm -f certbot > /dev/null 2>&1
+	-docker rm -f certbot-dry-run > /dev/null 2>&1
 
 # Create certificates using dockerized certbot
 # certs are stored in ./certbot/conf/live/valerio.dev/ and mounted to shared volume cv_certs
 certificates:
 	echo "Creating certificates..."
 	docker compose up certbot
-	make remove-certbot
+	$(MAKE) remove-certbot
 
 # Create certificates using dockerized certbot
 # certs are stored in ./certbot/conf/live/valerio.dev/ and mounted to shared volume cv_certs
 certificates-dry-run:
 	echo "Creating certificates (dry run)..."
 	docker compose up certbot-dry-run
-	make remove-certbot
+	$(MAKE) remove-certbot
 
 # Updates the nginx configuration to use the newly created certificates
 # Enables SSL and redirects all HTTP traffic to HTTPS
@@ -83,9 +90,9 @@ webserver-restart-nginx:
 # Upgrades the webserver to use HTTPS
 # This is the main command to run to enable HTTPS on the webserver
 webserver-upgrade-to-https:
-	make certificates
-	make webserver-ssl-config
-	make webserver-restart-nginx
+	$(MAKE) certificates
+	$(MAKE) webserver-ssl-config
+	$(MAKE) webserver-restart-nginx
 
 # Downs the webserver
 down:
@@ -108,7 +115,6 @@ webserver:
 # Useful for deploying the page to a server for the first time
 # Avoid running this command if you are just updating the page as it will recreate the certificates
 all:
-	make build
-	make webserver
-	make webserver-upgrade-to-https
-
+	$(MAKE) build
+	$(MAKE) webserver
+	$(MAKE) webserver-upgrade-to-https
