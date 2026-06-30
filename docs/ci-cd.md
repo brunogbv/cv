@@ -33,14 +33,26 @@ Defined in `config/lint/super-linter.env`:
 JavaScript is checked against the **`standard`** style; CSS uses `stylelint` with
 `stylelint-config-standard` (declared in `package.json`).
 
-### Running CI locally
+### Validate locally before pushing
+
+Linting is the only CI gate, and it is fully reproducible locally — run it before opening or
+updating a PR to get feedback in one pass instead of the push-and-wait cycle:
 
 ```sh
 make lint
 ```
 
-This runs the same Super-Linter image in Docker with `RUN_LOCAL=true`, using
-`config/lint/super-linter.env`, so you can reproduce CI results before pushing.
+This runs the **same** Super-Linter image in Docker with `RUN_LOCAL=true`, using
+`config/lint/super-linter.env`, so a local pass closely matches the CI result.
+
+Caveats:
+
+- **Image version:** `make lint` pulls `super-linter:latest`, while CI pins `v6.7.0`
+  (`.github/workflows/superlinter.yml`). Results can drift slightly between versions.
+- **Scope:** locally, Super-Linter lints the whole workspace; in CI it lints only files changed
+  against `main`. Local is broader, not narrower.
+- **Vercel:** the deploy-preview check runs on Vercel's side and is **not** covered by `make lint`;
+  it can only be validated after pushing.
 
 ## Continuous Deployment — manual, Docker-based
 
