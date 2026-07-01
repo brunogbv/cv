@@ -32,7 +32,8 @@ task not wrapped by a target is the local watch dev server (`npm start`).
 
 - **Dev Container (recommended)** — `make dev` (or VS Code "Reopen in Container") opens
   `.devcontainer/`, a reproducible environment with Node 22, the Playwright Chromium, Docker access,
-  and Python + uv; every target below works inside it. It runs as `root` with host Docker access.
+  Python + uv, and the spec-kit `specify` CLI; every target below works inside it. It runs as `root`
+  with host Docker access.
 - `npm start` — build + watch + live-server dev server (needs node/npm locally).
 - `make page` — one-off local build into `dist/` (needs node/npm).
 - `make dev-build` — dockerized build that copies output into local `dist/` (no local node needed).
@@ -93,6 +94,13 @@ Work is tracked in **GitHub Issues, Milestones, and Projects** — see
 with a clear imperative title, a type label (`documentation` / `enhancement` / `bug` /
 `maintenance`), and a body covering **Context**, an **Acceptance criteria** checklist, and
 **References**. Group related issues under a milestone, and link PRs to issues with `Closes #<n>`.
+
+## Spec-driven development
+
+Non-trivial features are developed spec-first with spec-kit: `/speckit-specify` → `/speckit-plan` →
+`/speckit-tasks` → `/speckit-implement` (skills under `.claude/skills/`). The spec lives in
+`specs/<feature>/` as the source of intent; the project constitution is
+`.specify/memory/constitution.md`. See [`docs/spec-driven.md`](docs/spec-driven.md).
 
 ## Required Skills
 

@@ -16,6 +16,6 @@
       "onAutoForward": "notify"
     }
   },
-  "postCreateCommand": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci && npx --yes playwright install --with-deps chromium && pip install --root-user-action=ignore uv",
+  "postCreateCommand": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci && npx --yes playwright install --with-deps chromium && pip install --root-user-action=ignore uv && UV_TOOL_BIN_DIR=/usr/local/bin uv tool install --from git+https://github.com/github/spec-kit.git specify-cli",
   "remoteUser": "root"
 }
