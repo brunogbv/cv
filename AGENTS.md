@@ -60,6 +60,21 @@ Deploy is **manual**:
 - After content or template changes, run `make page` and open `dist/index.html` to verify both the
   HTML and the generated PDF render correctly.
 
+## Self-review (required for changes over 10 lines)
+
+After a change touching **more than 10 reviewable lines** (excluding generated files such as
+`package-lock.json` and `dist/`), and before reporting it done or opening a PR, run an independent
+self-review and act on it:
+
+- Invoke `/code-review`. It fans out fresh reviewer agents that critique the diff adversarially
+  (correctness, removed behavior, robustness), then verify findings. Independence is the point —
+  reviewers must not be anchored to the code as written.
+- Fix confirmed findings; state explicitly anything you deliberately defer.
+
+This is enforced by a `Stop` hook (`.claude/hooks/review-gate.sh`) that blocks finishing until the
+current diff is recorded as reviewed. After reviewing, record it (the block message prints the
+exact command): `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/review-gate.sh" record`.
+
 ## Issue Tracking
 
 Work is tracked in **GitHub Issues, Milestones, and Projects** — see
