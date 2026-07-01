@@ -75,6 +75,12 @@ This is enforced by a `Stop` hook (`.claude/hooks/review-gate.sh`) that blocks f
 current diff is recorded as reviewed. After reviewing, record it (the block message prints the
 exact command): `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/review-gate.sh" record`.
 
+## Keep docs in sync
+
+When a change alters behavior, commands, architecture, or workflow, update the relevant docs in the
+**same PR** — `docs/` (`architecture.md`, `ci-cd.md`, `contributing.md`), the root `README.md`, and
+this `AGENTS.md`. A change that outdates a doc isn't done until the doc is fixed.
+
 ## Issue Tracking
 
 Work is tracked in **GitHub Issues, Milestones, and Projects** — see

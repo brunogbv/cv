@@ -46,6 +46,23 @@ Reference the issue in the PR description with a closing keyword so it auto-clos
 Closes #123
 ```
 
+## Self-review before a PR
+
+Any change over **10 reviewable lines** (excluding generated files like `package-lock.json` and
+`dist/`) is self-reviewed before it's opened or reported done:
+
+1. Run `/code-review` in Claude Code — it spawns independent reviewers that critique the diff
+   (correctness, removed behavior, robustness) and verify findings.
+2. Fix the confirmed findings; note anything you deliberately defer.
+3. Record the review so the gate clears (the block message prints the exact command):
+   `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/review-gate.sh" record`
+
+A `Stop` hook (`.claude/hooks/review-gate.sh`) enforces this locally for Claude Code users: it
+blocks finishing a turn until the current diff is recorded as reviewed. It is a strong reminder, not
+a hard gate — an ignored block eventually lets go, and it only runs for contributors using Claude
+Code, so treat it as a prompt to review rather than a guarantee. Tune the threshold per-project with
+`REVIEW_GATE_THRESHOLD`.
+
 ## Doing it from the CLI (`gh`)
 
 Create an issue:
