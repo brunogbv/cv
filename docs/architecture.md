@@ -17,13 +17,13 @@ backend, database, or client-side framework — the page is plain HTML/CSS produ
 │   ├── assets/                   # Copied verbatim into dist/: styles.css, photo.jpg,
 │   │                             #   favicons, url-qr-code.svg
 │   └── utils/
-│       ├── pdf.js                # Puppeteer HTML → PDF renderer
+│       ├── pdf.js                # Playwright HTML → PDF renderer
 │       └── helpers/
 │           └── markdown.js       # Handlebars {{markdown}} helper
 ├── config/
 │   ├── lint/super-linter.env     # Super-Linter configuration (see ci-cd.md)
 │   └── nginx/                    # Webserver image + site configs (see ci-cd.md)
-├── Dockerfile                    # Builder image: node:22-bookworm-slim + Chromium
+├── Dockerfile                    # Builder image: node:22-bookworm-slim + Playwright Chromium
 ├── docker-compose.yml            # Services: app-builder, webserver, certbot
 ├── Makefile                      # Dev, build, and deploy commands
 ├── package.json                  # npm scripts + dependencies
@@ -47,13 +47,13 @@ The whole build is `src/build.js`, run via `node src/build.js` (wrapped by `npm 
    - `pdfFileName` — slugified `"<name>.<title>.pdf"` (via `speakingurl`)
    - `updated` — today's date, formatted with `dayjs` (`MMMM D, YYYY`)
 5. **Writes `dist/index.html`**.
-6. **Generates the PDF** — `src/utils/pdf.js` launches headless Chrome (Puppeteer), loads the
+6. **Generates the PDF** — `src/utils/pdf.js` launches headless Chromium (Playwright), loads the
    freshly written `dist/index.html` as a `file://` URL (waiting for `networkidle0`), and prints
    an **A4** PDF with **2.54 cm** margins to `dist/<pdfFileName>`.
 
 ```text
 metadata.js ─┐
-             ├─▶ Handlebars ─▶ dist/index.html ─▶ Puppeteer ─▶ dist/<name>.<title>.pdf
+             ├─▶ Handlebars ─▶ dist/index.html ─▶ Playwright ─▶ dist/<name>.<title>.pdf
 index.html ──┘                      ▲
                                 src/assets/ (copied into dist/)
 ```
@@ -105,10 +105,12 @@ Font Awesome `<i>` tags and `<a>` links.
 ## Runtime & dependencies
 
 - Local builds use your system Node.js. The **Docker** builder image is based on
-  `node:22-bookworm-slim` and installs the distro **Chromium** (used by Puppeteer via
-  `PUPPETEER_EXECUTABLE_PATH`, with `PUPPETEER_SKIP_DOWNLOAD=true`) plus Latin/CJK fonts so
-  Puppeteer can render the PDF inside the container (`Dockerfile`).
-- Key npm dependencies (`package.json`): `handlebars` (templating), `puppeteer` (PDF),
+  `node:22-bookworm-slim` and runs `playwright install --with-deps chromium`, which installs the
+  Chromium build pinned to the Playwright version (in `package-lock.json`) plus its OS
+  dependencies. This works natively on both amd64 and arm64, so the build is reproducible without
+  emulation (`Dockerfile`).
+- Key npm dependencies (`package.json`): `handlebars` (templating), `playwright` (headless
+  Chromium → PDF),
   `fs-extra` (file ops), `dayjs` (dates), `speakingurl` (slugs), `markdown` (Markdown→HTML),
   plus dev tooling: `live-server` + `chokidar-cli`/`watch` (dev server), `stylelint`, and
   `gh-pages`.
