@@ -37,13 +37,13 @@ config.
 ## Development Workflow
 
 Work is tracked in GitHub (Issues, Milestones, Projects). Non-trivial features are spec-driven:
-`/speckit-specify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`, with the spec living
-in `specs/<feature>/` as the source of intent. Every change lands via a branch and a PR that links
-its issue with `Closes #<n>`.
+`/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`,
+with the spec living in `specs/<feature>/` as the source of intent. Every change lands via a branch
+and a PR that links its issue with `Closes #<n>`.
 
 ## Governance
 
 This constitution reflects and defers to [`AGENTS.md`](../../AGENTS.md); amendments update both and
 keep them consistent. All PRs are expected to comply, and added complexity must be justified.
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-01
+**Version**: 1.0.1 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-01
