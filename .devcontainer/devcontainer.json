@@ -1,0 +1,21 @@
+{
+  "name": "cv",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    }
+  },
+  "forwardPorts": [
+    8080
+  ],
+  "portsAttributes": {
+    "8080": {
+      "label": "CV preview (live-server)",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci && npx --yes playwright install --with-deps chromium && pip install --root-user-action=ignore uv",
+  "remoteUser": "root"
+}
