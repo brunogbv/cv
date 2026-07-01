@@ -24,11 +24,17 @@ Everything goes through the `Makefile` — run `make <target>`:
 
 | Task | Command | Notes |
 | ---- | ------- | ----- |
-| Preview (build + watch + serve) | `npm start` | serves `dist/` on port 8080 |
-| One-off build (HTML + PDF) | `make page` | writes to `dist/` |
+| Preview (build + watch + serve) | `npm start` | serves `dist/` on port 8080 (needs host Node) |
+| Build in the container (HTML + PDF) | `make page-container` | **preferred** — builds inside the Dev Container; host stays clean |
+| Build on the host (HTML + PDF) | `make page` | needs host Node + Playwright Chromium |
 | Fast lint (inner loop) | `make lint-fast` | native JS + Markdown; approximates CI |
 | Full lint (CI parity) | `make lint` | the Super-Linter image; the authoritative gate |
 | Dockerized build | `make build` / `make dev-build` | into the shared volume / copied to `dist/` |
+
+> **Builds and PDF rendering run in the Dev Container (or CI), not the host.** The PDF is rendered
+> with the pinned Playwright Chromium the container/CI provide — `make page-container` runs the build
+> inside the container so you never install Node or a browser on your host. `make page` (a host
+> build) remains for when you already have the toolchain, but the container is the supported path.
 
 Edit CV **content** in `src/metadata/metadata.js`. For the architecture and build pipeline see
 [architecture.md](architecture.md); for CI and deployment see [ci-cd.md](ci-cd.md).

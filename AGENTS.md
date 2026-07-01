@@ -36,8 +36,12 @@ task not wrapped by a target is the local watch dev server (`npm start`).
   inside it. It runs as `root` with host Docker access, and `.claude/settings.json` pre-approves
   common read-only commands (`gh run watch`, `make --dry-run`, `make lint-fast`) to cut agent
   permission prompts. Full guide: [`docs/local-development.md`](docs/local-development.md).
+- **Builds and PDF rendering run in the Dev Container or CI, not the host** — the pinned Playwright
+  Chromium lives there. `make page-container` runs a one-off build inside the container (host stays
+  clean); prefer it over a host build.
+- `make page-container` — build inside the Dev Container (`devcontainer up` + `exec make page`).
 - `npm start` — build + watch + live-server dev server (needs node/npm locally).
-- `make page` — one-off local build into `dist/` (needs node/npm).
+- `make page` — one-off build using your host toolchain (needs host node/npm + a Chromium).
 - `make dev-build` — dockerized build that copies output into local `dist/` (no local node needed).
 - `make build` — dockerized build into the shared `html` volume (used for deploy).
 - The Docker build uses `node:22-bookworm-slim` and Playwright's version-pinned Chromium; local
@@ -65,8 +69,9 @@ Deploy is **manual**:
 - Enabled linters (`config/lint/super-linter.env`): JavaScript (`standard` style), CSS
   (stylelint + `stylelint-config-standard`), HTML, Dockerfile (hadolint), JSON, YAML, Markdown,
   XML, and GitHub Actions. `src/templates/*` is excluded from linting.
-- After content or template changes, run `make page` and open `dist/index.html` to verify both the
-  HTML and the generated PDF render correctly.
+- After content or template changes, build (`make page-container`, or `make page` if you already
+  have the host toolchain) and open `dist/index.html` to verify both the HTML and the generated PDF
+  render correctly.
 
 ## Self-review (required for changes over 10 lines)
 

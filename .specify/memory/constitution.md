@@ -26,7 +26,8 @@ captured as an ADR in `docs/adr/`.
 
 Linting (Super-Linter) is the only automated CI gate — reproduce it with `make lint` before
 pushing. There is no test suite; quality comes from lint + self-review + verifying the generated
-PDF. Keep the feedback loop local and fast.
+PDF. Keep the feedback loop local and fast. Builds and PDF rendering run in the Dev Container or CI,
+not the host — see [`docs/local-development.md`](../../docs/local-development.md).
 
 ### V. Reproducible and minimal
 
@@ -47,4 +48,4 @@ and a PR that links its issue with `Closes #<n>`.
 This constitution reflects and defers to [`AGENTS.md`](../../AGENTS.md); amendments update both and
 keep them consistent. All PRs are expected to comply, and added complexity must be justified.
 
-**Version**: 1.0.2 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-02
+**Version**: 1.0.3 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-02

@@ -28,9 +28,11 @@ and `/speckit-converge` (assess the codebase and append remaining work).
   under the feature's single milestone and tag phases with `phase:*` labels for grouping (see
   [contributing.md](contributing.md)).
 - **PRs** — implement on a branch and link the issue with `Closes #<n>`.
+- **Builds** — `/speckit-implement` runs builds and PDF rendering in the Dev Container or CI, not
+  the host (`make page-container`) — see [local-development.md](local-development.md).
 - **Self-review** — the ">10 reviewable lines → `/code-review`" gate still applies to spec-driven
   changes.
-- **Constitution** — `.specify/memory/constitution.md` restates the principles in
+- **Constitution** — `.specify/memory/constitution.md` reflects and defers to
   [`AGENTS.md`](../AGENTS.md); keep the two consistent.
 
 ## Prerequisites
