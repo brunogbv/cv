@@ -36,7 +36,8 @@ config.
 
 ## Development Workflow
 
-Work is tracked in GitHub (Issues, Milestones, Projects). Non-trivial features are spec-driven:
+Work is tracked in GitHub — one Milestone per shippable deliverable, its Issues tagged with
+type/phase labels for grouping; Projects are optional. Non-trivial features are spec-driven:
 `/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`,
 with the spec living in `specs/<feature>/` as the source of intent. Every change lands via a branch
 and a PR that links its issue with `Closes #<n>`.
@@ -46,4 +47,4 @@ and a PR that links its issue with `Closes #<n>`.
 This constitution reflects and defers to [`AGENTS.md`](../../AGENTS.md); amendments update both and
 keep them consistent. All PRs are expected to comply, and added complexity must be justified.
 
-**Version**: 1.0.1 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-01
+**Version**: 1.0.2 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-02
