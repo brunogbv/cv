@@ -30,6 +30,9 @@ and run that instead — the targets encode the correct flags, container names, 
 ordering. The targets are commented; read the `Makefile` to find the right one. The only common
 task not wrapped by a target is the local watch dev server (`npm start`).
 
+- **Dev Container (recommended)** — `make dev` (or VS Code "Reopen in Container") opens
+  `.devcontainer/`, a reproducible environment with Node 22, the Playwright Chromium, Docker access,
+  and Python + uv; every target below works inside it. It runs as `root` with host Docker access.
 - `npm start` — build + watch + live-server dev server (needs node/npm locally).
 - `make page` — one-off local build into `dist/` (needs node/npm).
 - `make dev-build` — dockerized build that copies output into local `dist/` (no local node needed).

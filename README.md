@@ -33,12 +33,22 @@ If you do insist on building locally, you will need the following dependencies:
 * npm
 * node
 
+### Dev Container
+
+The quickest setup is the [Dev Container](.devcontainer/devcontainer.json): open the repo in it (VS Code "Reopen in Container", `make dev`, or `devcontainer up`) for a ready-made environment — Node 22, the Playwright Chromium used for the PDF build, Docker access for `make lint` / `make build`, and Python + uv — with no local Node or Chromium install.
+
+> The container runs as `root` and mounts the host Docker socket (both needed to run the Docker-based `make` targets from inside it), so treat it as having full host Docker access.
+
 ## Usage
 
 This project uses a Makefile and Docker to streamline various development tasks. Below are the available commands and their descriptions:
 
 ### Dev and Build
 
+- **dev**: Open the project in its [Dev Container](.devcontainer/devcontainer.json). Dependencies: devcontainer CLI
+  ```sh
+  make dev
+  ```
 - **page**: Build the page using local environment. Dependencies: npm, node
   ```sh
   make page
