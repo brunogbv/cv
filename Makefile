@@ -1,6 +1,6 @@
 MAKEFLAGS += -s
 
-.PHONY: dev clean page lint lint-fast build dev-build \
+.PHONY: dev clean page page-container lint lint-fast build dev-build \
 	logs-app-builder logs-webserver logs-certbot \
 	remove-app-builder remove-certbot \
 	certificates certificates-dry-run \
@@ -23,6 +23,13 @@ page:
 	$(MAKE) clean
 	echo "Building page..."
 	npm run build
+
+# Build the page inside the Dev Container (no host Node/Playwright needed).
+# Preferred way to build/verify locally — the host stays clean.
+# Dependencies: devcontainer CLI, Docker
+page-container:
+	$(MAKE) dev
+	devcontainer exec --workspace-folder . make page
 
 lint:
 	docker run --rm \
