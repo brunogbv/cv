@@ -95,6 +95,22 @@ When a change alters behavior, commands, architecture, or workflow, update the r
 this `AGENTS.md`. A change that outdates a doc isn't done until the doc is fixed. Record
 significant, expensive-to-reverse decisions as an ADR in [`docs/adr/`](docs/adr/).
 
+## Improving the harness
+
+The **harness** — this `AGENTS.md`, the constitution, `docs/`, `.claude/` (hooks, settings, skills),
+the Dev Container, CI, and the spec-kit setup — is a living system. When resolving a task reveals a
+**systemic gap** in it (a missing convention, an undocumented assumption, or a footgun likely to
+recur — e.g. builds must run in the Dev Container not the host, or Dev Container deps not persisting),
+don't just patch it ad-hoc:
+
+- **Name the gap and ask** whether to codify the fix into the harness — prefer fixing the system over
+  the symptom. Whether to codify now, defer, or skip is the owner's call.
+- **If the owner agrees**, raise a `harness`-labeled issue (see
+  [`docs/contributing.md`](docs/contributing.md)) and handle it as its own change, separate from the
+  task that surfaced it. `harness` is a grouping **label, not a milestone** — this work is ongoing.
+
+Surface such gaps proactively rather than waiting to be asked.
+
 ## Issue Tracking
 
 Work is tracked in **GitHub Issues and Milestones** (Projects optional) — see

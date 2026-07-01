@@ -95,6 +95,27 @@ a hard gate — an ignored block eventually lets go, and it only runs for contri
 Code, so treat it as a prompt to review rather than a guarantee. Tune the threshold per-project with
 `REVIEW_GATE_THRESHOLD`.
 
+## Improving the harness
+
+The harness — the conventions in `AGENTS.md` + the constitution, `docs/`, `.claude/`
+(hooks / settings / skills), the Dev Container, CI, and the spec-kit setup — is maintained
+deliberately, not ad-hoc. When a task reveals a **systemic gap** in it (a recurring footgun, a
+missing convention, or an undocumented assumption):
+
+1. **Name it** — state the gap the specific issue revealed.
+2. **Propose codifying** — ask whether to fix the system (a convention / doc / tooling change)
+   rather than patch the symptom once. The owner decides: codify now, defer, or skip.
+3. **Track it** — if the owner agrees, raise an issue with the **`harness`** label (create it once
+   if missing) plus a type label (`documentation` for convention/doc changes, `maintenance` for
+   tooling/CI/Dev Container), and a body covering the recurring problem and the proposed
+   codification. `harness` is a grouping **label, not a milestone** — this work is ongoing.
+4. **Land it as its own change** — a focused PR separate from the task that surfaced it, keeping the
+   docs and constitution in sync (`Closes #<n>`).
+
+Examples: #68 (builds run in the Dev Container, not the host) and #70 (codifying the
+in-container-builds convention) both landed; #69 (bake Dev Container installs so they persist) is
+tracked.
+
 ## Doing it from the CLI (`gh`)
 
 Create an issue:
