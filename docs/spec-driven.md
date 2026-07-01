@@ -25,7 +25,8 @@ and `/speckit-converge` (assess the codebase and append remaining work).
 ## How it ties into our conventions
 
 - **Issues** — `/speckit-taskstoissues` turns the generated tasks into GitHub issues; keep them
-  under the feature's milestone (see [contributing.md](contributing.md)).
+  under the feature's single milestone and tag phases with `phase:*` labels for grouping (see
+  [contributing.md](contributing.md)).
 - **PRs** — implement on a branch and link the issue with `Closes #<n>`.
 - **Self-review** — the ">10 reviewable lines → `/code-review`" gate still applies to spec-driven
   changes.

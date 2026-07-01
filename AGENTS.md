@@ -92,11 +92,14 @@ significant, expensive-to-reverse decisions as an ADR in [`docs/adr/`](docs/adr/
 
 ## Issue Tracking
 
-Work is tracked in **GitHub Issues, Milestones, and Projects** — see
+Work is tracked in **GitHub Issues and Milestones** (Projects optional) — see
 [`docs/contributing.md`](docs/contributing.md). Before starting non-trivial work, raise an issue
 with a clear imperative title, a type label (`documentation` / `enhancement` / `bug` /
 `maintenance`), and a body covering **Context**, an **Acceptance criteria** checklist, and
-**References**. Group related issues under a milestone, and link PRs to issues with `Closes #<n>`.
+**References**. Use **one milestone per shippable thing** (a deliverable/initiative) and **labels to
+tag phases** (e.g. `phase:*`) for grouping within it — not a milestone per phase. A GitHub **Project
+is optional** (a board/field view; use it for kanban/custom-field/cross-milestone tracking). Link
+PRs to issues with `Closes #<n>`.
 
 ## Spec-driven development
 
