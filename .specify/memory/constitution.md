@@ -35,6 +35,12 @@ Pin what determines output (Node 22, Playwright's Chromium via the lockfile); pr
 builds over emulation. Add only what is needed — minimal dependencies, minimal commands, minimal
 config.
 
+### VI. The harness is a living system
+
+When a task reveals a systemic gap in the harness (conventions, docs, `.claude/` hooks, the Dev
+Container, CI, spec-kit), codify the fix rather than patching the symptom — see
+[`docs/contributing.md`](../../docs/contributing.md) ("Improving the harness").
+
 ## Development Workflow
 
 Work is tracked in GitHub — one Milestone per shippable deliverable, its Issues tagged with
@@ -48,4 +54,4 @@ and a PR that links its issue with `Closes #<n>`.
 This constitution reflects and defers to [`AGENTS.md`](../../AGENTS.md); amendments update both and
 keep them consistent. All PRs are expected to comply, and added complexity must be justified.
 
-**Version**: 1.0.3 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-02
+**Version**: 1.1.0 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-02
