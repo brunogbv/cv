@@ -23,6 +23,9 @@
   },
   "homepage": "https://github.com/brunogbv/cv#readme",
   "devDependencies": {
+    "@fontsource/roboto": "^5.2.10",
+    "@fortawesome/fontawesome-free": "^6.1.2",
+    "bootstrap": "^5.2.0",
     "chokidar-cli": "^3.0.0",
     "dayjs": "^1.11.4",
     "fs-extra": "^10.1.0",
