@@ -80,7 +80,8 @@ exact command): `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/review-gate.sh" record`
 
 When a change alters behavior, commands, architecture, or workflow, update the relevant docs in the
 **same PR** — `docs/` (`architecture.md`, `ci-cd.md`, `contributing.md`), the root `README.md`, and
-this `AGENTS.md`. A change that outdates a doc isn't done until the doc is fixed.
+this `AGENTS.md`. A change that outdates a doc isn't done until the doc is fixed. Record
+significant, expensive-to-reverse decisions as an ADR in [`docs/adr/`](docs/adr/).
 
 ## Issue Tracking
 

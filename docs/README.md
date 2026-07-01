@@ -13,6 +13,7 @@ agent-oriented quick reference, see [`AGENTS.md`](../AGENTS.md).
 - **[CI/CD](ci-cd.md)** — GitHub Actions workflows and the (manual) Docker-based deployment.
 - **[Contributing & Issue Tracking](contributing.md)** — how work is tracked in GitHub (issues,
   milestones, projects) and how to raise a well-formed issue.
+- **[Architecture Decision Records](adr/)** — significant technical decisions and their rationale.
 
 ## At a glance
 
