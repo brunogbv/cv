@@ -20,7 +20,7 @@ agent-oriented quick reference, see [`AGENTS.md`](../AGENTS.md).
 | ------------- | ----------------------------------------------------------------------- |
 | Language      | JavaScript (Node.js)                                                    |
 | Templating    | Handlebars                                                              |
-| PDF           | Puppeteer (headless Chrome)                                             |
+| PDF           | Playwright (headless Chromium)                                          |
 | Content       | A single data file: `src/metadata/metadata.js`                          |
 | Output        | `dist/` (generated, gitignored)                                         |
 | Serving       | nginx (Docker Compose) with Let's Encrypt TLS via certbot               |
