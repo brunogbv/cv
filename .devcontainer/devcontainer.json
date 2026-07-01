@@ -5,7 +5,8 @@
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
     "ghcr.io/devcontainers/features/python:1": {
       "version": "3.12"
-    }
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "forwardPorts": [
     8080
@@ -34,6 +35,6 @@
       }
     }
   },
-  "postCreateCommand": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci && npx --yes playwright install --with-deps chromium && pip install --root-user-action=ignore uv && { UV_TOOL_BIN_DIR=/usr/local/bin uv tool install --from git+https://github.com/github/spec-kit.git specify-cli || echo 'WARN: spec-kit install failed (non-fatal); install later with: uv tool install --from git+https://github.com/github/spec-kit.git specify-cli'; }",
+  "postCreateCommand": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci && npx --yes playwright install --with-deps chromium && pip install --root-user-action=ignore uv && { UV_TOOL_BIN_DIR=/usr/local/bin uv tool install --from git+https://github.com/github/spec-kit.git specify-cli || echo 'WARN: spec-kit install failed (non-fatal); install later with: uv tool install --from git+https://github.com/github/spec-kit.git specify-cli'; } && { npm install -g @anthropic-ai/claude-code || echo 'WARN: Claude Code CLI install failed (non-fatal)'; }",
   "remoteUser": "root"
 }

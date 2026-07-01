@@ -1,4 +1,11 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(gh run watch *)",
+      "Bash(make --dry-run *)",
+      "Bash(make lint-fast)"
+    ]
+  },
   "hooks": {
     "Stop": [
       {
