@@ -1,32 +1,23 @@
-# Use a base image with Node.js installed
-FROM node:14 AS builder
-
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# Build the CV (HTML + PDF) on a modern Node LTS.
+FROM node:22-bookworm-slim AS builder
 
 ARG WORKDIR=/app
-# Set the working directory
 WORKDIR $WORKDIR
 
-# Install latest chrome dev package and fonts to support major charsets (Chinese, Japanese, Arabic, Hebrew, Thai and a few others)
-# Note: this installs the necessary libs to make the bundled version of Chromium that Puppeteer
-# installs, work.
+# make is needed for `make page`.
+# hadolint ignore=DL3008
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends wget=1.20.1-1.1 gnupg=2.2.12-1+deb10u2 \
-  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-  && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
-  && apt-get update \
-  && apt-get install -y --no-install-recommends google-chrome-stable=127.0.6533.72-1 fonts-ipafont-gothic=00303-18 fonts-wqy-zenhei=0.9.45-7 \
-  fonts-thai-tlwg=1:0.7.1-1 fonts-kacst=2.01+mry-14 fonts-freefont-ttf=20120503-9 libxss1=1:1.2.3-1 \
+  && apt-get install -y --no-install-recommends make \
   && rm -rf /var/lib/apt/lists/*
 
-# Copy package.json and package-lock.json to the working directory
+# Install dependencies, then the Chromium build pinned to this Playwright
+# version (recorded in package-lock.json) plus its OS dependencies, for the
+# image's architecture. This works natively on both amd64 and arm64, so the
+# build is reproducible without emulation.
 COPY package*.json ./
+RUN npm ci \
+  && npx --yes playwright install --with-deps chromium
 
-# Install dependencies
-RUN npm ci
-
-# Copy the rest of the application code to the working directory
+# Copy the rest of the application code and build.
 COPY . .
-
-# Build the application
 CMD ["make", "page"]

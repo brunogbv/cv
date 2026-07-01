@@ -4,7 +4,7 @@
 
 Personal CV / résumé site for Bruno Valério, hosted at <https://valerio.dev>. It's a small
 Node.js static-site generator: CV content lives in a JavaScript data file, is rendered through
-Handlebars into a single HTML page, and a matching PDF is produced with Puppeteer. The output is
+Handlebars into a single HTML page, and a matching PDF is produced with Playwright. The output is
 served as static files behind nginx (Docker Compose) with Let's Encrypt TLS via certbot. CI is
 lint-only (Super-Linter); deployment is manual.
 
@@ -12,7 +12,7 @@ lint-only (Super-Linter); deployment is manual.
 
 - **Build pipeline (`src/build.js`)** — reads content from `src/metadata/metadata.js`, compiles
   `src/templates/index.html` with Handlebars, writes `dist/index.html`, copies `src/assets/` into
-  `dist/`, then renders the PDF via `src/utils/pdf.js` (headless Chrome / Puppeteer).
+  `dist/`, then renders the PDF via `src/utils/pdf.js` (headless Chromium via Playwright).
 - **Content vs. presentation** — edit CV content (name, title, facts, skills, experience) in
   `src/metadata/metadata.js`. Page markup is in `src/templates/index.html`; styling in
   `src/assets/styles.css`. Markdown inside content fields is rendered by
@@ -34,7 +34,8 @@ task not wrapped by a target is the local watch dev server (`npm start`).
 - `make page` — one-off local build into `dist/` (needs node/npm).
 - `make dev-build` — dockerized build that copies output into local `dist/` (no local node needed).
 - `make build` — dockerized build into the shared `html` volume (used for deploy).
-- The Docker build pins `node:14` and Chrome 127 for Puppeteer; local builds use your system node.
+- The Docker build uses `node:22-bookworm-slim` and Playwright's version-pinned Chromium; local
+  builds use your system Node.
 
 Deploy is **manual**:
 
@@ -79,7 +80,8 @@ exact command): `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/review-gate.sh" record`
 
 When a change alters behavior, commands, architecture, or workflow, update the relevant docs in the
 **same PR** — `docs/` (`architecture.md`, `ci-cd.md`, `contributing.md`), the root `README.md`, and
-this `AGENTS.md`. A change that outdates a doc isn't done until the doc is fixed.
+this `AGENTS.md`. A change that outdates a doc isn't done until the doc is fixed. Record
+significant, expensive-to-reverse decisions as an ADR in [`docs/adr/`](docs/adr/).
 
 ## Issue Tracking
 
