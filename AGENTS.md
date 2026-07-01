@@ -32,8 +32,10 @@ task not wrapped by a target is the local watch dev server (`npm start`).
 
 - **Dev Container (recommended)** — `make dev` (or VS Code "Reopen in Container") opens
   `.devcontainer/`, a reproducible environment with Node 22, the Playwright Chromium, Docker access,
-  Python + uv, and the spec-kit `specify` CLI; every target below works inside it. It runs as `root`
-  with host Docker access.
+  Python + uv, the spec-kit `specify` CLI, and the `gh` + Claude Code CLIs; every target below works
+  inside it. It runs as `root` with host Docker access, and `.claude/settings.json` pre-approves
+  common read-only commands (`gh run watch`, `make --dry-run`, `make lint-fast`) to cut agent
+  permission prompts.
 - `npm start` — build + watch + live-server dev server (needs node/npm locally).
 - `make page` — one-off local build into `dist/` (needs node/npm).
 - `make dev-build` — dockerized build that copies output into local `dist/` (no local node needed).
