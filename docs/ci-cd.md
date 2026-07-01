@@ -45,6 +45,12 @@ make lint
 This runs the **same** Super-Linter image in Docker with `RUN_LOCAL=true`, using
 `config/lint/super-linter.env`, so a local pass closely matches the CI result.
 
+For a quicker inner-loop check, `make lint-fast` runs just the JavaScript (`standard`) and Markdown
+(`markdownlint`) linters natively — no Docker, no full image — calibrated to approximate CI's
+behavior for those file types (`make lint` is the exact mirror). The Dev Container also installs editor extensions (markdownlint, StandardJS,
+Stylelint, Hadolint, YAML) for live in-editor feedback. `make lint` remains the authoritative
+CI-parity check.
+
 Caveats:
 
 - **Image version:** `make lint` pulls `super-linter:latest`, while CI pins `v6.7.0`
