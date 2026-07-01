@@ -100,9 +100,9 @@ with a clear imperative title, a type label (`documentation` / `enhancement` / `
 
 ## Spec-driven development
 
-Non-trivial features are developed spec-first with spec-kit: `/speckit-specify` → `/speckit-plan` →
-`/speckit-tasks` → `/speckit-implement` (skills under `.claude/skills/`). The spec lives in
-`specs/<feature>/` as the source of intent; the project constitution is
+Non-trivial features are developed spec-first with spec-kit: `/speckit-specify` → `/speckit-clarify`
+→ `/speckit-plan` → `/speckit-tasks` → `/speckit-implement` (skills under `.claude/skills/`). The
+spec lives in `specs/<feature>/` as the source of intent; the project constitution is
 `.specify/memory/constitution.md`. See [`docs/spec-driven.md`](docs/spec-driven.md).
 
 ## Required Skills

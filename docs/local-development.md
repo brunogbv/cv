@@ -36,8 +36,9 @@ Edit CV **content** in `src/metadata/metadata.js`. For the architecture and buil
 ## Working on a change
 
 1. **Raise an issue** and branch — see [contributing.md](contributing.md).
-2. For a non-trivial feature, go **spec-first** with spec-kit (`/speckit-specify` → `/speckit-plan`
-   → `/speckit-tasks` → `/speckit-implement`) — see [spec-driven.md](spec-driven.md).
+2. For a non-trivial feature, go **spec-first** with spec-kit (`/speckit-specify` →
+   `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`) — see
+   [spec-driven.md](spec-driven.md).
 3. **Self-review** any change over 10 lines with `/code-review` before opening a PR (enforced by a
    Stop hook); validate locally with `make lint-fast` / `make lint`.
 4. Open a PR that links its issue (`Closes #<n>`), keep docs in sync in the same PR, and record
