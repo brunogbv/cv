@@ -35,7 +35,7 @@ task not wrapped by a target is the local watch dev server (`npm start`).
   Python + uv, the spec-kit `specify` CLI, and the `gh` + Claude Code CLIs; every target below works
   inside it. It runs as `root` with host Docker access, and `.claude/settings.json` pre-approves
   common read-only commands (`gh run watch`, `make --dry-run`, `make lint-fast`) to cut agent
-  permission prompts.
+  permission prompts. Full guide: [`docs/local-development.md`](docs/local-development.md).
 - `npm start` — build + watch + live-server dev server (needs node/npm locally).
 - `make page` — one-off local build into `dist/` (needs node/npm).
 - `make dev-build` — dockerized build that copies output into local `dist/` (no local node needed).
