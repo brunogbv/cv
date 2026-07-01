@@ -1,6 +1,7 @@
 # The Curriculum Vitae
 
 [![Super-Linter](https://github.com/brunogbv/cv/actions/workflows/superlinter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/brunogbv/cv)
 
 Hosted at: [https://valerio.dev](https://valerio.dev)
 
@@ -22,6 +23,7 @@ You are a fantastic developer. Keep your CV on GitHub, exploiting Node.js GitHub
 
 Developer documentation lives in [`docs/`](docs/):
 
+- [Local development](docs/local-development.md) — set up the Dev Container, everyday commands, and the change workflow (start here).
 - [Architecture](docs/architecture.md) — code structure, the build pipeline, the content data model, and how the site is served.
 - [CI/CD](docs/ci-cd.md) — GitHub Actions workflows and the manual Docker-based deployment.
 

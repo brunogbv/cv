@@ -11,13 +11,16 @@ Run these `/speckit-*` skills in Claude Code (installed under `.claude/skills/`)
 1. `/speckit-constitution` — establish or amend the project principles
    (`.specify/memory/constitution.md`).
 2. `/speckit-specify` — turn a feature description into a spec (`specs/<feature>/spec.md`).
-3. `/speckit-plan` — produce the technical implementation plan.
-4. `/speckit-tasks` — break the plan into actionable tasks.
-5. `/speckit-implement` — execute the tasks.
+3. `/speckit-clarify` — resolve ambiguities in the spec before planning (recommended; skip only
+   when the spec is already unambiguous). It asks up to 5 targeted questions and records the
+   answers back into the spec.
+4. `/speckit-plan` — produce the technical implementation plan.
+5. `/speckit-tasks` — break the plan into actionable tasks.
+6. `/speckit-implement` — execute the tasks.
 
-Optional quality steps: `/speckit-clarify` (de-risk ambiguity before planning), `/speckit-analyze`
-(cross-artifact consistency), `/speckit-checklist` (requirements checklists), and `/speckit-converge`
-(assess the codebase and append remaining work).
+Optional quality steps: `/speckit-analyze` (read-only spec↔plan↔tasks consistency check, run after
+`/speckit-tasks` and before `/speckit-implement`), `/speckit-checklist` (requirements checklists),
+and `/speckit-converge` (assess the codebase and append remaining work).
 
 ## How it ties into our conventions
 

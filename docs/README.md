@@ -8,6 +8,8 @@ agent-oriented quick reference, see [`AGENTS.md`](../AGENTS.md).
 
 ## Contents
 
+- **[Local development](local-development.md)** — set up the Dev Container, everyday commands, and
+  the change workflow (the entry point for working on this repo).
 - **[Architecture](architecture.md)** — code structure, the build pipeline, the content data
   model, and how the site is served.
 - **[CI/CD](ci-cd.md)** — GitHub Actions workflows and the (manual) Docker-based deployment.
