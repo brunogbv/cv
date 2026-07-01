@@ -1,6 +1,6 @@
 MAKEFLAGS += -s
 
-.PHONY: clean page lint build dev-build \
+.PHONY: dev clean page lint build dev-build \
 	logs-app-builder logs-webserver logs-certbot \
 	remove-app-builder remove-certbot \
 	certificates certificates-dry-run \
@@ -11,6 +11,11 @@ MAKEFLAGS += -s
 clean:
 	echo "Cleaning up..."
 	-rm -rf ./dist/ > /dev/null 2>&1
+
+# Open the project in its Dev Container (requires the devcontainer CLI)
+dev:
+	echo "Starting dev container..."
+	devcontainer up --workspace-folder .
 
 # Build the page using local environment
 # Dependencies: npm, node
