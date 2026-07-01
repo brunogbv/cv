@@ -51,10 +51,11 @@ Deploy is **manual**:
 ## Testing Instructions
 
 - There are **no** unit or integration tests in this repo.
-- **Validate locally before pushing.** Run `make lint` before opening or updating a PR — it runs
-  the *same* Super-Linter image CI uses (linting is the only CI gate), so you catch failures
-  locally instead of waiting on the push-and-wait PR cycle. See [`docs/ci-cd.md`](docs/ci-cd.md)
-  for details and caveats.
+- **Validate locally before pushing.** During iteration use `make lint-fast` (fast native JS +
+  Markdown lint) and/or the Dev Container's editor extensions; before opening/updating a PR run
+  `make lint` — it runs the *same* Super-Linter image CI uses (linting is the only CI gate), so you
+  catch failures locally instead of waiting on the push-and-wait PR cycle. See
+  [`docs/ci-cd.md`](docs/ci-cd.md) for details and caveats.
 - Linting via Super-Linter runs on every push/PR (`.github/workflows/superlinter.yml`); `make lint`
   reproduces it locally.
 - The Vercel deploy-preview check runs server-side and is **not** reproduced by `make lint`; it can

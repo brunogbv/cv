@@ -57,6 +57,10 @@ This project uses a Makefile and Docker to streamline various development tasks.
   ```sh
   make lint
   ```
+- **lint-fast**: Fast local lint (JavaScript via standard, Markdown via markdownlint) — a quick subset of **lint** for the common edit types. Dependencies: npm, node
+  ```sh
+  make lint-fast
+  ```
 
 - **build**: Build the page using dockerized environment. Useful for deploying the page to a server when certificates are already created. Output will be stored in the container's /app/dist folder and mounted to shared volume cv_dist.
   ```sh

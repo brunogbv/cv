@@ -1,6 +1,6 @@
 MAKEFLAGS += -s
 
-.PHONY: dev clean page lint build dev-build \
+.PHONY: dev clean page lint lint-fast build dev-build \
 	logs-app-builder logs-webserver logs-certbot \
 	remove-app-builder remove-certbot \
 	certificates certificates-dry-run \
@@ -31,6 +31,15 @@ lint:
 		--env-file "config/lint/super-linter.env" \
 		-v $(shell pwd):/tmp/lint \
 		ghcr.io/super-linter/super-linter:latest
+
+# Fast local lint (JS via standard, Markdown via markdownlint) — a quick subset of
+# `make lint` for the common edit types. `make lint` (Super-Linter) stays the
+# authoritative CI-parity check.
+lint-fast:
+	echo "Linting JavaScript (standard)..."
+	npx --no-install standard "src/**/*.js"
+	echo "Linting Markdown (markdownlint)..."
+	npx --no-install markdownlint-cli2 --config config/lint/markdownlint-fast.json "**/*.md" "!node_modules/**" "!.specify/**" "!.claude/skills/**" "!dist/**"
 
 # Build the page using dockerized environment
 # Useful for deploying the page to a server when certificates are already created
