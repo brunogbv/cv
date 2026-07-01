@@ -18,6 +18,20 @@ time — issue #24). Parity: HTML + a correctly-rendered PDF must remain. Non-go
 content, redesigning the page, or switching the templating/build tooling beyond what deployment
 requires."
 
+## Clarifications
+
+### Session 2026-07-01
+
+- Q: Canonical host for the production domain (the other redirects)? → A: `valerio.dev` (apex) is
+  canonical; `www.valerio.dev` issues a permanent (301) redirect to it.
+- Q: Is retiring the manual VM/nginx/certbot stack + decommissioning the VM part of this initiative?
+  → A: Yes — as the final phase, after the Vercel cutover is verified. (The VM is already powered
+  down, so the remaining work is removing the repo deploy stack + Makefile targets and updating
+  docs.)
+- Q: How long should the VM stay live as a rollback after cutover? → A: No rollback needed — the
+  site is **not currently live** and the VM is **already down**, so there is no rollback target and
+  no downtime to protect. The cutover only *restores* service.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - The site builds and serves automatically from the platform (Priority: P1)
@@ -51,26 +65,28 @@ correctly rendered — all without touching a server or issuing a certificate ma
 ### User Story 2 - Visitors reach the real domain on the new platform over HTTPS (Priority: P2)
 
 A visitor navigates to `valerio.dev` (or `www.valerio.dev`) and is served the CV from the new
-platform over a valid, automatically-managed HTTPS certificate. The cutover from the old VM is done
-via DNS in a way that is verifiable and reversible.
+platform over a valid, automatically-managed HTTPS certificate. Because the site is currently down
+(the VM is already decommissioned), this **restores** availability on the domain; the cutover is a
+verify-before-switch DNS change with no live site to regress.
 
-**Why this priority**: This is where real users benefit — production traffic actually moves to the
-new platform. It depends on P1 (a working deployment must exist first) and on a DNS change the owner
-performs manually.
+**Why this priority**: This is where real users benefit — it brings the currently-down site back
+online on `valerio.dev`. It depends on P1 (a working deployment must exist first) and on a DNS
+change the owner performs manually.
 
 **Independent Test**: After the cutover runbook is executed, confirm `valerio.dev` and
-`www.valerio.dev` resolve to the new platform, load the CV over HTTPS with a valid certificate, and
-that a documented rollback restores the VM if needed.
+`www.valerio.dev` resolve to the new platform and load the CV over HTTPS with a valid certificate,
+with `www` redirecting to the apex.
 
 **Acceptance Scenarios**:
 
 1. **Given** the domain has been added to the platform and DNS updated, **When** a visitor loads
    `valerio.dev`, **Then** the CV is served from the new platform over HTTPS with a valid,
    auto-renewing certificate.
-2. **Given** the canonical host chosen in FR-007, **When** a visitor loads the other host, **Then**
-   they are permanently redirected to the canonical host.
-3. **Given** the cutover is in progress, **When** a problem is detected, **Then** the runbook's
-   rollback restores serving from the VM (DNS reverted) with no data loss.
+2. **Given** `valerio.dev` (apex) is canonical, **When** a visitor loads `www.valerio.dev`, **Then**
+   they are permanently (301) redirected to `valerio.dev`.
+3. **Given** the domain is added but serving/certificate is not yet confirmed, **When** the owner
+   runs the cutover runbook, **Then** DNS is not switched until platform serving and a valid
+   certificate are verified (verify-before-switch).
 
 ---
 
@@ -79,7 +95,8 @@ that a documented rollback restores the VM if needed.
 Once the new platform is authoritative and verified in production, the manual deploy machinery
 (docker-compose nginx + certbot services, nginx config, and the deploy-oriented Makefile targets) is
 removed from the repository and the docs are updated to describe the new push-to-deploy model. The
-VM is decommissioned.
+VM is already powered down, so this phase is chiefly repo cleanup (removing the dead deploy stack)
+plus doc updates.
 
 **Why this priority**: Pure cleanup/cost-reduction that is only safe *after* P1 and P2 are verified.
 It delivers value (no dead code, no VM cost, no confusion) but must come last.
@@ -105,8 +122,9 @@ site still fully served by the platform.
   deterministic. (Issue #24.)
 - **PDF rendering fails in the platform build environment** → the deployment fails loudly (build
   error) rather than promoting a deployment missing or misrendering the PDF.
-- **DNS propagation is partial/slow during cutover** → visitors on either resolver path still reach
-  a working site; the VM remains live as rollback until propagation is verified.
+- **DNS propagation is partial/slow during cutover** → until propagation completes, some resolvers
+  may still return the old (now-dead) VM IP; because the site is already down this is not a
+  regression, and full propagation restores service everywhere.
 - **Certificate not yet provisioned right after adding the domain** → cutover waits for a valid
   certificate before DNS is switched (verify-before-switch).
 - **A contributor runs a now-removed `make webserver-*` / `make certificates` target** → the target
@@ -131,26 +149,23 @@ site still fully served by the platform.
 - **FR-006**: HTTPS certificates for the production domain MUST be provisioned and renewed
   automatically by the platform, with no manual certificate issuance or renewal.
 - **FR-007**: After cutover, `valerio.dev` and `www.valerio.dev` MUST serve the site from the new
-  platform. The canonical host and redirect direction is [NEEDS CLARIFICATION: canonical domain not
-  decided — apex `valerio.dev` with `www` redirecting to it, or the reverse?].
+  platform, with `valerio.dev` (apex) as the canonical host and `www.valerio.dev` issuing a
+  permanent (301) redirect to it.
 - **FR-008**: A failed build MUST NOT replace the currently-serving production deployment (last good
   deployment stays live).
 - **FR-009**: The DNS cutover MUST follow a documented runbook that (a) lowers record TTL
-  beforehand, (b) verifies platform serving and a valid certificate before switching, and (c)
-  preserves a rollback to the VM until the new platform is verified. DNS record changes are executed
-  manually by the site owner at the DNS provider and are outside the repository.
-- **FR-010**: The manual VM/nginx/certbot deploy stack and its deploy-oriented Makefile targets MUST
-  be removed once the platform is authoritative, and the deploy documentation updated accordingly.
-  The timing/scope is [NEEDS CLARIFICATION: is stack retirement + VM decommission part of THIS
-  initiative (as its final phase, after cutover is verified) or a separate follow-up?].
+  beforehand, (b) verifies platform serving and a valid certificate **before** switching DNS, and
+  (c) repoints DNS to the platform and re-verifies. DNS record changes are executed manually by the
+  site owner at the DNS provider and are outside the repository. No rollback-to-VM step exists — the
+  VM is already down (see Assumptions).
+- **FR-010**: As the final phase of this initiative (after the cutover is verified), the manual
+  VM/nginx/certbot deploy stack and its deploy-oriented Makefile targets MUST be removed from the
+  repository and the deploy documentation updated accordingly. (The VM is already powered down, so
+  no separate decommission step remains.)
 - **FR-011**: Local development (build, live preview, and lint) MUST remain functional and
   unchanged by the migration.
-- **FR-012**: The cutover MUST retain a working rollback to the VM for
-  [NEEDS CLARIFICATION: rollback retention window not specified — how long should the VM stay live
-  and DNS-reversible after cutover before it is decommissioned?].
-- **FR-013**: Content caching MUST NOT prevent a new successful deployment from becoming visible
-  promptly, nor prevent a DNS rollback from restoring the previous source within the cutover
-  verification window (no stale-cache lock-in during cutover).
+- **FR-012**: Content caching MUST NOT prevent a new successful deployment from becoming visible
+  promptly — stale content must not linger after a deploy goes live.
 
 ### Key Entities
 
@@ -158,10 +173,10 @@ site still fully served by the platform.
   pull request) — each a fully built, independently reachable instance of the site.
 - **Served artifacts**: the HTML CV page and the downloadable PDF; both must be present and at
   parity for a deployment to be considered valid.
-- **Production domain**: `valerio.dev` and `www.valerio.dev`, with one canonical host and the other
-  redirecting; TLS is platform-managed.
+- **Production domain**: `valerio.dev` (canonical apex) and `www.valerio.dev` (permanent 301
+  redirect to the apex); TLS is platform-managed.
 - **Cutover runbook**: the owner-executed sequence (lower TTL → add domain on platform → verify
-  serving + certificate → switch DNS → verify → keep VM as rollback → decommission).
+  serving + certificate → switch DNS → verify). No rollback step — the VM is already down.
 
 ## Success Criteria *(mandatory)*
 
@@ -175,13 +190,14 @@ site still fully served by the platform.
   font/CSS CDNs at build time (verified by building with external CDN access blocked).
 - **SC-004**: The production domain (`valerio.dev` and `www.valerio.dev`) loads over HTTPS with a
   valid, automatically-renewing certificate, requiring **zero** manual certificate renewals.
-- **SC-005**: The DNS cutover completes with continuous availability — external uptime probes record
-  zero failed requests across the cutover window — and a rehearsed rollback can restore VM serving.
+- **SC-005**: After the DNS change, `valerio.dev` and `www.valerio.dev` resolve to and serve from
+  the platform within one TTL, restoring the currently-down site. (No downtime/rollback criterion
+  applies — there is no live site or VM to regress to.)
 - **SC-006**: Shipping a content change requires **zero** manual deploy steps after migration
   (versus the current multi-step manual VM + certbot process).
-- **SC-007**: The migrated HTML page and PDF match a baseline captured immediately before cutover
-  (same fonts, layout, and content, confirmed by side-by-side comparison) — no visual or content
-  regression.
+- **SC-007**: The deployed HTML page and PDF match a reference local build (`make page`) of the
+  same commit (same fonts, layout, and content, confirmed by side-by-side comparison) — no visual
+  or content regression.
 
 ## Assumptions
 
@@ -194,8 +210,9 @@ site still fully served by the platform.
   platform's standard git-driven model.
 - **DNS changes are performed manually by the site owner** at their DNS provider; the repository and
   automated tooling cannot modify DNS. Record TTL is lowered ahead of the cutover.
-- Near-zero downtime is expected; the cutover is DNS-based with the VM kept live as a rollback until
-  the platform is verified in production.
+- The site is **not currently live** and the GCP VM is **already powered down**; DNS still points
+  at the now-dead VM IP. The cutover therefore only *restores* availability — there is no live
+  production to protect and no rollback target, so downtime/rollback provisions are out of scope.
 - Any historical GitHub Pages deployment is considered superseded and out of active use; it is not
   part of the retirement scope unless found to still serve traffic.
 - Feature parity is required: the HTML page and a correctly-rendered PDF remain available, with the

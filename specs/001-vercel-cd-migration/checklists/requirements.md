@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,15 +31,15 @@
 
 ## Notes
 
-- **3 `[NEEDS CLARIFICATION]` markers remain by design** — they are the owner-level decisions this
-  spec deliberately leaves open for the next phase, `/speckit-clarify`:
-  1. **FR-007** — canonical domain + redirect direction (apex `valerio.dev` vs `www`).
-  2. **FR-010** — whether retiring the manual VM/nginx/certbot stack + decommissioning the VM is
-     part of THIS initiative (final phase, post-cutover) or a separate follow-up.
-  3. **FR-012** — rollback retention window (how long the VM stays live/reversible after cutover).
+- **All 3 `[NEEDS CLARIFICATION]` markers resolved** in the `/speckit-clarify` session (2026-07-01):
+  1. **FR-007** — canonical host is `valerio.dev` (apex); `www` issues a permanent 301 redirect.
+  2. **FR-010** — stack retirement + VM decommission is in scope, as the final phase after the
+     cutover is verified.
+  3. Rollback window (formerly FR-012) — **no rollback needed**: the site is not currently live and
+     the VM is already down, so downtime/rollback provisions were removed and FR-009 rewritten.
+     FR-012 now covers cache freshness.
 - **"Implementation details" note**: the requirements themselves are platform-agnostic (they say
   "the platform"). The target platform (**Vercel**) is named only in the verbatim **Input** and in
   **Assumptions** as context the user supplied, not embedded in the requirements. The *how* of PDF
   rendering in the platform build is explicitly deferred to `/speckit-plan`.
-- All other checklist items pass. The spec is ready to proceed to `/speckit-clarify` (recommended,
-  to resolve the 3 markers) and then `/speckit-plan`.
+- All checklist items now pass. The spec is ready to proceed to `/speckit-plan`.
