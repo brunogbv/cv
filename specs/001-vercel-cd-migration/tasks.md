@@ -101,7 +101,7 @@ apex. Restores the currently-down site. **Depends on US1** (a working prod deplo
 **Independent Test**: `dig`/`curl` show apex served over valid TLS and `www` → 301 → apex
 (quickstart Scenario 4).
 
-- [ ] T015 [US2] Write the DNS cutover runbook in `docs/` (e.g. a "Domain cutover" section of
+- [X] T015 [US2] Write the DNS cutover runbook in `docs/` (e.g. a "Domain cutover" section of
       `docs/ci-cd.md`): lower TTL → add domains in Vercel → set `www` → 301 → apex → verify serving +
       cert **before** switching → set A/CNAME → verify. Note there is no rollback (VM already down).
 - [ ] T016 [US2] **(owner-run — Vercel dashboard)** Add `valerio.dev` + `www.valerio.dev` to the
