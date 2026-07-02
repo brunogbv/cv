@@ -64,7 +64,9 @@ Deploy is **manual**:
   content changes), so you catch failures locally instead of waiting on the push-and-wait PR cycle.
   See [`docs/ci-cd.md`](docs/ci-cd.md) for details and caveats.
 - Linting via Super-Linter runs on every push/PR (`.github/workflows/superlinter.yml`); `make lint`
-  reproduces it locally.
+  reproduces it locally — including on Apple Silicon (it runs the amd64 image emulated) and from a
+  `make worktree` sibling. On arm64 it skips the GitHub Actions validator (actionlint segfaults under
+  emulation); run `make lint-actions` (native `actionlint`) to check workflow files there.
 - The Vercel deploy-preview check runs server-side and is **not** reproduced by `make lint`; it can
   only be validated after pushing.
 - Changes under `.devcontainer/**` (or `package.json` / `package-lock.json`) also trigger the **Dev
