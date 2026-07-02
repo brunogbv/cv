@@ -5,9 +5,9 @@
 Personal CV / résumé site for Bruno Valério, hosted at <https://valerio.dev>. It's a small
 Node.js static-site generator: CV content lives in a JavaScript data file, is rendered through
 Handlebars into a single HTML page, and a matching PDF is produced with Playwright. The output is
-served as static files behind nginx (Docker Compose) with Let's Encrypt TLS via certbot. CI lints
-every change (Super-Linter) and prebuilds the Dev Container image (published to GHCR); site
-deployment is manual.
+served as static files on Vercel with automatic, auto-renewing TLS. CI lints every change
+(Super-Linter) and prebuilds the Dev Container image (published to GHCR); CD builds in GitHub Actions
+and deploys the prebuilt output to Vercel on every push (production from `main`, a preview per PR).
 
 ## Architecture
 
@@ -19,9 +19,10 @@ deployment is manual.
   `src/assets/styles.css`. Markdown inside content fields is rendered by
   `src/utils/helpers/markdown.js`.
 - **Output** — everything is generated into `dist/` (gitignored). Never hand-edit `dist/`.
-- **Deploy stack (`docker-compose.yml`)** — `app-builder` builds into a shared `html` volume;
-  `webserver` is nginx serving that volume (config in `config/nginx/`); `certbot` /
-  `certbot-dry-run` issue Let's Encrypt certs for `valerio.dev` + `www.valerio.dev`.
+- **Deploy (`.github/workflows/deploy.yml` + `vercel.json`)** — GitHub Actions builds `dist/`
+  (Node 22 + pinned Playwright), then `make deploy` deploys the prebuilt output to Vercel:
+  production from `main`, a preview per PR, with Vercel-managed TLS. `valerio.dev` is canonical;
+  `www` 301-redirects to it.
 
 ## Building and Running
 
@@ -43,17 +44,18 @@ task not wrapped by a target is the local watch dev server (`npm start`).
 - `make page-container` — build inside the Dev Container (`devcontainer up` + `exec make page`).
 - `npm start` — build + watch + live-server dev server (needs node/npm locally).
 - `make page` — one-off build using your host toolchain (needs host node/npm + a Chromium).
-- `make dev-build` — dockerized build that copies output into local `dist/` (no local node needed).
-- `make build` — dockerized build into the shared `html` volume (used for deploy).
+- `make dev-build` — dockerized build (root `Dockerfile`, no compose) that copies output into local
+  `dist/` (no local node needed).
 - The Docker build uses `node:22-bookworm-slim` and Playwright's version-pinned Chromium; local
   builds use your system Node.
 
-Deploy is **manual**:
+Deploy is **automatic** — see [`docs/ci-cd.md`](docs/ci-cd.md):
 
-- `make webserver` — start nginx.
-- `make webserver-upgrade-to-https` — issue certs, enable SSL config, reload nginx.
-- `make all` — first-time full build + serve + HTTPS. Recreates certs — do **not** use for routine
-  content updates.
+- Push to `main` → GitHub Actions builds and deploys **production** to Vercel (aliased to
+  `valerio.dev`).
+- Every PR → a **preview** deploy; its URL is posted to the PR.
+- `make deploy` wraps the Vercel CLI (`vercel build` + `vercel deploy --prebuilt`); CI runs it — you
+  rarely invoke it by hand.
 
 ## Testing Instructions
 
@@ -153,8 +155,8 @@ spec lives in `specs/<feature>/` as the source of intent; the project constituti
 
 - Never commit credentials — use environment variables or secure secret management.
 - Ensure `.env`, `.env.local`, and `.envrc` are in `.gitignore`.
-- Let's Encrypt enforces strict rate limits. Always test certificate changes with
-  `make certificates-dry-run` before running `make certificates` / `make webserver-upgrade-to-https`,
-  or you risk being temporarily blocked from issuing certs.
-- No application secrets are stored in the repo; the certbot email (`bruno@valerio.dev`) in
-  `docker-compose.yml` is intentionally public.
+- TLS is managed by Vercel (automatic issuance + renewal) — there are no certificates to handle in
+  this repo.
+- The only deploy secret is `VERCEL_TOKEN` (plus `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` variables),
+  configured in GitHub repo settings and consumed by `.github/workflows/deploy.yml` — never committed.
+  No application secrets are stored in the repo.

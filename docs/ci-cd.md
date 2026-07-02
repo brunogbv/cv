@@ -1,10 +1,8 @@
 # CI/CD
 
-CI is automated: it lints every change, prebuilds the Dev Container image, and (as of the in-progress
-Vercel migration) builds and deploys the site to Vercel. **Site CD is mid-migration:** the Vercel
-pipeline (`deploy.yml`, below) is live, but production traffic still hits the manually-operated GCP
-VM until the DNS cutover — so the manual `make` deploy targets remain authoritative for now. The full
-rewrite of this deploy section lands with the migration's Polish phase.
+CI lints every change and prebuilds the Dev Container image. CD is automated: GitHub Actions builds
+the site and deploys the prebuilt output to **Vercel** on every push — production from `main`, a
+preview per PR — with Vercel-managed TLS. There is no manual server or certificate step.
 
 ## Continuous Integration — GitHub Actions
 
@@ -12,8 +10,8 @@ Three workflows: **`.github/workflows/superlinter.yml`** (name: `Lint`) lints ev
 **`.github/workflows/devcontainer.yml`** (name: `Dev Container`) prebuilds the Dev Container image
 (see [Dev Container image prebuild](#dev-container-image-prebuild)), and
 **`.github/workflows/deploy.yml`** (name: `Deploy`) builds and deploys the site to Vercel (push to
-`main` → production, `pull_request` → preview; see [Deploy to Vercel](#deploy-to-vercel)). The lint
-workflow:
+`main` → production, `pull_request` → preview; see [Continuous Deployment](#continuous-deployment--vercel)).
+The lint workflow:
 
 - **Triggers:** every `push` and every `pull_request`.
 - **Runner:** `ubuntu-latest`.
@@ -25,8 +23,8 @@ workflow:
 - A Super-Linter status badge is shown at the top of the root [`README.md`](../README.md).
 
 There are **no automated tests** for the site — linting is the gate on site changes. Site build +
-deploy now runs in CI via the `Deploy` workflow ([below](#deploy-to-vercel)); the Dev Container
-workflow builds and smoke-tests the *dev-environment* image (not the site itself).
+deploy runs in CI via the `Deploy` workflow ([below](#continuous-deployment--vercel)); the Dev
+Container workflow builds and smoke-tests the *dev-environment* image (not the site itself).
 
 ### Linter configuration
 
@@ -49,8 +47,8 @@ hand-written layout, and shellcheck already covers correctness.
 
 ### Validate locally before pushing
 
-Linting is the only CI gate, and it is fully reproducible locally — run it before opening or
-updating a PR to get feedback in one pass instead of the push-and-wait cycle:
+Linting is fully reproducible locally — run it before opening or updating a PR to get feedback in one
+pass instead of the push-and-wait cycle:
 
 ```sh
 make lint
@@ -109,28 +107,33 @@ set the `cv-devcontainer` package to Public once (GitHub → your Packages → `
 Package settings → Change visibility → Public). Until then, only authenticated pulls hit the cache
 and everyone else falls back to a local build (which still works, just slower).
 
-### Deploy to Vercel
+## Continuous Deployment — Vercel
 
-`.github/workflows/deploy.yml` (name: `Deploy`) is the incoming Vercel CD path (Vercel's own git
-build is disabled via `vercel.json` → `git.deploymentEnabled: false`). It builds `dist/` in CI
-(Node 22 + the lockfile-pinned Playwright Chromium, then `make page`) and deploys the prebuilt output
-with **`make deploy`** (`vercel pull` → `vercel build` → `vercel deploy --prebuilt`). Push to `main`
-deploys `--prod`; a `pull_request` deploys a preview whose URL is posted back to the PR.
-`framework: null` + `buildCommand: ""` in `vercel.json` make `vercel build` package the existing
-`dist/` instead of re-running the Node build.
+`.github/workflows/deploy.yml` (name: `Deploy`) is the **sole deploy path** — Vercel's own git build
+is disabled via `vercel.json` → `git.deploymentEnabled: false`. It builds `dist/` in CI (Node 22 +
+the lockfile-pinned Playwright Chromium, then `make page`) and deploys the prebuilt output with
+**`make deploy`** (`vercel pull` → `vercel build` → `vercel deploy --prebuilt`). Push to `main`
+deploys `--prod` (aliased to `valerio.dev`); a `pull_request` deploys a preview whose URL is posted
+back to the PR. `framework: null` + `buildCommand: ""` in `vercel.json` make `vercel build` package
+the existing `dist/` instead of re-running the Node build. TLS for `valerio.dev` + `www.valerio.dev`
+is provisioned and renewed automatically by Vercel; `www` 301-redirects to the apex.
 
-- **Setup (owner, one-time):** repo secret `VERCEL_TOKEN` + variables `VERCEL_ORG_ID` /
-  `VERCEL_PROJECT_ID`, and disconnect the project's Vercel Git integration. Until these exist the
-  `Deploy` job fails at the `vercel` step (nothing is published).
-- **Not yet authoritative:** production still serves from the GCP VM until the DNS cutover; see the
-  manual stack below. This section is a stopgap — the full CD rewrite (and removal of the manual
-  stack) lands with the migration's Polish phase.
+If `make page` fails (including a PDF render error) the job fails **before** any deploy, so a broken
+build never publishes — the last good production deployment keeps serving.
+
+- **Cache headers** (in `vercel.json`): HTML + PDF are edge-cached (`s-maxage=86400`) and static
+  assets long-lived (`s-maxage=31536000`), all with client `max-age=0` so browsers revalidate; plus
+  `X-Content-Type-Options` / `X-Frame-Options` / `Referrer-Policy` security headers. Vercel strips
+  the edge-only `s-maxage` / `stale-while-revalidate` from client responses.
+- **Configuration (GitHub repo settings):** secret `VERCEL_TOKEN` and variables `VERCEL_ORG_ID` /
+  `VERCEL_PROJECT_ID`; the project's Vercel Git integration is disconnected so this workflow is the
+  only deploy trigger.
 
 ### Domain cutover (DNS runbook)
 
-One-time migration of `valerio.dev` + `www.valerio.dev` from the GCP VM to Vercel (US2). The site is
-currently down and the VM is off, so this **restores** availability — there is **no rollback target
-and no downtime window to protect**. Run the steps in order.
+The one-time DNS cutover of `valerio.dev` + `www.valerio.dev` from the GCP VM to Vercel — **performed
+2026-07-02**, kept here as a reference. There was no rollback target or downtime window to protect
+(the VM was already off), so it simply **restored** availability. The steps, in order:
 
 **1. Prepare (before touching DNS)**
 
@@ -147,22 +150,24 @@ and no downtime window to protect**. Run the steps in order.
   (e.g. 3600s), lower it (e.g. to 300s), and wait at least the *old* TTL so cached records expire —
   then the cutover propagates quickly.
 
-**2. Add the domains in Vercel (T016 — owner, dashboard)**
+**2. Add the domains in Vercel (owner, dashboard)**
 
 - Add `valerio.dev` and `www.valerio.dev` to the project.
 - Mark `valerio.dev` as the **primary** (canonical) domain.
 - Set `www.valerio.dev` to **Redirect to** `valerio.dev` (`301`).
 - Vercel then shows the exact records to set — an apex `A` IP and a `www` `CNAME` target. Use those
-  dashboard values, not the examples below.
+  dashboard values, not the examples below (they vary by project).
 
-**3. Point DNS (T017 — owner, registrar)**
+**3. Point DNS (owner, registrar)**
 
-- Apex: `A → 76.76.21.21` (use the IP shown in Vercel Domain settings).
-- `www`: `CNAME → <project>.vercel-dns-###.com` (exact target from the dashboard).
+- Apex: `A → 216.198.79.1` (use the exact IP shown in Vercel Domain settings).
+- `www`: `CNAME → <hash>.vercel-dns-###.com` (exact target from the dashboard).
 - TLS is provisioned and renewed automatically by Vercel once DNS resolves to it — no certbot, no
   manual renewal. The certificate is issued after DNS points at Vercel; verify it in step 4.
+- Leave `MX` and `TXT` (SPF, DKIM/`_domainkey`, verification) records untouched — web (`A`/`CNAME`)
+  and email are independent.
 
-**4. Verify the cutover (T018)**
+**4. Verify the cutover**
 
 ```sh
 dig A valerio.dev +short              # matches the A record shown in Vercel Domain settings
@@ -173,81 +178,5 @@ curl -sI https://www.valerio.dev/     # 301 -> https://valerio.dev/
 
 Vercel issues the certificate a few minutes after DNS points at it, so a TLS error on the first
 `curl` is normal — wait a few minutes and retry. Once the checks pass, load `https://valerio.dev/`
-in a browser and confirm the page and `/<slug>.pdf` render correctly over HTTPS; then you can restore
-a normal TTL. Retiring the VM stack itself is US3 (below is the stack being retired).
-
-## Continuous Deployment — manual, Docker-based
-
-The site is self-hosted. Deployment is orchestrated by the `Makefile` and `docker-compose.yml`,
-which define three services sharing two named volumes:
-
-| Service           | Role                                                                 |
-| ----------------- | -------------------------------------------------------------------- |
-| `app-builder`     | Builds the site (the `Dockerfile` builder image) into the `html` volume. |
-| `webserver`       | nginx serving the `html` volume on ports 80/443 (`config/nginx/`).   |
-| `certbot` / `certbot-dry-run` | Issues Let's Encrypt certs for `valerio.dev` + `www.valerio.dev` into the `certs` volume. |
-
-| Volume  | Purpose                                                              |
-| ------- | ------------------------------------------------------------------- |
-| `html`  | The built static site, shared by `app-builder`, `webserver`, `certbot`. |
-| `certs` | `/etc/letsencrypt` — TLS certificates.                              |
-
-### Deploy commands
-
-```sh
-make build                      # Build the site into the html volume (via app-builder)
-make webserver                  # Start nginx (HTTP only)
-make webserver-upgrade-to-https # Issue certs, swap to SSL config, reload nginx
-make all                        # First-time only: build + serve + HTTPS (recreates certs!)
-```
-
-- `make all` is for a **first-time** stand-up. Avoid it for routine content updates because it
-  recreates certificates.
-- For a routine content update: `make build` to rebuild, then redeploy/reload the webserver.
-
-### TLS / certbot
-
-- `make certificates` runs certbot for real; `make certificates-dry-run` simulates issuance.
-- **Let's Encrypt has strict rate limits.** Always validate with `make certificates-dry-run`
-  before `make certificates` / `make webserver-upgrade-to-https`, or you can be temporarily
-  blocked from issuing certs.
-- `make webserver-upgrade-to-https` runs certbot, swaps nginx to the SSL site config
-  (`valerio-ssl.conf`), and reloads nginx (`webserver-ssl-config` + `webserver-restart-nginx`).
-
-### nginx configuration
-
-The webserver image (`config/nginx/Dockerfile`, `nginx:alpine`) selects which site config to
-enable via the `SITE_NAME` build arg, symlinking it into `sites-enabled/`. Three configs live in
-`config/nginx/sites-available/`:
-
-| Config               | Behavior                                                                                  |
-| -------------------- | ----------------------------------------------------------------------------------------- |
-| `valerio.dev`        | HTTP-only (pre-TLS). Serves the ACME challenge path and `/healthcheck`; `/` returns 404.  |
-| `valerio-ssl.conf`   | Redirects HTTP → HTTPS; serves the site over 443 using the Let's Encrypt cert/key.        |
-| `valerio-local.conf` | Same as `valerio.dev` but also matches `localhost`, for local testing.                    |
-
-All variants expose `/healthcheck` (also used by the `webserver` healthcheck in
-`docker-compose.yml`). The ACME challenge location is what lets certbot validate the domain over
-HTTP before certs exist.
-
-### Deployment flow
-
-```text
-make build ─▶ html volume ─▶ webserver (nginx :80, valerio.dev config, /healthcheck)
-                                   │
-                   make webserver-upgrade-to-https
-                                   │
-                   certbot (ACME challenge via :80) ─▶ certs volume
-                                   │
-                   swap to valerio-ssl.conf + reload ─▶ nginx :443 (HTTPS)
-```
-
-### Helpful operational targets
-
-```sh
-make logs-webserver       # nginx logs
-make logs-app-builder     # build logs
-make logs-certbot         # certbot logs
-make down                 # stop the webserver (docker compose down)
-make dev-build            # dockerized build, copied back into local ./dist
-```
+in a browser and confirm the page and `/<slug>.pdf` render correctly over HTTPS, then restore a
+normal TTL.

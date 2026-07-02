@@ -1,7 +1,7 @@
 # Architecture
 
 The project is a static-site generator with one job: turn a structured CV data file into a
-single HTML page and a matching PDF, then serve those static files behind nginx. There is no
+single HTML page and a matching PDF, then serve those static files from Vercel's edge. There is no
 backend, database, or client-side framework — the page is plain HTML/CSS produced at build time.
 
 ## Directory layout
@@ -21,14 +21,15 @@ backend, database, or client-side framework — the page is plain HTML/CSS produ
 │       └── helpers/
 │           └── markdown.js       # Handlebars {{markdown}} helper
 ├── config/
-│   ├── lint/super-linter.env     # Super-Linter configuration (see ci-cd.md)
-│   └── nginx/                    # Webserver image + site configs (see ci-cd.md)
-├── Dockerfile                    # Builder image: node:22-bookworm-slim + Playwright Chromium
-├── docker-compose.yml            # Services: app-builder, webserver, certbot
-├── Makefile                      # Dev, build, and deploy commands
+│   └── lint/super-linter.env     # Super-Linter configuration (see ci-cd.md)
+├── vercel.json                   # Vercel serving config: prebuilt output + cache/security headers
+├── Dockerfile                    # Builder image (node:22 + Playwright Chromium) for `make dev-build`
+├── Makefile                      # Dev, build, lint, and Vercel deploy commands
 ├── package.json                  # npm scripts + dependencies
-└── .github/workflows/
-    └── superlinter.yml           # CI: lint on push / PR
+└── .github/workflows/            # CI: Lint, Dev Container prebuild, Vercel Deploy
+    ├── superlinter.yml
+    ├── devcontainer.yml
+    └── deploy.yml
 ```
 
 `dist/` is the build output and is gitignored — never edit it by hand.
@@ -39,7 +40,9 @@ The whole build is `src/build.js`, run via `node src/build.js` (wrapped by `npm 
 `make page`). In order, it:
 
 1. **Empties `dist/`** — `fs.emptyDirSync(outputDir)` (`outputDir` = `<repo>/dist`).
-2. **Copies assets** — `src/assets/` → `dist/` verbatim (styles, photo, favicons, QR code).
+2. **Copies assets** — `src/assets/` → `dist/` verbatim (styles, photo, favicons, QR code), and
+   vendors Bootstrap / Font Awesome / Roboto (CSS + fonts) from pinned `node_modules` into
+   `dist/vendor/`, so the page and PDF need no CDN at build or render time (#24).
 3. **Registers the `markdown` helper** so templates can render Markdown content fields to HTML.
 4. **Compiles the template** — reads `src/templates/index.html`, compiles it with Handlebars, and
    renders it with the data from `src/metadata/metadata.js` plus three injected values:
@@ -48,8 +51,9 @@ The whole build is `src/build.js`, run via `node src/build.js` (wrapped by `npm 
    - `updated` — today's date, formatted with `dayjs` (`MMMM D, YYYY`)
 5. **Writes `dist/index.html`**.
 6. **Generates the PDF** — `src/utils/pdf.js` launches headless Chromium (Playwright), loads the
-   freshly written `dist/index.html` as a `file://` URL (waiting for `networkidle0`), and prints
-   an **A4** PDF with **2.54 cm** margins to `dist/<pdfFileName>`.
+   freshly written `dist/index.html` as a `file://` URL (waiting for `load` + `document.fonts.ready`,
+   not network idle — the page has no runtime network dependency), and prints an **A4** PDF with
+   **2.54 cm** margins to `dist/<pdfFileName>`.
 
 ```text
 metadata.js ─┐
@@ -92,15 +96,15 @@ Font Awesome `<i>` tags and `<a>` links.
 ## Template & styling
 
 - `src/templates/index.html` is a Handlebars template producing a Bootstrap 5 single-page layout.
-  External assets are loaded from CDNs at runtime: Bootstrap 5.2, Font Awesome 6.1, and the
-  Roboto Google Font.
+  Bootstrap 5.2, Font Awesome 6.1, and Roboto are **vendored** into `dist/vendor/` at build time
+  (copied from pinned `node_modules`) and referenced locally — no CDN at runtime (#24).
 - Sections rendered: header (photo + name + facts + PDF/QR), About me, Skills (bar chart),
   Professional Experience, Additional Experience, Robotics Competitions. Lists use Handlebars
   `{{#each}}` over the arrays above.
 - `src/assets/styles.css` holds project-specific styling on top of Bootstrap, including the
   `screen` / `print` visibility rules and the skill-bar styling.
 - Note: this template/repo originates from the [`sneas/cv-template`](https://github.com/sneas/cv-template)
-  project (see the commented-out section in the root README).
+  project.
 
 ## Runtime & dependencies
 
@@ -112,7 +116,6 @@ Font Awesome `<i>` tags and `<a>` links.
 - Key npm dependencies (`package.json`): `handlebars` (templating), `playwright` (headless
   Chromium → PDF),
   `fs-extra` (file ops), `dayjs` (dates), `speakingurl` (slugs), `markdown` (Markdown→HTML),
-  plus dev tooling: `live-server` + `chokidar-cli`/`watch` (dev server), `stylelint`, and
-  `gh-pages`.
+  plus dev tooling: `live-server` + `chokidar-cli`/`watch` (dev server) and `stylelint`.
 
 For how the built site is served and deployed, see [ci-cd.md](ci-cd.md).

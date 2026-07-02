@@ -55,7 +55,7 @@ affects the CV build output — so they're outside Principle V's "pin what deter
 inputs that *do* determine output (Node, the Playwright Chromium) are pinned via `package-lock.json`.
 
 > Without a Dev Container you can build with just Node + npm (`npm ci`), but you'll also need a
-> Chromium for the PDF and Docker for `make lint` / `make build`. The container is the supported path.
+> Chromium for the PDF and Docker for `make lint` / `make dev-build`. The container is the supported path.
 
 ## Everyday commands
 
@@ -71,7 +71,7 @@ Everything goes through the `Makefile` — run `make <target>`:
 | Build on the host (HTML + PDF) | `make page` | needs host Node + Playwright Chromium |
 | Fast lint (inner loop) | `make lint-fast` | native JS + Markdown; approximates CI |
 | Full lint (CI parity) | `make lint` | the Super-Linter image; the authoritative gate |
-| Dockerized build | `make build` / `make dev-build` | into the shared volume / copied to `dist/` |
+| Dockerized build (no local Node) | `make dev-build` | builds in Docker, copies output to `dist/` |
 
 > **Builds and PDF rendering run in the Dev Container (or CI), not the host.** The PDF is rendered
 > with the pinned Playwright Chromium the container/CI provide — `make page-container` runs the build
