@@ -169,7 +169,10 @@ You **MUST** consider the user input before proceeding (if not empty).
    - For parallel tasks [P], continue with successful tasks, report failed ones
    - Provide clear error messages with context for debugging
    - Suggest next steps if implementation cannot proceed
-   - **IMPORTANT** For completed tasks, make sure to mark the task off as [X] in the tasks file.
+   - **IMPORTANT** Task status is tracked in **GitHub Issues**, not in `tasks.md`. Each task line
+     links to its issue (written by `/speckit-taskstoissues`); a task is "done" when its linked
+     issue closes via the PR's `Closes #<n>`. Do **not** hand-edit `tasks.md` to mark status — it is
+     the decomposition + issue map, and the milestone progress bar is the status view.
 
 9. Completion validation:
    - Verify all required tasks are completed
@@ -220,7 +223,8 @@ Report final status with summary of completed work.
 
 ## Done When
 
-- [ ] All tasks in tasks.md completed and marked `[X]`
+- [ ] All tasks implemented and their linked GitHub issues closed (via PR `Closes #<n>`); status is
+      tracked in GitHub Issues + the milestone, not in `tasks.md`
 - [ ] Implementation validated against specification, plan, and test coverage
 - [ ] Extension hooks dispatched or skipped according to the rules in Mandatory Post-Execution Hooks above
 - [ ] Completion reported to user with summary of completed work

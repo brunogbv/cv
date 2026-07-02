@@ -45,13 +45,17 @@ Container, CI, spec-kit), codify the fix rather than patching the symptom — se
 
 Work is tracked in GitHub — one Milestone per shippable deliverable, its Issues tagged with
 type/phase labels for grouping; Projects are optional. Non-trivial features are spec-driven:
-`/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`,
-with the spec living in `specs/<feature>/` as the source of intent. Every change lands via a branch
-and a PR that links its issue with `Closes #<n>`.
+`/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` →
+`/speckit-taskstoissues` → `/speckit-implement`, with the spec living in `specs/<feature>/` as the
+source of intent. `/speckit-taskstoissues` creates each task's GitHub issue and repurposes its
+`tasks.md` checkbox into a link to that issue; **GitHub Issues and the milestone progress bar are the
+single source of truth for task status** — `tasks.md` is the decomposition + issue map (not a status
+file), and `/speckit-implement` does not track status in it. Every change lands via a branch and a PR
+that links its issue with `Closes #<n>`.
 
 ## Governance
 
 This constitution reflects and defers to [`AGENTS.md`](../../AGENTS.md); amendments update both and
 keep them consistent. All PRs are expected to comply, and added complexity must be justified.
 
-**Version**: 1.1.0 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-02
+**Version**: 1.2.0 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-02

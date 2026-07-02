@@ -29,10 +29,10 @@ from the repo** — they are marked **(owner-run)** with the location instead of
 
 **Purpose**: one-time prerequisites so CLI deploys work and Vercel stops its own failing builds.
 
-- [ ] T001 **(owner-run — Vercel dashboard)** In the `cv` Vercel project, disconnect the GitHub Git
+- [T001](https://github.com/brunogbv/cv/issues/35) **(owner-run — Vercel dashboard)** In the `cv` Vercel project, disconnect the GitHub Git
       integration (Settings → Git) so no server-side auto-builds run; CLI `--prebuilt` deploys are
       unaffected.
-- [ ] T002 **(owner-run — Vercel dashboard/CLI + GitHub)** Create a Vercel token; run `vercel link`
+- [T002](https://github.com/brunogbv/cv/issues/36) **(owner-run — Vercel dashboard/CLI + GitHub)** Create a Vercel token; run `vercel link`
       to obtain `VERCEL_ORG_ID` + `VERCEL_PROJECT_ID` (from `.vercel/project.json`); add
       `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` as GitHub Actions repository secrets.
 
@@ -43,20 +43,20 @@ from the repo** — they are marked **(owner-run)** with the location instead of
 **Purpose**: make the build deterministic and offline-safe. **⚠️ Blocks US1** — no deploy is
 reliable until the build no longer depends on remote CDNs and the PDF step is awaited/fatal.
 
-- [ ] T003 [P] Vendor Bootstrap 5.2.0 CSS into `src/assets/vendor/bootstrap/` (the `bootstrap.min.css`
+- [T003](https://github.com/brunogbv/cv/issues/37) [P] Vendor Bootstrap 5.2.0 CSS into `src/assets/vendor/bootstrap/` (the `bootstrap.min.css`
       currently loaded from jsDelivr)
-- [ ] T004 [P] Vendor Font Awesome 6.1.2 (CSS + `webfonts/`) into `src/assets/vendor/fontawesome/`
+- [T004](https://github.com/brunogbv/cv/issues/38) [P] Vendor Font Awesome 6.1.2 (CSS + `webfonts/`) into `src/assets/vendor/fontawesome/`
       (currently loaded from cdnjs)
-- [ ] T005 [P] Vendor Roboto 400/500 (`woff2` + an `@font-face` CSS) into `src/assets/vendor/roboto/`
+- [T005](https://github.com/brunogbv/cv/issues/39) [P] Vendor Roboto 400/500 (`woff2` + an `@font-face` CSS) into `src/assets/vendor/roboto/`
       (currently loaded from Google Fonts)
-- [ ] T006 Update `src/templates/index.html`: replace the CDN `<link>`s (Google Fonts preconnect +
+- [T006](https://github.com/brunogbv/cv/issues/40) Update `src/templates/index.html`: replace the CDN `<link>`s (Google Fonts preconnect +
       Roboto, Bootstrap, Font Awesome) with references to the vendored files under `assets/vendor/`
-- [ ] T007 Update `src/utils/pdf.js`: use `waitUntil: 'load'`, `await page.evaluate(() =>
+- [T007](https://github.com/brunogbv/cv/issues/41) Update `src/utils/pdf.js`: use `waitUntil: 'load'`, `await page.evaluate(() =>
       document.fonts.ready)` before `page.pdf()`, and set an explicit `page.goto` timeout
-- [ ] T008 Update `src/build.js`: wrap the build body in an async IIFE, `await buildPdf(...)`, and
+- [T008](https://github.com/brunogbv/cv/issues/42) Update `src/build.js`: wrap the build body in an async IIFE, `await buildPdf(...)`, and
       `.catch(err => { console.error(err); process.exit(1) })` so a PDF failure fails the build
       (currently `buildPdf` is called unawaited)
-- [ ] T009 Verify offline reproducibility: run `make page` with CDN/network access blocked → HTML +
+- [T009](https://github.com/brunogbv/cv/issues/43) Verify offline reproducibility: run `make page` with CDN/network access blocked → HTML +
       correctly-fonted PDF produced; `grep "https://" dist/index.html` shows no font/CSS CDN links
       (quickstart Scenario 1 / SC-003)
 
@@ -72,20 +72,20 @@ HTML + PDF, with automatic TLS — no manual server/cert steps.
 **Independent Test**: open a PR → a preview URL serves the page + PDF over HTTPS; merge to `main` →
 production deploy aliased to the project domain (quickstart Scenarios 2–3).
 
-- [X] T010 [US1] Add `vercel.json` at repo root: `framework: null`, `buildCommand: ""`,
+- [T010](https://github.com/brunogbv/cv/issues/44) [US1] Add `vercel.json` at repo root: `framework: null`, `buildCommand: ""`,
       `outputDirectory: "dist"`, `cleanUrls: true`, `trailingSlash: false`,
       `git.deploymentEnabled: false`, and the `headers` (Cache-Control per type + security headers)
       from `contracts/serving-contract.md`; add `.vercel/` to `.gitignore`
-- [X] T011 [US1] Add a `deploy` target to `Makefile` wrapping `vercel pull` → `vercel build` →
+- [T011](https://github.com/brunogbv/cv/issues/45) [US1] Add a `deploy` target to `Makefile` wrapping `vercel pull` → `vercel build` →
       `vercel deploy --prebuilt` (reading `VERCEL_*` from the env; `--prod` when `PROD=1`); add
       `deploy` to `.PHONY`
-- [X] T012 [US1] Add `.github/workflows/deploy.yml`: trigger on `push` to `main` (production) and
+- [T012](https://github.com/brunogbv/cv/issues/46) [US1] Add `.github/workflows/deploy.yml`: trigger on `push` to `main` (production) and
       `pull_request` (preview); steps = Node 22 + `npm ci`, cache `~/.cache/ms-playwright` (keyed on
       the Playwright version + runner OS), `npx playwright install --with-deps chromium`,
       `make page`, then `make deploy` (`PROD=1` on `main`)
-- [X] T013 [US1] In `deploy.yml`, capture the deploy URL from stdout and post it to the PR
+- [T013](https://github.com/brunogbv/cv/issues/47) [US1] In `deploy.yml`, capture the deploy URL from stdout and post it to the PR
       (`actions/github-script` or `gh pr comment`) so preview URLs are visible (FR-002)
-- [X] T014 [US1] Verify: PR → workflow builds + posts a working preview URL (HTML + PDF, correct
+- [T014](https://github.com/brunogbv/cv/issues/48) [US1] Verify: PR → workflow builds + posts a working preview URL (HTML + PDF, correct
       fonts, `/<slug>.pdf` reachable); a forced build failure promotes nothing (FR-008); prod path
       aliases correctly (quickstart Scenarios 2–3 / SC-001, SC-002)
 
@@ -101,14 +101,14 @@ apex. Restores the currently-down site. **Depends on US1** (a working prod deplo
 **Independent Test**: `dig`/`curl` show apex served over valid TLS and `www` → 301 → apex
 (quickstart Scenario 4).
 
-- [X] T015 [US2] Write the DNS cutover runbook in `docs/` (e.g. a "Domain cutover" section of
+- [T015](https://github.com/brunogbv/cv/issues/49) [US2] Write the DNS cutover runbook in `docs/` (e.g. a "Domain cutover" section of
       `docs/ci-cd.md`): lower TTL → add domains in Vercel → set `www` → 301 → apex → verify serving +
       cert **before** switching → set A/CNAME → verify. Note there is no rollback (VM already down).
-- [X] T016 [US2] **(owner-run — Vercel dashboard)** Add `valerio.dev` + `www.valerio.dev` to the
+- [T016](https://github.com/brunogbv/cv/issues/50) [US2] **(owner-run — Vercel dashboard)** Add `valerio.dev` + `www.valerio.dev` to the
       project; mark `valerio.dev` primary; set `www.valerio.dev` "Redirect to" the apex (301)
-- [X] T017 [US2] **(owner-run — DNS registrar)** Set apex `A → <IP from Vercel Domain settings>` and
+- [T017](https://github.com/brunogbv/cv/issues/51) [US2] **(owner-run — DNS registrar)** Set apex `A → <IP from Vercel Domain settings>` and
       `www CNAME → <project>.vercel-dns-###.com` (exact values from the dashboard); lower TTL first
-- [X] T018 [US2] Verify cutover: `dig A valerio.dev` matches the dashboard IP; `curl -sI
+- [T018](https://github.com/brunogbv/cv/issues/52) [US2] Verify cutover: `dig A valerio.dev` matches the dashboard IP; `curl -sI
       https://valerio.dev/` → 200 + valid TLS; `curl -sI https://www.valerio.dev/` → 301 → apex
       (quickstart Scenario 4 / SC-004, SC-005, FR-006, FR-007)
 
@@ -124,15 +124,15 @@ US2 is verified.** (VM already powered down — no decommission step.)
 **Independent Test**: no `webserver`/`certbot`/`nginx` targets remain; docker-compose/config gone;
 `make page` / `make lint` / `make dev-build` / `npm start` still work (quickstart Scenario 5).
 
-- [X] T019 [P] [US3] Remove `docker-compose.yml` (app-builder + nginx + certbot services) and
+- [T019](https://github.com/brunogbv/cv/issues/53) [P] [US3] Remove `docker-compose.yml` (app-builder + nginx + certbot services) and
       `config/nginx/`
-- [X] T020 [US3] Remove the retired deploy targets from `Makefile` (`webserver*`, `certificates*`,
+- [T020](https://github.com/brunogbv/cv/issues/54) [US3] Remove the retired deploy targets from `Makefile` (`webserver*`, `certificates*`,
       `logs-*`, `remove-*`, `build`, `down`, `all`); keep `clean`, `dev`, `page`, `lint`,
       `lint-fast`, `dev-build`, `deploy`
-- [X] T021 [US3] Decouple `Dockerfile` + `make dev-build` from the removed docker-compose so the
+- [T021](https://github.com/brunogbv/cv/issues/55) [US3] Decouple `Dockerfile` + `make dev-build` from the removed docker-compose so the
       no-local-node build still works (FR-011)
-- [X] T022 [P] [US3] Remove the dead `predeploy` (gh-pages) script from `package.json`
-- [X] T023 [US3] Verify retirement (quickstart Scenario 5): retired targets gone; `make page`,
+- [T022](https://github.com/brunogbv/cv/issues/56) [P] [US3] Remove the dead `predeploy` (gh-pages) script from `package.json`
+- [T023](https://github.com/brunogbv/cv/issues/57) [US3] Verify retirement (quickstart Scenario 5): retired targets gone; `make page`,
       `make lint`, `make dev-build`, `npm start` all still work (FR-010, FR-011)
 
 **Checkpoint**: only the Vercel deploy path remains; local dev intact.
@@ -143,17 +143,17 @@ US2 is verified.** (VM already powered down — no decommission step.)
 
 **Purpose**: bring all docs in line with the new model (constitution Principle III) and final-verify.
 
-- [X] T024 [P] Rewrite `docs/ci-cd.md`: CD is now GitHub Actions → Vercel prebuilt deploy; remove
+- [T024](https://github.com/brunogbv/cv/issues/58) [P] Rewrite `docs/ci-cd.md`: CD is now GitHub Actions → Vercel prebuilt deploy; remove
       the manual VM/nginx/certbot deploy sections
-- [X] T025 [P] Update `docs/architecture.md`: replace the nginx/certbot/app-builder "deploy stack"
+- [T025](https://github.com/brunogbv/cv/issues/59) [P] Update `docs/architecture.md`: replace the nginx/certbot/app-builder "deploy stack"
       description with Vercel hosting
-- [X] T026 [P] Update `README.md`: replace the GitHub Pages / `npm run deploy` + VM instructions with
+- [T026](https://github.com/brunogbv/cv/issues/60) [P] Update `README.md`: replace the GitHub Pages / `npm run deploy` + VM instructions with
       the Vercel push-to-deploy model; refresh usage/badges
-- [X] T027 [P] Update `AGENTS.md`: Overview + Building/Deploy sections → Vercel CD (retire the
+- [T027](https://github.com/brunogbv/cv/issues/61) [P] Update `AGENTS.md`: Overview + Building/Deploy sections → Vercel CD (retire the
       manual-deploy language)
-- [X] T028 Add an ADR in `docs/adr/` recording the decision: build in CI + deploy prebuilt to Vercel
+- [T028](https://github.com/brunogbv/cv/issues/62) Add an ADR in `docs/adr/` recording the decision: build in CI + deploy prebuilt to Vercel
       (not native Vercel build), apex-canonical, and vendored fonts (#24)
-- [X] T029 Final verification: run through `quickstart.md` Scenarios 1–5 and `make lint`
+- [T029](https://github.com/brunogbv/cv/issues/63) Final verification: run through `quickstart.md` Scenarios 1–5 and `make lint`
       (Super-Linter) green (SC-006, SC-007)
 
 ---

@@ -4,7 +4,7 @@
 
 **Created**: 2026-07-01
 
-**Status**: Draft
+**Status**: Implemented — shipped 2026-07-02 (see [ADR 0002](../../docs/adr/0002-vercel-prebuilt-deploy.md))
 
 **Input**: User description: "Migrate hosting and continuous deployment from the manual GCP VM to
 Vercel. The site is a static build (`npm run build` → `dist/` with HTML, assets, and a PDF). Vercel
