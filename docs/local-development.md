@@ -15,6 +15,13 @@ You get Node 22, the Playwright Chromium (for the PDF), Docker access, Python + 
 `root` with host Docker access, and `.claude/settings.json` pre-approves common read-only commands
 so agents hit fewer permission prompts.
 
+**How the image is built (convention):** `.devcontainer/Dockerfile` **bakes the heavy,
+workspace-independent tooling into the image** — the Playwright Chromium (+ its OS deps), the
+spec-kit `specify` CLI, and the Claude Code CLI — so they persist across container rebuilds and are
+cheap to spin up per git worktree. `postCreate` runs only workspace-specific steps (`npm ci`, plus a
+Chromium no-op that just re-downloads if the pinned Playwright version changes). When adding Dev
+Container tooling, **put workspace-independent installs in the Dockerfile, not `postCreate`.**
+
 > Without a Dev Container you can build with just Node + npm (`npm ci`), but you'll also need a
 > Chromium for the PDF and Docker for `make lint` / `make build`. The container is the supported path.
 
