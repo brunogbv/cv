@@ -21,6 +21,11 @@ spec-kit `specify` CLI, and the Claude Code CLI — so they persist across conta
 cheap to spin up per git worktree. `postCreate` runs only workspace-specific steps (`npm ci`, plus a
 Chromium no-op that just re-downloads if the pinned Playwright version changes). When adding Dev
 Container tooling, **put workspace-independent installs in the Dockerfile, not `postCreate`.**
+`node_modules` and the npm cache live in named volumes — a **per-worktree** `node_modules` volume (so
+worktrees stay isolated and the container never clobbers the host's `node_modules`) plus a shared npm
+cache — which also makes `npm ci` fast on macOS. Removing a worktree with `make worktree-rm` drops
+its `node_modules` volume too; the shared npm cache persists across removals (reclaim it with
+`docker volume rm cv-npm-cache` if it ever grows large).
 
 > Without a Dev Container you can build with just Node + npm (`npm ci`), but you'll also need a
 > Chromium for the PDF and Docker for `make lint` / `make build`. The container is the supported path.
@@ -32,6 +37,7 @@ Everything goes through the `Makefile` — run `make <target>`:
 | Task | Command | Notes |
 | ---- | ------- | ----- |
 | New branch (isolated worktree) | `make worktree name=<b>` | fetches + branches off `origin/main` into `../cv-<b>` |
+| Remove a worktree | `make worktree-rm name=<b>` | removes `../cv-<b>` + its per-worktree `node_modules` volume |
 | Preview (build + watch + serve) | `npm start` | serves `dist/` on port 8080 (needs host Node) |
 | Build in the container (HTML + PDF) | `make page-container` | **preferred** — builds inside the Dev Container; host stays clean |
 | Build on the host (HTML + PDF) | `make page` | needs host Node + Playwright Chromium |

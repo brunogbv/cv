@@ -1,6 +1,6 @@
 MAKEFLAGS += -s
 
-.PHONY: dev clean page page-container worktree lint lint-fast build dev-build \
+.PHONY: dev clean page page-container worktree worktree-rm lint lint-fast build dev-build \
 	logs-app-builder logs-webserver logs-certbot \
 	remove-app-builder remove-certbot \
 	certificates certificates-dry-run \
@@ -39,7 +39,17 @@ worktree:
 	git fetch origin
 	git worktree add "../cv-$(subst /,-,$(name))" -b "$(name)" --no-track origin/main
 	echo "Worktree: ../cv-$(subst /,-,$(name))  (branch '$(name)' off origin/main)"
-	echo "Next: cd ../cv-$(subst /,-,$(name)) && make page-container   (remove later: git worktree remove ../cv-$(subst /,-,$(name)))"
+	echo "Next: cd ../cv-$(subst /,-,$(name)) && make page-container   (remove later: make worktree-rm name=$(name))"
+
+# Remove a worktree created by `make worktree` plus its per-worktree node_modules volume (the shared
+# npm cache is kept). Stop the worktree's Dev Container first, else the volume removal is skipped.
+# Usage: make worktree-rm name=<branch>
+# Dependencies: git, docker
+worktree-rm:
+	test -n "$(name)" || { echo "Usage: make worktree-rm name=<branch>  (e.g. make worktree-rm name=fix/typo)"; exit 1; }
+	git worktree remove "../cv-$(subst /,-,$(name))"
+	docker volume rm "cv-node-modules-cv-$(subst /,-,$(name))" 2>/dev/null && echo "removed node_modules volume" || echo "(node_modules volume not found or in use — stop its Dev Container, then: docker volume rm cv-node-modules-cv-$(subst /,-,$(name)))"
+	echo "Removed worktree ../cv-$(subst /,-,$(name))  (shared npm cache kept)"
 
 lint:
 	docker run --rm \

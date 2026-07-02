@@ -82,8 +82,9 @@ make worktree name=fix/typo   # fetches, then creates ../cv-fix-typo on branch f
 
 Work in the new `../cv-<name>` directory (build with `make page-container`). On your first push use
 `git push -u origin <name>` — the worktree branch starts with no upstream. Remove it when done with
-`git worktree remove ../cv-<name>`. Worktrees are the standard branching workflow — always branch off
-`origin/main`, never a stale local `main`.
+`make worktree-rm name=<name>` (drops the worktree and its per-worktree `node_modules` volume).
+Worktrees are the standard branching workflow — always branch off `origin/main`, never a stale local
+`main`.
 
 ## Linking pull requests
 

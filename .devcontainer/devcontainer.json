@@ -4,6 +4,10 @@
     "dockerfile": "Dockerfile",
     "context": ".."
   },
+  "mounts": [
+    "source=cv-node-modules-${localWorkspaceFolderBasename},target=${containerWorkspaceFolder}/node_modules,type=volume",
+    "source=cv-npm-cache,target=/root/.npm,type=volume"
+  ],
   "features": {
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
     "ghcr.io/devcontainers/features/python:1": {
