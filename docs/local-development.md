@@ -24,6 +24,7 @@ Everything goes through the `Makefile` — run `make <target>`:
 
 | Task | Command | Notes |
 | ---- | ------- | ----- |
+| New branch (isolated worktree) | `make worktree name=<b>` | fetches + branches off `origin/main` into `../cv-<b>` |
 | Preview (build + watch + serve) | `npm start` | serves `dist/` on port 8080 (needs host Node) |
 | Build in the container (HTML + PDF) | `make page-container` | **preferred** — builds inside the Dev Container; host stays clean |
 | Build on the host (HTML + PDF) | `make page` | needs host Node + Playwright Chromium |
@@ -41,7 +42,9 @@ Edit CV **content** in `src/metadata/metadata.js`. For the architecture and buil
 
 ## Working on a change
 
-1. **Raise an issue** and branch — see [contributing.md](contributing.md).
+1. **Raise an issue**, then start the work in an isolated worktree: `make worktree name=<branch>`
+   (fetches and branches off `origin/main`, so you never build on a stale base) — see
+   [contributing.md](contributing.md).
 2. For a non-trivial feature, go **spec-first** with spec-kit (`/speckit-specify` →
    `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`) — see
    [spec-driven.md](spec-driven.md).

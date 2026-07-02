@@ -70,6 +70,21 @@ A well-formed issue has:
    the issue groups without a new milestone.
 6. **Project** *(optional)* — add it to a board only if the effort uses one.
 
+## Branching
+
+Start each change in its own **git worktree**, created off a fresh `origin/main` — this avoids the
+stale-base footgun (branching off an out-of-date local `main`) and lets branches run in parallel
+without switching:
+
+```sh
+make worktree name=fix/typo   # fetches, then creates ../cv-fix-typo on branch fix/typo off origin/main
+```
+
+Work in the new `../cv-<name>` directory (build with `make page-container`). On your first push use
+`git push -u origin <name>` — the worktree branch starts with no upstream. Remove it when done with
+`git worktree remove ../cv-<name>`. Worktrees are the standard branching workflow — always branch off
+`origin/main`, never a stale local `main`.
+
 ## Linking pull requests
 
 Reference the issue in the PR description with a closing keyword so it auto-closes on merge:

@@ -1,6 +1,6 @@
 MAKEFLAGS += -s
 
-.PHONY: dev clean page page-container lint lint-fast build dev-build \
+.PHONY: dev clean page page-container worktree lint lint-fast build dev-build \
 	logs-app-builder logs-webserver logs-certbot \
 	remove-app-builder remove-certbot \
 	certificates certificates-dry-run \
@@ -30,6 +30,16 @@ page:
 page-container:
 	$(MAKE) dev
 	devcontainer exec --workspace-folder . make page
+
+# Start a new branch in an isolated git worktree, always off the fresh origin/main
+# (avoids branching on a stale local main). Usage: make worktree name=<branch>
+# Dependencies: git
+worktree:
+	test -n "$(name)" || { echo "Usage: make worktree name=<branch>  (e.g. make worktree name=fix/typo)"; exit 1; }
+	git fetch origin
+	git worktree add "../cv-$(subst /,-,$(name))" -b "$(name)" --no-track origin/main
+	echo "Worktree: ../cv-$(subst /,-,$(name))  (branch '$(name)' off origin/main)"
+	echo "Next: cd ../cv-$(subst /,-,$(name)) && make page-container   (remove later: git worktree remove ../cv-$(subst /,-,$(name)))"
 
 lint:
 	docker run --rm \
