@@ -27,6 +27,27 @@ cache — which also makes `npm ci` fast on macOS. Removing a worktree with `mak
 its `node_modules` volume too; the shared npm cache persists across removals (reclaim it with
 `docker volume rm cv-npm-cache` if it ever grows large).
 
+**Pinning (reproducibility).** Per constitution Principle V ("pin what determines output"), the Dev
+Container inputs are pinned: the `.devcontainer/Dockerfile` base image is pinned by its multi-arch
+**index digest** (`…:22-bookworm@sha256:…`, resolving on both amd64/CI and arm64/Apple Silicon), and
+the `devcontainer.json` features are pinned to exact versions (e.g. `python:1.8.0` — the *feature*
+version, independent of the Python it installs via `"version": "3.12"`) rather than the moving `:1`
+major tag. This freezes those inputs — including the features' own patch/security updates — until
+someone bumps them, so refresh **deliberately**, not incidentally:
+
+- **Base image** — re-resolve the tag's index digest and update it in the Dockerfile (the exact
+  `curl` command is in a comment above the `FROM`).
+- **Features** — bump to a newer published version from
+  [`devcontainers/features`](https://github.com/devcontainers/features) (e.g.
+  `ghcr.io/devcontainers/features/python:<x.y.z>`).
+
+After either bump, rebuild (`devcontainer build --workspace-folder .` or `make dev`) and confirm the
+image builds and hadolint stays green (via `make lint`).
+
+Not everything is pinned: the global CLIs baked into the Dockerfile (`uv`, the spec-kit `specify`
+CLI, `claude-code`) and the `gh` binary the `github-cli` feature installs still fetch their latest at
+build time — only the base image and the feature *packages* are pinned.
+
 > Without a Dev Container you can build with just Node + npm (`npm ci`), but you'll also need a
 > Chromium for the PDF and Docker for `make lint` / `make build`. The container is the supported path.
 

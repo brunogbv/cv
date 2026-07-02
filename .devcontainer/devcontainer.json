@@ -9,11 +9,11 @@
     "source=cv-npm-cache,target=/root/.npm,type=volume"
   ],
   "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
-    "ghcr.io/devcontainers/features/python:1": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1.10.0": {},
+    "ghcr.io/devcontainers/features/python:1.8.0": {
       "version": "3.12"
     },
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1.1.0": {}
   },
   "forwardPorts": [
     8080
