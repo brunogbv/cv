@@ -1,6 +1,6 @@
 MAKEFLAGS += -s
 
-.PHONY: dev clean page page-container worktree worktree-rm lint lint-fast build dev-build \
+.PHONY: dev clean page page-container worktree worktree-rm worktree-prune lint lint-fast build dev-build \
 	logs-app-builder logs-webserver logs-certbot \
 	remove-app-builder remove-certbot \
 	certificates certificates-dry-run \
@@ -32,14 +32,16 @@ page-container:
 	devcontainer exec --workspace-folder . make page
 
 # Start a new branch in an isolated git worktree, always off the fresh origin/main
-# (avoids branching on a stale local main). Usage: make worktree name=<branch>
-# Dependencies: git
+# (avoids branching on a stale local main). Prunes merged worktrees first (best
+# effort — never blocks the create). Usage: make worktree name=<branch>
+# Dependencies: git (gh optional, for the authoritative merged-PR check)
 worktree:
 	test -n "$(name)" || { echo "Usage: make worktree name=<branch>  (e.g. make worktree name=fix/typo)"; exit 1; }
+	bash scripts/worktree-prune.sh || true
 	git fetch origin
 	git worktree add "../cv-$(subst /,-,$(name))" -b "$(name)" --no-track origin/main
 	echo "Worktree: ../cv-$(subst /,-,$(name))  (branch '$(name)' off origin/main)"
-	echo "Next: cd ../cv-$(subst /,-,$(name)) && make page-container   (remove later: make worktree-rm name=$(name))"
+	echo "Next: cd ../cv-$(subst /,-,$(name)) && make page-container   (removed automatically once its PR merges — or now: make worktree-rm name=$(name))"
 
 # Remove a worktree created by `make worktree` plus its per-worktree node_modules volume (the shared
 # npm cache is kept). Stop the worktree's Dev Container first, else the volume removal is skipped.
@@ -50,6 +52,14 @@ worktree-rm:
 	git worktree remove "../cv-$(subst /,-,$(name))"
 	docker volume rm "cv-node-modules-cv-$(subst /,-,$(name))" 2>/dev/null && echo "removed node_modules volume" || echo "(node_modules volume not found or in use — stop its Dev Container, then: docker volume rm cv-node-modules-cv-$(subst /,-,$(name)))"
 	echo "Removed worktree ../cv-$(subst /,-,$(name))  (shared npm cache kept)"
+
+# Remove all sibling worktrees whose PR has merged, deleting each one's local branch and its
+# per-worktree node_modules volume (shared npm cache kept). Safe: skips the main/current worktree,
+# the default branch, and any worktree with uncommitted changes. Preview with
+# `bash scripts/worktree-prune.sh --dry-run`. Runs automatically before `make worktree`.
+# Dependencies: git (gh optional, for the authoritative merged-PR check; docker to drop volumes)
+worktree-prune:
+	bash scripts/worktree-prune.sh
 
 lint:
 	docker run --rm \
