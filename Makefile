@@ -1,6 +1,6 @@
 MAKEFLAGS += -s
 
-.PHONY: dev clean page page-container worktree worktree-rm worktree-prune lint lint-fast build dev-build \
+.PHONY: dev clean page page-container worktree worktree-rm worktree-prune lint lint-actions lint-fast build dev-build \
 	logs-app-builder logs-webserver logs-certbot \
 	remove-app-builder remove-certbot \
 	certificates certificates-dry-run \
@@ -61,13 +61,52 @@ worktree-rm:
 worktree-prune:
 	bash scripts/worktree-prune.sh
 
+# Full CI-parity lint via the same Super-Linter image CI uses.
+#   - Pinned to CI's version (v6.7.0), not `latest`, so a local pass == CI.
+#   - `--platform linux/amd64`: Super-Linter ships no arm64 image, so this runs
+#     emulated on Apple Silicon (a no-op on amd64 CI/Intel hosts).
+#   - Git-dir mount: from a `make worktree` sibling the tree's `.git` is a *file*
+#     pointing at the main checkout's `.git` by absolute path, so we also bind-mount
+#     that path — otherwise Super-Linter's git can't resolve `main`/`origin/main`. In
+#     a plain checkout it's a harmless no-op (the `.git` dir is already in the tree).
+#     `safe.directory=*` stops git's "dubious ownership" error on the bind mounts.
+#   - `SHELL=/bin/bash`: Super-Linter builds its file list with GNU `parallel`, which
+#     runs workers via `$SHELL`; unset, it falls back to `/bin/sh` and can't see the
+#     bash functions Super-Linter exports (`BuildFileArrays: not found`). Setting it to
+#     bash fixes the file-list step when run locally via `docker run`.
+#   - On arm64 the GITHUB_ACTIONS validator (actionlint) crashes with a SIGSEGV under
+#     QEMU emulation, so it's skipped here. Super-Linter forbids mixing include (`=true`)
+#     and exclude (`=false`) flags, so rather than set it `=false` we lint with a copy of
+#     the env-file that drops the `VALIDATE_GITHUB_ACTIONS` line; workflows are checked
+#     natively (no emulation) by `make lint-actions` instead.
+LINT_IMAGE := ghcr.io/super-linter/super-linter:v6.7.0
+LINT_GIT_COMMON_DIR := $(shell git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || echo "$(CURDIR)/.git")
+LINT_SKIP_ACTIONS := $(if $(filter arm64 aarch64,$(shell uname -m)),1,)
 lint:
+	envfile=config/lint/super-linter.env; \
+	if [ -n "$(LINT_SKIP_ACTIONS)" ]; then \
+		envfile="$$(mktemp)"; trap 'rm -f "$$envfile"' EXIT; \
+		grep -v '^VALIDATE_GITHUB_ACTIONS=' config/lint/super-linter.env > "$$envfile"; \
+		echo "note: GitHub Actions linting is skipped under emulation on this arch — run 'make lint-actions' to check workflows"; \
+	fi; \
 	docker run --rm \
+		--platform linux/amd64 \
 		-e LOG_LEVEL=INFO \
 		-e RUN_LOCAL=true \
-		--env-file "config/lint/super-linter.env" \
-		-v $(shell pwd):/tmp/lint \
-		ghcr.io/super-linter/super-linter:latest
+		-e SHELL=/bin/bash \
+		-e GIT_CONFIG_COUNT=1 \
+		-e GIT_CONFIG_KEY_0=safe.directory \
+		-e GIT_CONFIG_VALUE_0='*' \
+		--env-file "$$envfile" \
+		-v "$(CURDIR):/tmp/lint" \
+		-v "$(LINT_GIT_COMMON_DIR):$(LINT_GIT_COMMON_DIR):ro" \
+		$(LINT_IMAGE)
+
+# Lint GitHub Actions workflows with actionlint (native — works on arm64, where the
+# emulated Super-Linter above skips its GITHUB_ACTIONS validator). Pinned to the same
+# actionlint version Super-Linter v6.7.0 bundles, so this matches the CI check.
+lint-actions:
+	docker run --rm -v "$(CURDIR):/repo" -w /repo rhysd/actionlint:1.7.1 -color
 
 # Fast local lint (JS via standard, Markdown via markdownlint) — a quick subset of
 # `make lint` for the common edit types. `make lint` (Super-Linter) stays the

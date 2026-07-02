@@ -51,8 +51,11 @@ updating a PR to get feedback in one pass instead of the push-and-wait cycle:
 make lint
 ```
 
-This runs the **same** Super-Linter image in Docker with `RUN_LOCAL=true`, using
-`config/lint/super-linter.env`, so a local pass closely matches the CI result.
+This runs the **same** Super-Linter image CI pins (`v6.7.0`) in Docker with `RUN_LOCAL=true`, using
+`config/lint/super-linter.env`, so a local pass closely matches the CI result. It works on Apple
+Silicon (the image is amd64-only, so the target runs it via `--platform linux/amd64`) and from a
+`make worktree` sibling (the target also bind-mounts the shared git dir — a worktree's `.git` is a
+file pointing at the main checkout — so Super-Linter can resolve `main`).
 
 For a quicker inner-loop check, `make lint-fast` runs just the JavaScript (`standard`) and Markdown
 (`markdownlint`) linters natively — no Docker, no full image — calibrated to approximate CI's
@@ -62,8 +65,12 @@ CI-parity check.
 
 Caveats:
 
-- **Image version:** `make lint` pulls `super-linter:latest`, while CI pins `v6.7.0`
-  (`.github/workflows/superlinter.yml`). Results can drift slightly between versions.
+- **Apple Silicon:** Super-Linter ships no arm64 image, so `make lint` runs it under emulation
+  (`--platform linux/amd64`) — correct, but slower than native. Under that emulation the
+  `GITHUB_ACTIONS` validator (actionlint) crashes with a SIGSEGV, so `make lint` **skips it on
+  arm64** (and says so); check workflows with **`make lint-actions`**, which runs actionlint natively
+  (pinned to the version Super-Linter bundles). On amd64 (CI/Intel) nothing is skipped. `make
+  lint-fast` stays the quick inner-loop check.
 - **Scope:** locally, Super-Linter lints the whole workspace; in CI it lints only files changed
   against `main`. Local is broader, not narrower.
 - **Vercel:** the deploy-preview check runs on Vercel's side and is **not** covered by `make lint`;
