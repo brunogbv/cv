@@ -111,14 +111,23 @@ Any change over **10 reviewable lines** (excluding generated files like `package
 1. Run `/code-review` in Claude Code — it spawns independent reviewers that critique the diff
    (correctness, removed behavior, robustness) and verify findings.
 2. Fix the confirmed findings; note anything you deliberately defer.
-3. Record the review so the gate clears (the block message prints the exact command):
-   `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/review-gate.sh" record`
+3. Record the review so the gate clears. **Copy the exact command from the block message** rather
+   than typing it — it names the worktree to record (see below):
+   `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/review-gate.sh" record "<worktree>"`
 
 A `Stop` hook (`.claude/hooks/review-gate.sh`) enforces this locally for Claude Code users: it
 blocks finishing a turn until the current diff is recorded as reviewed. It is a strong reminder, not
 a hard gate — an ignored block eventually lets go, and it only runs for contributors using Claude
 Code, so treat it as a prompt to review rather than a guarantee. Tune the threshold per-project with
 `REVIEW_GATE_THRESHOLD`.
+
+**Worktrees.** Because work happens in a sibling worktree (`make worktree`) while the session's cwd
+stays in the main checkout, the gate measures **each worktree you edited this turn** (found from the
+transcript) plus the current directory's worktree, and records/clears each one **by its own root**.
+So the block message's `record "<worktree>"` targets the worktree where the change lives — run it as
+shown, or from inside the worktree as `bash …/review-gate.sh record`. Unrelated worktrees (another
+task's WIP) are never scanned, so they can't block your turn. Only tracked changes count — a
+brand-new file is measured once it's `git add`ed.
 
 ## Improving the harness
 

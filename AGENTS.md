@@ -85,8 +85,11 @@ self-review and act on it:
 - Fix confirmed findings; state explicitly anything you deliberately defer.
 
 This is enforced by a `Stop` hook (`.claude/hooks/review-gate.sh`) that blocks finishing until the
-current diff is recorded as reviewed. After reviewing, record it (the block message prints the
-exact command): `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/review-gate.sh" record`.
+current diff is recorded as reviewed. The gate is worktree-aware: it measures each worktree you
+edited this turn (plus the current directory's) and records/clears each by its own root, so it fires
+for work done in a `make worktree` sibling — not just the main checkout. After reviewing, record it
+with the command the block message prints (it names the worktree):
+`bash "$CLAUDE_PROJECT_DIR/.claude/hooks/review-gate.sh" record "<worktree>"`.
 
 ## Keep docs in sync
 
