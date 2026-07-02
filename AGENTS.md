@@ -141,9 +141,16 @@ clean themselves up.
 ## Spec-driven development
 
 Non-trivial features are developed spec-first with spec-kit: `/speckit-specify` → `/speckit-clarify`
-→ `/speckit-plan` → `/speckit-tasks` → `/speckit-implement` (skills under `.claude/skills/`). The
-spec lives in `specs/<feature>/` as the source of intent; the project constitution is
-`.specify/memory/constitution.md`. See [`docs/spec-driven.md`](docs/spec-driven.md).
+→ `/speckit-plan` → `/speckit-tasks` → `/speckit-taskstoissues` → `/speckit-implement` (skills under
+`.claude/skills/`). The spec lives in `specs/<feature>/` as the source of intent; the project
+constitution is `.specify/memory/constitution.md`. See [`docs/spec-driven.md`](docs/spec-driven.md).
+
+**Task status lives in GitHub Issues, not `tasks.md`.** `/speckit-taskstoissues` turns each task into
+an issue *and* repurposes its `tasks.md` checkbox into a link to that issue
+(`- [ ] T001 …` → `- [T001](…/issues/12) …`); thereafter `tasks.md` is the decomposition + issue map,
+completion is the linked issue closing via `Closes #<n>`, and the milestone progress bar is the
+status view — `/speckit-implement` does not tick checkboxes. (These are local customizations to the
+vendored spec-kit skills; re-apply them if the skills are ever re-synced from upstream.)
 
 ## Required Skills
 

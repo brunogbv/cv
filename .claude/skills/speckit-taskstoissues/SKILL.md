@@ -74,6 +74,8 @@ git config --get remote.origin.url
    - **Skip** any task whose ID is already present in the set of existing issues from the previous step, and report it (for example, `T001 already has an issue, skipping`).
    - Only create issues for tasks that do not yet have a matching issue.
 
+1. **Link each task to its issue in `tasks.md`** — GitHub Issues (plus the milestone progress bar), *not* the file, are the source of truth for task status, so repurpose each task's leading checkbox into a Markdown link to its issue. For **every** task (whether its issue was just created now or already existed from the dedup step), rewrite that task's line in `tasks.md`: replace the leading `- [ ] ` / `- [x] ` / `- [X] ` with `- [<TaskID>](<issue html_url>) `, preserving any `[P]` / `[US#]` markers and the description. Example: `- [ ] T001 [P] Create project structure` becomes `- [T001](https://github.com/<owner>/<repo>/issues/12) [P] Create project structure`. **Idempotent:** if a task's line is already a link (it starts with `- [T001](`), leave it unchanged. This makes the task↔issue link bidirectional (the issue title already carries `T001:`) and is why `/speckit-implement` no longer ticks checkboxes — status is tracked by the issues and the milestone, not by the file.
+
 > [!CAUTION]
 > UNDER NO CIRCUMSTANCES EVER CREATE ISSUES IN REPOSITORIES THAT DO NOT MATCH THE REMOTE URL
 

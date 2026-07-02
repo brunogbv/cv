@@ -24,9 +24,13 @@ and `/speckit-converge` (assess the codebase and append remaining work).
 
 ## How it ties into our conventions
 
-- **Issues** — `/speckit-taskstoissues` turns the generated tasks into GitHub issues; keep them
-  under the feature's single milestone and tag phases with `phase:*` labels for grouping (see
-  [contributing.md](contributing.md)).
+- **Issues are the source of truth for task status.** `/speckit-taskstoissues` turns the generated
+  tasks into GitHub issues (under the feature's single milestone, phases tagged with `phase:*` — see
+  [contributing.md](contributing.md)) **and rewrites each task line in `tasks.md`, repurposing its
+  checkbox into a link to the issue** (`- [ ] T001 …` → `- [T001](…/issues/12) …`). After that,
+  `tasks.md` is the **decomposition + issue map**, not a status file: a task is done when its linked
+  issue closes (via a PR's `Closes #<n>`), and the **milestone progress bar** is the status view.
+  `/speckit-implement` does **not** tick checkboxes — don't hand-maintain status in the file.
 - **PRs** — implement on a branch and link the issue with `Closes #<n>`.
 - **Builds** — `/speckit-implement` runs builds and PDF rendering in the Dev Container or CI, not
   the host (`make page-container`) — see [local-development.md](local-development.md).
