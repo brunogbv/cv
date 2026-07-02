@@ -26,7 +26,9 @@ worktrees stay isolated and the container never clobbers the host's `node_module
 cache — which also makes `npm ci` fast on macOS. Removing a worktree with `make worktree-rm` (or
 `make worktree-prune`, which sweeps all merged worktrees) drops its `node_modules` volume too; the
 shared npm cache persists across removals (reclaim it with `docker volume rm cv-npm-cache` if it ever
-grows large).
+grows large). The image is also **prebuilt in CI and published to GHCR**, so `devcontainer up` pulls
+those layers via `build.cacheFrom` (near-instant) and falls back to a local build if the registry is
+unavailable — see [ci-cd.md](ci-cd.md#dev-container-image-prebuild).
 
 **Pinning (reproducibility).** Per constitution Principle V ("pin what determines output"), the Dev
 Container inputs are pinned: the `.devcontainer/Dockerfile` base image is pinned by its multi-arch

@@ -1,11 +1,14 @@
 # CI/CD
 
-CI is automated and lint-only. Deployment (CD) is **manual** — there is no pipeline that ships the
-site; a human runs `make` targets on the host that serves [valerio.dev](https://valerio.dev).
+CI is automated: it lints every change and prebuilds the Dev Container image. Deployment (CD) of the
+site is **manual** — there is no pipeline that ships the site; a human runs `make` targets on the
+host that serves [valerio.dev](https://valerio.dev).
 
 ## Continuous Integration — GitHub Actions
 
-One workflow: **`.github/workflows/superlinter.yml`** (name: `Lint`).
+Two workflows: **`.github/workflows/superlinter.yml`** (name: `Lint`) lints every change, and
+**`.github/workflows/devcontainer.yml`** (name: `Dev Container`) prebuilds the Dev Container image
+(see [Dev Container image prebuild](#dev-container-image-prebuild)). The lint workflow:
 
 - **Triggers:** every `push` and every `pull_request`.
 - **Runner:** `ubuntu-latest`.
@@ -16,7 +19,9 @@ One workflow: **`.github/workflows/superlinter.yml`** (name: `Lint`).
      (`permissions: statuses: write`, using the default `GITHUB_TOKEN`).
 - A Super-Linter status badge is shown at the top of the root [`README.md`](../README.md).
 
-There are **no automated tests** and **no build/deploy** in CI — linting is the only gate.
+There are **no automated tests** for the site and **no site build/deploy** in CI — linting is the
+only gate on site changes. (The Dev Container workflow below builds and smoke-tests the *dev
+environment* image; it does not build or deploy the site itself.)
 
 ### Linter configuration
 
@@ -59,6 +64,34 @@ Caveats:
   against `main`. Local is broader, not narrower.
 - **Vercel:** the deploy-preview check runs on Vercel's side and is **not** covered by `make lint`;
   it can only be validated after pushing.
+
+### Dev Container image prebuild
+
+`.github/workflows/devcontainer.yml` (name: `Dev Container`) prebuilds the Dev Container image and
+publishes it to the GitHub Container Registry (GHCR), so `devcontainer up` — on any machine and in
+each `make worktree` — pulls cached layers instead of building the image from scratch.
+
+- **Triggers:** `push` to `main` and `pull_request`, both filtered to the paths that determine the
+  image (`.devcontainer/**`, `package.json`, `package-lock.json`, and the workflow file); plus
+  manual `workflow_dispatch`.
+- **What it does:** logs in to GHCR (`docker/login-action`, `packages: write` + `GITHUB_TOKEN`),
+  then `devcontainers/ci@v0.3` builds the image (Dockerfile + features), runs the container
+  lifecycle (`postCreate`: `npm ci` + `playwright install`), and runs **`make page`** inside it as a
+  smoke test that the image renders the HTML page and the PDF.
+- **Publish vs. build-only:** `push: filter` publishes the image
+  (`ghcr.io/brunogbv/cv-devcontainer:latest`) **only on pushes to `main`**. Pull requests and manual
+  `workflow_dispatch` runs build and smoke-test the image but do **not** publish — so a broken
+  Dockerfile is caught at PR time.
+- **Consumption + fallback:** `devcontainer.json`'s `build.cacheFrom` points at the same GHCR image,
+  so `devcontainer up` reuses the published layers (near-instant when unchanged). If the registry is
+  unreachable or the image is missing, the build simply falls back to a normal local build — the
+  prebuild is an optimization, never a hard dependency.
+
+**One-time owner step (manual):** for anonymous pulls to work — so contributors get the cache
+without a `docker login` — the GHCR package must be **public**. After the first publish from `main`,
+set the `cv-devcontainer` package to Public once (GitHub → your Packages → `cv-devcontainer` →
+Package settings → Change visibility → Public). Until then, only authenticated pulls hit the cache
+and everyone else falls back to a local build (which still works, just slower).
 
 ## Continuous Deployment — manual, Docker-based
 
