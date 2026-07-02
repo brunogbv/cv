@@ -72,18 +72,18 @@ HTML + PDF, with automatic TLS — no manual server/cert steps.
 **Independent Test**: open a PR → a preview URL serves the page + PDF over HTTPS; merge to `main` →
 production deploy aliased to the project domain (quickstart Scenarios 2–3).
 
-- [ ] T010 [US1] Add `vercel.json` at repo root: `framework: null`, `buildCommand: ""`,
+- [X] T010 [US1] Add `vercel.json` at repo root: `framework: null`, `buildCommand: ""`,
       `outputDirectory: "dist"`, `cleanUrls: true`, `trailingSlash: false`,
       `git.deploymentEnabled: false`, and the `headers` (Cache-Control per type + security headers)
       from `contracts/serving-contract.md`; add `.vercel/` to `.gitignore`
-- [ ] T011 [US1] Add a `deploy` target to `Makefile` wrapping `vercel pull` → `vercel build` →
+- [X] T011 [US1] Add a `deploy` target to `Makefile` wrapping `vercel pull` → `vercel build` →
       `vercel deploy --prebuilt` (reading `VERCEL_*` from the env; `--prod` when `PROD=1`); add
       `deploy` to `.PHONY`
-- [ ] T012 [US1] Add `.github/workflows/deploy.yml`: trigger on `push` to `main` (production) and
+- [X] T012 [US1] Add `.github/workflows/deploy.yml`: trigger on `push` to `main` (production) and
       `pull_request` (preview); steps = Node 22 + `npm ci`, cache `~/.cache/ms-playwright` (keyed on
       the Playwright version + runner OS), `npx playwright install --with-deps chromium`,
       `make page`, then `make deploy` (`PROD=1` on `main`)
-- [ ] T013 [US1] In `deploy.yml`, capture the deploy URL from stdout and post it to the PR
+- [X] T013 [US1] In `deploy.yml`, capture the deploy URL from stdout and post it to the PR
       (`actions/github-script` or `gh pr comment`) so preview URLs are visible (FR-002)
 - [ ] T014 [US1] Verify: PR → workflow builds + posts a working preview URL (HTML + PDF, correct
       fonts, `/<slug>.pdf` reachable); a forced build failure promotes nothing (FR-008); prod path
