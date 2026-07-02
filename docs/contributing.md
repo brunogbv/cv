@@ -93,6 +93,16 @@ Reference the issue in the PR description with a closing keyword so it auto-clos
 Closes #123
 ```
 
+When a PR resolves **several** issues (e.g. a decomposed spec-kit `T00x` task set), give **each**
+one its own keyword. GitHub only applies a keyword to the **first** number that follows it, so a
+comma list like `Closes #37, #38, #39` auto-closes *only* #37 and silently leaves the rest open:
+
+```text
+Closes #37, closes #38, closes #39
+```
+
+This footgun left #38–#43 (and umbrella #24) open after #67 — they had to be closed by hand.
+
 ## Self-review before a PR
 
 Any change over **10 reviewable lines** (excluding generated files like `package-lock.json` and
