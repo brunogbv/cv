@@ -81,10 +81,27 @@ make worktree name=fix/typo   # fetches, then creates ../cv-fix-typo on branch f
 ```
 
 Work in the new `../cv-<name>` directory (build with `make page-container`). On your first push use
-`git push -u origin <name>` — the worktree branch starts with no upstream. Remove it when done with
-`make worktree-rm name=<name>` (drops the worktree and its per-worktree `node_modules` volume).
-Worktrees are the standard branching workflow — always branch off `origin/main`, never a stale local
-`main`.
+`git push -u origin <name>` — the worktree branch starts with no upstream. Worktrees are the standard
+branching workflow — always branch off `origin/main`, never a stale local `main`.
+
+**Cleanup is automatic.** Once a PR merges, the repo deletes its remote branch (squash-merge +
+delete-branch-on-merge), leaving the worktree and local branch behind. `make worktree` prunes merged
+worktrees before creating the next one, so they clear themselves in the normal loop. To prune on
+demand — or remove a specific one yourself — use:
+
+```sh
+make worktree-prune                        # remove all merged worktrees (branch + node_modules volume)
+bash scripts/worktree-prune.sh --dry-run   # preview what would be removed
+make worktree-rm name=<name>               # remove one by hand (worktree + its node_modules volume)
+```
+
+The prune is safe: it never touches the main worktree, the current worktree, the default branch, or
+any worktree with uncommitted or untracked changes. It removes a worktree only when `gh` reports a
+**merged PR** for its branch *and* the local tip is provably that merged work (its HEAD matches the
+merged PR's head commit, or is already in `main`) — so a branch with extra local commits beyond the
+PR is kept. Without `gh` it can't verify a merge and prunes nothing. Each pruned worktree's
+per-worktree `node_modules` volume is dropped too (like `make worktree-rm`); the shared npm cache is
+kept.
 
 ## Linking pull requests
 

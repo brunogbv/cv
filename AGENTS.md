@@ -124,7 +124,9 @@ with a clear imperative title, a type label (`documentation` / `enhancement` / `
 tag phases** (e.g. `phase:*`) for grouping within it — not a milestone per phase. A GitHub **Project
 is optional** (a board/field view; use it for kanban/custom-field/cross-milestone tracking). Link
 PRs to issues with `Closes #<n>`. Start each branch in its own git worktree off fresh `origin/main`
-with `make worktree name=<b>` — never off a stale local `main`.
+with `make worktree name=<b>` — never off a stale local `main`. `make worktree` first prunes
+worktrees whose PR has merged (and `make worktree-prune` does it on demand), so merged worktrees
+clean themselves up.
 
 ## Spec-driven development
 
