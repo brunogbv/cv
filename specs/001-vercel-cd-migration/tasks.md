@@ -85,7 +85,7 @@ production deploy aliased to the project domain (quickstart Scenarios 2–3).
       `make page`, then `make deploy` (`PROD=1` on `main`)
 - [X] T013 [US1] In `deploy.yml`, capture the deploy URL from stdout and post it to the PR
       (`actions/github-script` or `gh pr comment`) so preview URLs are visible (FR-002)
-- [ ] T014 [US1] Verify: PR → workflow builds + posts a working preview URL (HTML + PDF, correct
+- [X] T014 [US1] Verify: PR → workflow builds + posts a working preview URL (HTML + PDF, correct
       fonts, `/<slug>.pdf` reachable); a forced build failure promotes nothing (FR-008); prod path
       aliases correctly (quickstart Scenarios 2–3 / SC-001, SC-002)
 
@@ -104,11 +104,11 @@ apex. Restores the currently-down site. **Depends on US1** (a working prod deplo
 - [X] T015 [US2] Write the DNS cutover runbook in `docs/` (e.g. a "Domain cutover" section of
       `docs/ci-cd.md`): lower TTL → add domains in Vercel → set `www` → 301 → apex → verify serving +
       cert **before** switching → set A/CNAME → verify. Note there is no rollback (VM already down).
-- [ ] T016 [US2] **(owner-run — Vercel dashboard)** Add `valerio.dev` + `www.valerio.dev` to the
+- [X] T016 [US2] **(owner-run — Vercel dashboard)** Add `valerio.dev` + `www.valerio.dev` to the
       project; mark `valerio.dev` primary; set `www.valerio.dev` "Redirect to" the apex (301)
-- [ ] T017 [US2] **(owner-run — DNS registrar)** Set apex `A → <IP from Vercel Domain settings>` and
+- [X] T017 [US2] **(owner-run — DNS registrar)** Set apex `A → <IP from Vercel Domain settings>` and
       `www CNAME → <project>.vercel-dns-###.com` (exact values from the dashboard); lower TTL first
-- [ ] T018 [US2] Verify cutover: `dig A valerio.dev` matches the dashboard IP; `curl -sI
+- [X] T018 [US2] Verify cutover: `dig A valerio.dev` matches the dashboard IP; `curl -sI
       https://valerio.dev/` → 200 + valid TLS; `curl -sI https://www.valerio.dev/` → 301 → apex
       (quickstart Scenario 4 / SC-004, SC-005, FR-006, FR-007)
 
@@ -124,15 +124,15 @@ US2 is verified.** (VM already powered down — no decommission step.)
 **Independent Test**: no `webserver`/`certbot`/`nginx` targets remain; docker-compose/config gone;
 `make page` / `make lint` / `make dev-build` / `npm start` still work (quickstart Scenario 5).
 
-- [ ] T019 [P] [US3] Remove `docker-compose.yml` (app-builder + nginx + certbot services) and
+- [X] T019 [P] [US3] Remove `docker-compose.yml` (app-builder + nginx + certbot services) and
       `config/nginx/`
-- [ ] T020 [US3] Remove the retired deploy targets from `Makefile` (`webserver*`, `certificates*`,
+- [X] T020 [US3] Remove the retired deploy targets from `Makefile` (`webserver*`, `certificates*`,
       `logs-*`, `remove-*`, `build`, `down`, `all`); keep `clean`, `dev`, `page`, `lint`,
       `lint-fast`, `dev-build`, `deploy`
-- [ ] T021 [US3] Decouple `Dockerfile` + `make dev-build` from the removed docker-compose so the
+- [X] T021 [US3] Decouple `Dockerfile` + `make dev-build` from the removed docker-compose so the
       no-local-node build still works (FR-011)
-- [ ] T022 [P] [US3] Remove the dead `predeploy` (gh-pages) script from `package.json`
-- [ ] T023 [US3] Verify retirement (quickstart Scenario 5): retired targets gone; `make page`,
+- [X] T022 [P] [US3] Remove the dead `predeploy` (gh-pages) script from `package.json`
+- [X] T023 [US3] Verify retirement (quickstart Scenario 5): retired targets gone; `make page`,
       `make lint`, `make dev-build`, `npm start` all still work (FR-010, FR-011)
 
 **Checkpoint**: only the Vercel deploy path remains; local dev intact.
@@ -143,17 +143,17 @@ US2 is verified.** (VM already powered down — no decommission step.)
 
 **Purpose**: bring all docs in line with the new model (constitution Principle III) and final-verify.
 
-- [ ] T024 [P] Rewrite `docs/ci-cd.md`: CD is now GitHub Actions → Vercel prebuilt deploy; remove
+- [X] T024 [P] Rewrite `docs/ci-cd.md`: CD is now GitHub Actions → Vercel prebuilt deploy; remove
       the manual VM/nginx/certbot deploy sections
-- [ ] T025 [P] Update `docs/architecture.md`: replace the nginx/certbot/app-builder "deploy stack"
+- [X] T025 [P] Update `docs/architecture.md`: replace the nginx/certbot/app-builder "deploy stack"
       description with Vercel hosting
-- [ ] T026 [P] Update `README.md`: replace the GitHub Pages / `npm run deploy` + VM instructions with
+- [X] T026 [P] Update `README.md`: replace the GitHub Pages / `npm run deploy` + VM instructions with
       the Vercel push-to-deploy model; refresh usage/badges
-- [ ] T027 [P] Update `AGENTS.md`: Overview + Building/Deploy sections → Vercel CD (retire the
+- [X] T027 [P] Update `AGENTS.md`: Overview + Building/Deploy sections → Vercel CD (retire the
       manual-deploy language)
-- [ ] T028 Add an ADR in `docs/adr/` recording the decision: build in CI + deploy prebuilt to Vercel
+- [X] T028 Add an ADR in `docs/adr/` recording the decision: build in CI + deploy prebuilt to Vercel
       (not native Vercel build), apex-canonical, and vendored fonts (#24)
-- [ ] T029 Final verification: run through `quickstart.md` Scenarios 1–5 and `make lint`
+- [X] T029 Final verification: run through `quickstart.md` Scenarios 1–5 and `make lint`
       (Super-Linter) green (SC-006, SC-007)
 
 ---

@@ -1,11 +1,14 @@
 # The Curriculum Vitae
 
-[![Super-Linter](https://github.com/brunogbv/cv/actions/workflows/superlinter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
+[![Lint](https://github.com/brunogbv/cv/actions/workflows/superlinter.yml/badge.svg)](https://github.com/brunogbv/cv/actions/workflows/superlinter.yml)
+[![Deploy](https://github.com/brunogbv/cv/actions/workflows/deploy.yml/badge.svg)](https://github.com/brunogbv/cv/actions/workflows/deploy.yml)
 [![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/brunogbv/cv)
 
 Hosted at: [https://valerio.dev](https://valerio.dev)
 
-You are a fantastic developer. Keep your CV on GitHub, exploiting Node.js GitHub Action. Host it on GitHub Pages. Have both HTML and PDF versions automatically generated and consistent.
+A CV managed as code: a small Node.js static-site generator that renders a single HTML page and a
+matching PDF from a structured data file, then deploys them to [Vercel](https://vercel.com) on every
+push — with automatic TLS and a consistent HTML + PDF pair.
 
 <img src="https://raw.githubusercontent.com/dheereshagrwal/colored-icons/f926a9cacef437021842aa53029d1b73fb03de15/svg/nodejs.svg" alt="nodejs Logo" width="40" height="40" /> &nbsp; &nbsp;
 <img src="https://raw.githubusercontent.com/dheereshagrwal/colored-icons/f926a9cacef437021842aa53029d1b73fb03de15/svg/npm.svg" alt="npm Logo" width="40" height="40" /> &nbsp; &nbsp;
@@ -15,9 +18,9 @@ You are a fantastic developer. Keep your CV on GitHub, exploiting Node.js GitHub
 
 ## What does this project do?
 
-* Helps you to manage your CV as a web app (HTML + CSS + JS).
-* Dockerized for easy building and deployment.
-* Github Actions for CI/CD. (Currently only for CI, CD is manual for now)
+- Manages a CV as a static web app (HTML + CSS) plus a matching PDF, both generated at build time.
+- Builds in GitHub Actions and deploys the prebuilt output to Vercel on every push — **production**
+  from `main`, a **preview** per pull request — with automatic, auto-renewing TLS.
 
 ## Documentation
 
@@ -25,166 +28,46 @@ Developer documentation lives in [`docs/`](docs/):
 
 - [Local development](docs/local-development.md) — set up the Dev Container, everyday commands, and the change workflow (start here).
 - [Architecture](docs/architecture.md) — code structure, the build pipeline, the content data model, and how the site is served.
-- [CI/CD](docs/ci-cd.md) — GitHub Actions workflows and the manual Docker-based deployment.
+- [CI/CD](docs/ci-cd.md) — the GitHub Actions workflows (Lint, Dev Container prebuild, Vercel Deploy) and the Vercel deploy model.
+- [`AGENTS.md`](AGENTS.md) — conventions for working in this repo (build via the Makefile, Dev Container, spec-driven development).
 
-## Dependencies
+## Getting started
 
-This project leverages Docker and Docker Compose for building and deploying the page. It's recommended to install Docker and Docker Compose to streamline the development process and avoid the need for local dependencies.
-
-If you do insist on building locally, you will need the following dependencies:
-* npm
-* node
-
-### Dev Container
-
-The quickest setup is the [Dev Container](.devcontainer/devcontainer.json): open the repo in it (VS Code "Reopen in Container", `make dev`, or `devcontainer up`) for a ready-made environment — Node 22, the Playwright Chromium used for the PDF build, Docker access for `make lint` / `make build`, Python + uv, and the spec-kit `specify` CLI — with no local Node or Chromium install.
+The quickest setup is the [Dev Container](.devcontainer/devcontainer.json): open the repo in it (VS Code "Reopen in Container", `make dev`, or `devcontainer up`) for a ready-made environment — Node 22, the Playwright Chromium used for the PDF build, Docker access for `make lint` / `make dev-build`, Python + uv, and the spec-kit `specify` CLI — with no local Node or Chromium install.
 
 > The container runs as `root` and mounts the host Docker socket (both needed to run the Docker-based `make` targets from inside it), so treat it as having full host Docker access.
 
+Without the Dev Container you can build with just **Node + npm** (`npm ci`); `make lint` and
+`make dev-build` additionally need **Docker**.
+
 ## Usage
 
-This project uses a Makefile and Docker to streamline various development tasks. Below are the available commands and their descriptions:
+Everything goes through the `Makefile`. The common targets:
 
-### Dev and Build
+### Develop & build
 
-- **dev**: Open the project in its [Dev Container](.devcontainer/devcontainer.json). Dependencies: devcontainer CLI
-  ```sh
-  make dev
-  ```
-- **page**: Build the page using local environment. Dependencies: npm, node
-  ```sh
-  make page
-  ```
-- **lint**: Lints the code using SuperLinter in dockerized environment.
-  ```sh
-  make lint
-  ```
-- **lint-fast**: Fast local lint (JavaScript via standard, Markdown via markdownlint) — a quick subset of **lint** for the common edit types. Dependencies: npm, node
-  ```sh
-  make lint-fast
-  ```
+- **`make dev`** — open the project in its Dev Container.
+- **`npm start`** — build, watch, and serve `dist/` on a local live-server (needs local Node).
+- **`make page`** — build the HTML + PDF with your local toolchain (needs Node + a Chromium).
+- **`make page-container`** — build inside the Dev Container; the host stays clean (**preferred**).
+- **`make dev-build`** — dockerized build, output copied into `./dist` (no local Node needed).
 
-- **build**: Build the page using dockerized environment. Useful for deploying the page to a server when certificates are already created. Output will be stored in the container's /app/dist folder and mounted to shared volume cv_dist.
-  ```sh
-  make build
-  ```
+### Lint
 
-- **dev-build**: Build the page using dockerized environment and copy files to local dist folder. Useful for building the page without having to install dependencies on local machine. Same as **page**, but no dependency requirements on local machine.
-  ```sh
-  make dev-build
-  ```
-
-- **logs-app-builder**: Get the logs of the app-builder, useful for debugging build issues in the container.
-  ```sh
-  make logs-app-builder
-  ```
-
-- **logs-webserver**: Get the logs of the webserver, useful for debugging nginx issues.
-  ```sh
-  make logs-webserver
-  ```
-
-- **logs-certbot**: Get the logs of the certbot, useful for debugging issues when creating certificates.
-  ```sh
-  make logs-certbot
-  ```
-
-- **remove-app-builder**: Useful if you need to remove the app-builder container.
-  ```sh
-  make remove-app-builder
-  ```
-
-- **remove-certbot**: Useful if you need to remove the certbot container.
-  ```sh
-  make remove-certbot
-  ```
+- **`make lint`** — full Super-Linter, matching CI.
+- **`make lint-fast`** — quick JavaScript + Markdown lint for the inner loop.
+- **`make lint-actions`** — `actionlint` on the GitHub Actions workflows.
 
 ### Deploy
 
-- **certificates**: Create certificates using dockerized certbot. Certs are stored in ./certbot/conf/live/valerio.dev/ and mounted to shared volume cv_certs. Be careful with the rate limits of Let's Encrypt, as they may block you if you create too many certificates in a short period of time. Whenever testing, use **certificates-dry-run** instead.
-  ```sh
-  make certificates
-  ```
+Deployment is **automatic** — GitHub Actions builds and deploys to Vercel on every push (production
+from `main`, a preview per PR). `make deploy` is the underlying command the workflow runs (it wraps
+`vercel build` + `vercel deploy --prebuilt`); you don't normally run it by hand. See
+[docs/ci-cd.md](docs/ci-cd.md).
 
-- **certificates-dry-run**: Similar to **certificates** Simulates the creation of certificates using dockerized certbot. Useful for testing without hitting the rate limits of Let's Encrypt.
-  ```sh
-  make certificates-dry-run
-  ```
+## Editing content
 
-- **webserver-ssl-config**: Updates the nginx configuration to use the newly created certificates. Enables SSL and redirects all HTTP traffic to HTTPS.
-  ```sh
-  make webserver-ssl-config
-  ```
-
-- **webserver-restart-nginx**: Restarts the nginx server to apply new configurations
-  ```sh
-  make webserver-restart-nginx
-  ```
-
-- **webserver-upgrade-to-https**: Upgrades the webserver to use HTTPS. It creates the certificates, updates the nginx configuration and restarts the server.
-  ```sh
-  make webserver-upgrade-to-https
-  ```
-
-- **down**: Downs the webserver.
-  ```sh
-  make down
-  ```
-
-- **webserver**: Starts the webserver
-  ```sh
-  webserver
-  ```
-
-- **webserver-local**: Adds localhost to nginx server_name. Useful for local development.
-  ```sh
-  webserver-local
-  ```
-
-- **all**: Full build and deploy, hosting the webserver locally. Useful for deploying the page to a server for the first time. Avoid running this command if you are just updating the page as it will recreate the certificates.
-  ```sh
-  webserver-local
-  ```
-
-
-## WIP
-
-
-<!-- ## What does this project do?
-
-* Helps you to manage your CV as a web app (HTML + CSS + JS).
-* Automatically generates and publishes HTML and PDF version on every push to `main`.
-
-Demo: [http://sneas.github.io/cv-template](http://sneas.github.io/cv-template).
-
-Real world example: [http://sneas.github.io/cv](http://sneas.github.io/cv).
-
-
-## Motivation
-
-GitHub Pages is probably the best place developer could store their CV. Giving a potential employer a link to your CV stored on GitHub shows your intense desire for automation and stands you out.
-
-The idea behind **The Curriculum Vitae Template** is to provide anyone with a quick solution for creating and managing CVs (both HTML and PDF versions) with the help of GitHub.
-
-## Installation
-
-1. Create a new repository out of this template by clicking [this link](https://github.com/sneas/cv-template/generate).
-1. Clone the newly created repository.
-1. Install project dependencies with `npm install`.
-1. Run `npm run deploy` to initialize `gh-pages`. This is a one time action. Further deployments will be initiated by GitHub Actions on every push to `main`.
-
-## Usage
-
-1. Start local development server with `npm start`.
-1. Update contents of `src` folder to fit your needs. This item is explained [below](#update-contents).
-1. Commit and push your changes.
-1. GitHub Actions will automatically build the latest version and deploy it to GitHub Pages.
-1. Open `http://your-username.github.io/your-cv-repo`.
-
-### Update contents
-
-The project uses [HandlebarsJS](https://github.com/wycats/handlebars.js/) as a template engine.
-
-The main HTML template is located in [src/templates/index.html](src/templates/index.html). Metadata for the template could be found in [src/metadata/metadata.js](src/metadata/metadata.js).
-
-Don't forget to update [src/assets/favicon.ico](src/assets/favicon.ico). You can generate a new favicon out of your photo with [icoconvert.com](http://icoconvert.com/). -->
+Edit the CV content in [`src/metadata/metadata.js`](src/metadata/metadata.js). The page template is
+[`src/templates/index.html`](src/templates/index.html) (Handlebars + Bootstrap 5 markup) and styling
+is in [`src/assets/styles.css`](src/assets/styles.css). For the build pipeline and data model, see
+[docs/architecture.md](docs/architecture.md).

@@ -25,3 +25,4 @@ supersedes it and flip the old one's **Status** to `Superseded by ADR-XXXX`.
 ## Records
 
 - [0001 — Modernize the build runtime: Node 22 + Playwright](0001-modernize-build-runtime.md)
+- [0002 — Build in CI and deploy prebuilt to Vercel](0002-vercel-prebuilt-deploy.md)

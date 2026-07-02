@@ -12,7 +12,7 @@ agent-oriented quick reference, see [`AGENTS.md`](../AGENTS.md).
   the change workflow (the entry point for working on this repo).
 - **[Architecture](architecture.md)** — code structure, the build pipeline, the content data
   model, and how the site is served.
-- **[CI/CD](ci-cd.md)** — GitHub Actions workflows and the (manual) Docker-based deployment.
+- **[CI/CD](ci-cd.md)** — the GitHub Actions workflows (Lint, Dev Container prebuild, Vercel Deploy) and the Vercel deploy model.
 - **[Contributing & Issue Tracking](contributing.md)** — how work is tracked in GitHub (issues,
   milestones, labels; projects optional) and how to raise a well-formed issue.
 - **[Architecture Decision Records](adr/)** — significant technical decisions and their rationale.
@@ -27,6 +27,6 @@ agent-oriented quick reference, see [`AGENTS.md`](../AGENTS.md).
 | PDF           | Playwright (headless Chromium)                                          |
 | Content       | A single data file: `src/metadata/metadata.js`                          |
 | Output        | `dist/` (generated, gitignored)                                         |
-| Serving       | nginx (Docker Compose) with Let's Encrypt TLS via certbot               |
-| CI            | GitHub Actions — Super-Linter (lint-only, no tests)                     |
-| CD            | Manual (`make` targets on the host)                                     |
+| Serving       | Vercel (static hosting, automatic TLS)                                  |
+| CI            | GitHub Actions — lint, Dev Container prebuild, Vercel deploy            |
+| CD            | GitHub Actions -> Vercel (push to `main` = prod, PR = preview)          |
