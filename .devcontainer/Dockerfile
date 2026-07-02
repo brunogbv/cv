@@ -20,12 +20,17 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3002
 USER root
 
-# uv + the spec-kit `specify` CLI (workspace-independent). uv's standalone installer needs no Python.
-RUN curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/usr/local/bin sh \
+# uv + the spec-kit `specify` CLI (workspace-independent), both version-pinned for reproducibility
+# (constitution Principle V). To bump: change the uv version in the installer URL
+# (https://astral.sh/uv/<version>/install.sh) and the spec-kit tag (@vX.Y.Z from
+# https://github.com/github/spec-kit/releases). uv's standalone installer needs no Python.
+RUN curl -LsSf https://astral.sh/uv/0.11.26/install.sh | UV_INSTALL_DIR=/usr/local/bin sh \
   && UV_TOOL_BIN_DIR=/usr/local/bin uv tool install \
-    --from git+https://github.com/github/spec-kit.git specify-cli
+    --from git+https://github.com/github/spec-kit.git@v0.12.4 specify-cli
 
-# Claude Code CLI (workspace-independent global).
+# Claude Code CLI (workspace-independent global). Intentionally NOT pinned — it's agent tooling we
+# want fresh, and (like the `gh` CLI from the github-cli feature) it doesn't affect the CV build
+# output, so it's outside Principle V's "pin what determines output". See docs/local-development.md.
 # hadolint ignore=DL3016
 RUN npm install -g @anthropic-ai/claude-code
 

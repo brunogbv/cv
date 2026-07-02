@@ -43,13 +43,16 @@ someone bumps them, so refresh **deliberately**, not incidentally:
 - **Features** — bump to a newer published version from
   [`devcontainers/features`](https://github.com/devcontainers/features) (e.g.
   `ghcr.io/devcontainers/features/python:<x.y.z>`).
+- **Baked CLIs** — `uv` and the spec-kit `specify` CLI are pinned in the Dockerfile (the uv installer
+  URL carries the version; spec-kit is a `@vX.Y.Z` git tag). Bump per the comment above their `RUN`.
 
-After either bump, rebuild (`devcontainer build --workspace-folder .` or `make dev`) and confirm the
+After any bump, rebuild (`devcontainer build --workspace-folder .` or `make dev`) and confirm the
 image builds and hadolint stays green (via `make lint`).
 
-Not everything is pinned: the global CLIs baked into the Dockerfile (`uv`, the spec-kit `specify`
-CLI, `claude-code`) and the `gh` binary the `github-cli` feature installs still fetch their latest at
-build time — only the base image and the feature *packages* are pinned.
+Two tools are **deliberately left at `latest`**: the `claude-code` CLI (baked in the Dockerfile) and
+the `gh` binary (from the `github-cli` feature). They're agent/dev tooling we want fresh, and neither
+affects the CV build output — so they're outside Principle V's "pin what determines output". The
+inputs that *do* determine output (Node, the Playwright Chromium) are pinned via `package-lock.json`.
 
 > Without a Dev Container you can build with just Node + npm (`npm ci`), but you'll also need a
 > Chromium for the PDF and Docker for `make lint` / `make build`. The container is the supported path.
