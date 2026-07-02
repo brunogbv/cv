@@ -2,7 +2,8 @@
   "name": "cv",
   "build": {
     "dockerfile": "Dockerfile",
-    "context": ".."
+    "context": "..",
+    "cacheFrom": "ghcr.io/brunogbv/cv-devcontainer"
   },
   "mounts": [
     "source=cv-node-modules-${localWorkspaceFolderBasename},target=${containerWorkspaceFolder}/node_modules,type=volume",

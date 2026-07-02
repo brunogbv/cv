@@ -5,8 +5,9 @@
 Personal CV / résumé site for Bruno Valério, hosted at <https://valerio.dev>. It's a small
 Node.js static-site generator: CV content lives in a JavaScript data file, is rendered through
 Handlebars into a single HTML page, and a matching PDF is produced with Playwright. The output is
-served as static files behind nginx (Docker Compose) with Let's Encrypt TLS via certbot. CI is
-lint-only (Super-Linter); deployment is manual.
+served as static files behind nginx (Docker Compose) with Let's Encrypt TLS via certbot. CI lints
+every change (Super-Linter) and prebuilds the Dev Container image (published to GHCR); site
+deployment is manual.
 
 ## Architecture
 
@@ -59,13 +60,17 @@ Deploy is **manual**:
 - There are **no** unit or integration tests in this repo.
 - **Validate locally before pushing.** During iteration use `make lint-fast` (fast native JS +
   Markdown lint) and/or the Dev Container's editor extensions; before opening/updating a PR run
-  `make lint` — it runs the *same* Super-Linter image CI uses (linting is the only CI gate), so you
-  catch failures locally instead of waiting on the push-and-wait PR cycle. See
-  [`docs/ci-cd.md`](docs/ci-cd.md) for details and caveats.
+  `make lint` — it runs the *same* Super-Linter image CI uses (linting is the CI gate for code and
+  content changes), so you catch failures locally instead of waiting on the push-and-wait PR cycle.
+  See [`docs/ci-cd.md`](docs/ci-cd.md) for details and caveats.
 - Linting via Super-Linter runs on every push/PR (`.github/workflows/superlinter.yml`); `make lint`
   reproduces it locally.
 - The Vercel deploy-preview check runs server-side and is **not** reproduced by `make lint`; it can
   only be validated after pushing.
+- Changes under `.devcontainer/**` (or `package.json` / `package-lock.json`) also trigger the **Dev
+  Container** prebuild workflow (`.github/workflows/devcontainer.yml`): it builds the image and runs
+  `make page` as a smoke test on the PR, then publishes it to GHCR on merge to `main`. Not
+  reproduced by `make lint`. See [`docs/ci-cd.md`](docs/ci-cd.md).
 - Enabled linters (`config/lint/super-linter.env`): JavaScript (`standard` style), CSS
   (stylelint + `stylelint-config-standard`), HTML, Dockerfile (hadolint), JSON, YAML, Markdown,
   XML, GitHub Actions, and Bash (shellcheck). Excluded from linting: `src/templates/*` (Handlebars),

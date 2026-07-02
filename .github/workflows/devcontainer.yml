@@ -1,0 +1,61 @@
+---
+name: Dev Container
+
+# Prebuild the Dev Container image and publish it to GHCR so `devcontainer up`
+# (on any machine and in each `make worktree`) pulls cached layers instead of
+# building the image from scratch. See docs/ci-cd.md.
+#
+# Runs when the image's inputs change: the .devcontainer/ dir, the manifests the
+# Dockerfile bakes in (package.json / package-lock.json drive the Playwright
+# layer), or this workflow. Pull requests build + smoke-test without publishing;
+# pushes to main publish.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .devcontainer/**
+      - package.json
+      - package-lock.json
+      - .github/workflows/devcontainer.yml
+  pull_request:
+    paths:
+      - .devcontainer/**
+      - package.json
+      - package-lock.json
+      - .github/workflows/devcontainer.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    name: Build, smoke-test, and publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # devcontainers/ci builds .devcontainer (Dockerfile + features), runs the
+      # container lifecycle (postCreate: npm ci + playwright install), then runs
+      # `runCmd` inside it. `make page` is the smoke test: it proves the image
+      # renders the HTML page and the PDF. `push: filter` publishes only on
+      # pushes to the default branch — pull requests build + smoke-test but do
+      # not publish. `cacheFrom` reuses the last published image's layers so
+      # unchanged builds are near-instant.
+      - name: Build, smoke-test, and publish the Dev Container image
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: ghcr.io/${{ github.repository_owner }}/cv-devcontainer
+          cacheFrom: ghcr.io/${{ github.repository_owner }}/cv-devcontainer
+          push: filter
+          runCmd: make page
