@@ -3,7 +3,15 @@
 # Bakes the heavy, workspace-INDEPENDENT tooling into the image so it persists across container
 # rebuilds and is cheap per git worktree. Workspace-specific dependencies (node_modules) stay in
 # postCreate. See docs/local-development.md.
-FROM mcr.microsoft.com/devcontainers/javascript-node:22-bookworm
+#
+# Base image pinned by digest for reproducibility (constitution Principle V — "pin what determines
+# output"). The tag is kept for readability; the digest is what actually pins. This is the multi-arch
+# *index* digest, so it resolves on both amd64 (CI) and arm64 (Apple Silicon). To refresh on an
+# intentional base bump, re-resolve the tag's index digest and update the digest below:
+#   curl -sSI -H 'Accept: application/vnd.oci.image.index.v1+json' \
+#     https://mcr.microsoft.com/v2/devcontainers/javascript-node/manifests/22-bookworm \
+#     | grep -i docker-content-digest
+FROM mcr.microsoft.com/devcontainers/javascript-node:22-bookworm@sha256:92e97da1df8f4135188053b3a5e22e3ef316ecaf2a0d33b8831e1dec5cdaa77f
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
