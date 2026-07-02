@@ -126,6 +126,56 @@ deploys `--prod`; a `pull_request` deploys a preview whose URL is posted back to
   manual stack below. This section is a stopgap — the full CD rewrite (and removal of the manual
   stack) lands with the migration's Polish phase.
 
+### Domain cutover (DNS runbook)
+
+One-time migration of `valerio.dev` + `www.valerio.dev` from the GCP VM to Vercel (US2). The site is
+currently down and the VM is off, so this **restores** availability — there is **no rollback target
+and no downtime window to protect**. Run the steps in order.
+
+**1. Prepare (before touching DNS)**
+
+- **Verify serving first.** Merge to `main` (the `Deploy` workflow deploys `--prod`) and confirm the
+  production deployment renders: open its `*.vercel.app` URL **in a browser** and check the page
+  **and** the PDF render with the correct fonts. The production **TLS certificate** can't be verified
+  yet — Vercel issues it only after DNS points at Vercel (that check is step 4).
+- **⚠️ Check Deployment Protection** (Vercel → Project → Settings → Deployment Protection) — a hard
+  blocker. It must **not** protect production (set it to *Only Preview Deployments*, or off), or
+  `valerio.dev` is auth-walled (`302` → Vercel SSO) after cutover and the public CV is unreachable.
+  Preview URLs staying protected is expected — which is also why a `curl` of a `*.vercel.app` URL
+  returns `302` while protection is on, so verify serving in a browser (above) rather than with curl.
+- **Lower the DNS TTL.** Check the current TTL on the apex `A` and `www` records at the registrar
+  (e.g. 3600s), lower it (e.g. to 300s), and wait at least the *old* TTL so cached records expire —
+  then the cutover propagates quickly.
+
+**2. Add the domains in Vercel (T016 — owner, dashboard)**
+
+- Add `valerio.dev` and `www.valerio.dev` to the project.
+- Mark `valerio.dev` as the **primary** (canonical) domain.
+- Set `www.valerio.dev` to **Redirect to** `valerio.dev` (`301`).
+- Vercel then shows the exact records to set — an apex `A` IP and a `www` `CNAME` target. Use those
+  dashboard values, not the examples below.
+
+**3. Point DNS (T017 — owner, registrar)**
+
+- Apex: `A → 76.76.21.21` (use the IP shown in Vercel Domain settings).
+- `www`: `CNAME → <project>.vercel-dns-###.com` (exact target from the dashboard).
+- TLS is provisioned and renewed automatically by Vercel once DNS resolves to it — no certbot, no
+  manual renewal. The certificate is issued after DNS points at Vercel; verify it in step 4.
+
+**4. Verify the cutover (T018)**
+
+```sh
+dig A valerio.dev +short              # matches the A record shown in Vercel Domain settings
+curl -sI https://valerio.dev/         # 200, valid TLS; client Cache-Control: public, max-age=0
+                                      #   (edge-only s-maxage / stale-while-revalidate are stripped)
+curl -sI https://www.valerio.dev/     # 301 -> https://valerio.dev/
+```
+
+Vercel issues the certificate a few minutes after DNS points at it, so a TLS error on the first
+`curl` is normal — wait a few minutes and retry. Once the checks pass, load `https://valerio.dev/`
+in a browser and confirm the page and `/<slug>.pdf` render correctly over HTTPS; then you can restore
+a normal TTL. Retiring the VM stack itself is US3 (below is the stack being retired).
+
 ## Continuous Deployment — manual, Docker-based
 
 The site is self-hosted. Deployment is orchestrated by the `Makefile` and `docker-compose.yml`,
