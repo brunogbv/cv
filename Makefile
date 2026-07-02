@@ -1,6 +1,6 @@
 MAKEFLAGS += -s
 
-.PHONY: dev clean page page-container worktree worktree-rm worktree-prune lint lint-actions lint-fast build dev-build \
+.PHONY: dev clean page page-container worktree worktree-rm worktree-prune lint lint-actions lint-fast build dev-build deploy \
 	logs-app-builder logs-webserver logs-certbot \
 	remove-app-builder remove-certbot \
 	certificates certificates-dry-run \
@@ -60,6 +60,18 @@ worktree-rm:
 # Dependencies: git (gh optional, for the authoritative merged-PR check; docker to drop volumes)
 worktree-prune:
 	bash scripts/worktree-prune.sh
+
+# Deploy the already-built dist/ to Vercel (Principle I — the deploy command lives in the Makefile).
+# CI (.github/workflows/deploy.yml) runs `make page` first, then this. Reads VERCEL_TOKEN /
+# VERCEL_ORG_ID / VERCEL_PROJECT_ID from the environment; production when PROD=1 (main), otherwise a
+# preview. vercel.json's framework:null + buildCommand:"" make `vercel build` package the existing
+# dist/ rather than re-run the Node build. pull/build progress is sent to stderr so stdout is just
+# the deployment URL (deploy.yml captures it). Needs the `vercel` CLI on PATH (CI: npm i -g vercel).
+# Dependencies: vercel CLI, a built dist/ (run `make page` first)
+deploy:
+	vercel pull --yes --environment=$(if $(PROD),production,preview) >&2
+	vercel build $(if $(PROD),--prod) >&2
+	vercel deploy --prebuilt --yes $(if $(PROD),--prod)
 
 # Full CI-parity lint via the same Super-Linter image CI uses.
 #   - Pinned to CI's version (v6.7.0), not `latest`, so a local pass == CI.

@@ -1,0 +1,105 @@
+---
+name: Deploy
+
+# Build dist/ in CI (Node 22 + the lockfile-pinned Playwright Chromium) and deploy the
+# prebuilt output to Vercel with `make deploy`. Vercel's own git build is disabled
+# (vercel.json -> git.deploymentEnabled: false), so this workflow is the sole deploy
+# path: push to main -> production; pull_request -> preview. See docs/ci-cd.md.
+#
+# Requires: secret VERCEL_TOKEN; repository variables VERCEL_ORG_ID + VERCEL_PROJECT_ID.
+# Fork PRs do not receive secrets, so the deploy step fails there (no publish) — expected
+# for this single-maintainer repo, where branches are pushed to the repo itself.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# One in-flight deploy per ref; a newer push / PR update supersedes the older run.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Resolve Playwright version
+        id: pw
+        run: echo "version=$(node -p "require('playwright/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      # Cache only the browser binaries; --with-deps below still reinstalls apt libs each run.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build the site (HTML + PDF)
+        run: make page
+
+      - name: Install the Vercel CLI
+        run: npm install -g vercel
+
+      # make deploy prints only the deployment URL on stdout (pull/build go to stderr).
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            url="$(make deploy PROD=1 | tail -1)"
+          else
+            url="$(make deploy | tail -1)"
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Deployed to: $url"
+
+      # Surface the preview URL on the PR (the CLI-only setup has no Vercel bot comment).
+      - name: Comment the preview URL on the PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+        with:
+          script: |
+            const url = process.env.DEPLOY_URL
+            const marker = '<!-- vercel-preview -->'
+            const body = `${marker}\n🔺 **Vercel preview:** ${url}`
+            const { owner, repo } = context.repo
+            const issue_number = context.issue.number
+            const { data: comments } = await github.rest.issues.listComments({
+              owner, repo, issue_number
+            })
+            const existing = comments.find((c) => c.body.includes(marker))
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner, repo, comment_id: existing.id, body
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number, body
+              })
+            }

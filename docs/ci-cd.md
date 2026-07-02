@@ -1,14 +1,19 @@
 # CI/CD
 
-CI is automated: it lints every change and prebuilds the Dev Container image. Deployment (CD) of the
-site is **manual** — there is no pipeline that ships the site; a human runs `make` targets on the
-host that serves [valerio.dev](https://valerio.dev).
+CI is automated: it lints every change, prebuilds the Dev Container image, and (as of the in-progress
+Vercel migration) builds and deploys the site to Vercel. **Site CD is mid-migration:** the Vercel
+pipeline (`deploy.yml`, below) is live, but production traffic still hits the manually-operated GCP
+VM until the DNS cutover — so the manual `make` deploy targets remain authoritative for now. The full
+rewrite of this deploy section lands with the migration's Polish phase.
 
 ## Continuous Integration — GitHub Actions
 
-Two workflows: **`.github/workflows/superlinter.yml`** (name: `Lint`) lints every change, and
+Three workflows: **`.github/workflows/superlinter.yml`** (name: `Lint`) lints every change,
 **`.github/workflows/devcontainer.yml`** (name: `Dev Container`) prebuilds the Dev Container image
-(see [Dev Container image prebuild](#dev-container-image-prebuild)). The lint workflow:
+(see [Dev Container image prebuild](#dev-container-image-prebuild)), and
+**`.github/workflows/deploy.yml`** (name: `Deploy`) builds and deploys the site to Vercel (push to
+`main` → production, `pull_request` → preview; see [Deploy to Vercel](#deploy-to-vercel)). The lint
+workflow:
 
 - **Triggers:** every `push` and every `pull_request`.
 - **Runner:** `ubuntu-latest`.
@@ -19,9 +24,9 @@ Two workflows: **`.github/workflows/superlinter.yml`** (name: `Lint`) lints ever
      (`permissions: statuses: write`, using the default `GITHUB_TOKEN`).
 - A Super-Linter status badge is shown at the top of the root [`README.md`](../README.md).
 
-There are **no automated tests** for the site and **no site build/deploy** in CI — linting is the
-only gate on site changes. (The Dev Container workflow below builds and smoke-tests the *dev
-environment* image; it does not build or deploy the site itself.)
+There are **no automated tests** for the site — linting is the gate on site changes. Site build +
+deploy now runs in CI via the `Deploy` workflow ([below](#deploy-to-vercel)); the Dev Container
+workflow builds and smoke-tests the *dev-environment* image (not the site itself).
 
 ### Linter configuration
 
@@ -103,6 +108,23 @@ without a `docker login` — the GHCR package must be **public**. After the firs
 set the `cv-devcontainer` package to Public once (GitHub → your Packages → `cv-devcontainer` →
 Package settings → Change visibility → Public). Until then, only authenticated pulls hit the cache
 and everyone else falls back to a local build (which still works, just slower).
+
+### Deploy to Vercel
+
+`.github/workflows/deploy.yml` (name: `Deploy`) is the incoming Vercel CD path (Vercel's own git
+build is disabled via `vercel.json` → `git.deploymentEnabled: false`). It builds `dist/` in CI
+(Node 22 + the lockfile-pinned Playwright Chromium, then `make page`) and deploys the prebuilt output
+with **`make deploy`** (`vercel pull` → `vercel build` → `vercel deploy --prebuilt`). Push to `main`
+deploys `--prod`; a `pull_request` deploys a preview whose URL is posted back to the PR.
+`framework: null` + `buildCommand: ""` in `vercel.json` make `vercel build` package the existing
+`dist/` instead of re-running the Node build.
+
+- **Setup (owner, one-time):** repo secret `VERCEL_TOKEN` + variables `VERCEL_ORG_ID` /
+  `VERCEL_PROJECT_ID`, and disconnect the project's Vercel Git integration. Until these exist the
+  `Deploy` job fails at the `vercel` step (nothing is published).
+- **Not yet authoritative:** production still serves from the GCP VM until the DNS cutover; see the
+  manual stack below. This section is a stopgap — the full CD rewrite (and removal of the manual
+  stack) lands with the migration's Polish phase.
 
 ## Continuous Deployment — manual, Docker-based
 
