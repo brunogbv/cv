@@ -68,7 +68,8 @@ Deploy is **manual**:
   only be validated after pushing.
 - Enabled linters (`config/lint/super-linter.env`): JavaScript (`standard` style), CSS
   (stylelint + `stylelint-config-standard`), HTML, Dockerfile (hadolint), JSON, YAML, Markdown,
-  XML, and GitHub Actions. `src/templates/*` is excluded from linting.
+  XML, GitHub Actions, and Bash (shellcheck). Excluded from linting: `src/templates/*` (Handlebars),
+  `.specify/` (vendored spec-kit scripts), and `.claude/skills/`.
 - After content or template changes, build (`make page-container`, or `make page` if you already
   have the host toolchain) and open `dist/index.html` to verify both the HTML and the generated PDF
   render correctly.

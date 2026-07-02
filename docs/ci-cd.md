@@ -25,13 +25,17 @@ Defined in `config/lint/super-linter.env`:
 | Setting                          | Value / effect                                                  |
 | -------------------------------- | --------------------------------------------------------------- |
 | `DEFAULT_BRANCH`                 | `main`                                                          |
-| `FILTER_REGEX_EXCLUDE`           | `.src/templates/*` — Handlebars templates are not linted.       |
+| `FILTER_REGEX_EXCLUDE`           | Skips `src/templates/*` (Handlebars), `.specify/` (vendored spec-kit scripts), and `.claude/skills/`. |
 | `IGNORE_GITIGNORED_FILES`        | `true`                                                          |
 | `LINTER_RULES_PATH`              | `config/lint`                                                   |
-| Enabled validators               | CSS, Dockerfile (hadolint), GitHub Actions, HTML, JavaScript (`standard`), JSON, JSX, Markdown, TypeScript (`standard`), XML, YAML |
+| Enabled validators               | Bash (shellcheck), CSS, Dockerfile (hadolint), GitHub Actions, HTML, JavaScript (`standard`), JSON, JSX, Markdown, TypeScript (`standard`), XML, YAML |
 
 JavaScript is checked against the **`standard`** style; CSS uses `stylelint` with
-`stylelint-config-standard` (declared in `package.json`).
+`stylelint-config-standard` (declared in `package.json`). Shell scripts are checked with
+**shellcheck** (`VALIDATE_BASH`); the vendored spec-kit scripts under `.specify/` are excluded (we
+don't own them and they don't pass), so only repo-owned scripts (`scripts/`, `.claude/hooks/`) are
+gated. `shfmt` formatting is intentionally not enabled — its style conflicts with the scripts'
+hand-written layout, and shellcheck already covers correctness.
 
 ### Validate locally before pushing
 
