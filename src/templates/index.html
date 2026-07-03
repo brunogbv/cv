@@ -123,7 +123,7 @@
             <ul class="proto-rail">
                 {{#each positions}}
                 <li>
-                    <a class="proto-summary" href="#p{{@index}}">
+                    <a class="proto-summary" href="#p{{@index}}" target="_self">
                         <div class="period">{{ period }}</div>
                         <div class="title">{{ title }}</div>
                         <div class="teaser">{{{markdown contents}}}</div>
@@ -134,7 +134,7 @@
             </ul>
             {{#each positions}}
             <div id="p{{@index}}" class="proto-detail">
-                <a class="proto-detail__close" href="#experience" aria-label="Close">✕</a>
+                <a class="proto-detail__close" href="#experience" aria-label="Close" target="_self">✕</a>
                 <div class="proto-detail__inner cv-entry">
                     <div class="proto-detail__period">{{ period }}</div>
                     <h3 class="fs-4 fw-normal">{{ title }}</h3>
