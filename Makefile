@@ -61,12 +61,13 @@ worktree-prune:
 # VERCEL_ORG_ID / VERCEL_PROJECT_ID from the environment; production when PROD=1 (main), otherwise a
 # preview. vercel.json's framework:null + buildCommand:"" make `vercel build` package the existing
 # dist/ rather than re-run the Node build. pull/build progress is sent to stderr so stdout is just
-# the deployment URL (deploy.yml captures it). Needs the `vercel` CLI on PATH (CI: npm i -g vercel).
-# Dependencies: vercel CLI, a built dist/ (run `make page` first)
+# the deployment URL (deploy.yml captures it). The `vercel` CLI is a lockfile-pinned devDependency
+# run via `npx` (installed by `npm ci`/`npm install`) — no global install on CI or locally.
+# Dependencies: node_modules (run `npm ci`), a built dist/ (run `make page` first)
 deploy:
-	vercel pull --yes --environment=$(if $(PROD),production,preview) >&2
-	vercel build $(if $(PROD),--prod) >&2
-	vercel deploy --prebuilt --yes $(if $(PROD),--prod)
+	npx vercel pull --yes --environment=$(if $(PROD),production,preview) >&2
+	npx vercel build $(if $(PROD),--prod) >&2
+	npx vercel deploy --prebuilt --yes $(if $(PROD),--prod)
 
 # Visual-regression + PDF-render gate (Playwright), run in the SAME pinned Playwright image CI uses,
 # so local rendering and the committed baselines match CI exactly (font rendering is the #1 snapshot

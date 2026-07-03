@@ -62,10 +62,8 @@ jobs:
       - name: Build the site (HTML + PDF)
         run: make page
 
-      - name: Install the Vercel CLI
-        run: npm install -g vercel
-
       # make deploy prints only the deployment URL on stdout (pull/build go to stderr).
+      # The Vercel CLI is a pinned devDependency from `npm ci` above; make deploy runs `npx vercel`.
       - name: Deploy to Vercel
         id: deploy
         run: |
