@@ -134,8 +134,8 @@
             </ul>
             {{#each positions}}
             <div id="p{{@index}}" class="proto-detail">
-                <a class="proto-detail__close" href="#experience" aria-label="Close" target="_self">✕</a>
                 <div class="proto-detail__inner cv-entry">
+                    <a class="proto-detail__close" href="#experience" aria-label="Close" target="_self">✕</a>
                     <div class="proto-detail__period">{{ period }}</div>
                     <h3 class="fs-4 fw-normal">{{ title }}</h3>
                     <div>{{{markdown contents}}}</div>
@@ -153,47 +153,37 @@
         {{#if experience}}
         <section id="additional" class="cv-section reveal">
             <h2 class="cv-section-title" data-eyebrow="Courses & training">Additional Experience</h2>
-            {{#each experience}}
-            <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
-                <div class="card-body row-cols-1 d-block d-md-flex">
-                    <div class="col-md-2 pt-1 cv-entry-period">
-                        {{ period }}
-                    </div>
-                    <div class="col-md-10">
-                        <h3 class="fs-4 fw-normal">{{ title }}</h3>
-
-                        <div>{{{markdown contents}}}</div>
-
-                        <p>
+            <ul class="proto-rail">
+                {{#each experience}}
+                <li>
+                    <div class="proto-summary">
+                        <div class="period">{{ period }}</div>
+                        <div class="title">{{ title }}</div>
+                        <p class="proto-card-skills">
                             {{#each skills}}
                             <span class="badge text-body border border-1">{{ this }}</span>
                             {{/each}}
                         </p>
                     </div>
-                </div>
-            </div>
-            {{/each}}
+                </li>
+                {{/each}}
+            </ul>
         </section>
         {{/if}}
 
         {{#if competitions}}
         <section id="competitions" class="cv-section reveal">
             <h2 class="cv-section-title" data-eyebrow="Earlier chapters">Robotics Competitions</h2>
-            {{#each competitions}}
-            <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
-                <div class="card-body row-cols-1 d-block d-md-flex">
-                    <div class="col-md-2 pt-1 cv-entry-period">
-                        {{ period }}
+            <ul class="proto-rail">
+                {{#each competitions}}
+                <li>
+                    <div class="proto-summary">
+                        <div class="period">{{ period }}</div>
+                        <div class="title">{{ title }}</div>
                     </div>
-                    <div class="col-md-10">
-                        <h3 class="fs-4 fw-normal">{{ title }}</h3>
-
-                        <div>{{{markdown contents}}}</div>
-
-                    </div>
-                </div>
-            </div>
-            {{/each}}
+                </li>
+                {{/each}}
+            </ul>
         </section>
         {{/if}}
         </main>

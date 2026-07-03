@@ -436,8 +436,15 @@ h4 {
     /* header hero: drop the heavy black divider for the editorial look */
     body > .container.page > header { border-bottom: 1px solid rgb(15 23 42 / 10%); }
 
-    /* Vertical section-snap: scrolling settles on each section (proximity keeps long sections free). */
-    html { scroll-snap-type: y proximity; scroll-padding-top: 5rem; }
+    /* facts (location/email/github/…): plain text links on the page, not a white boxed list */
+    .list-group-item {
+        padding-left: 0;
+        background-color: transparent;
+        border: 0;
+    }
+
+    /* Vertical section-snap: firmer mandatory snap so each section settles clearly into view. */
+    html { scroll-snap-type: y mandatory; scroll-padding-top: 5rem; }
     .cv-section, body > .container.page > header { scroll-snap-align: start; }
 
     /* Nav restyle */
@@ -498,8 +505,8 @@ h4 {
         transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
     }
 
-    .proto-summary:hover,
-    .proto-summary:focus-visible {
+    a.proto-summary:hover,
+    a.proto-summary:focus-visible {
         transform: translateY(-3px);
         border-color: var(--p-terra);
         box-shadow: 0 12px 28px rgb(15 23 42 / 12%);
@@ -537,17 +544,20 @@ h4 {
     }
 
     /* ---- Full-screen detail overlay (CSS :target — works with no JS) ---- */
+    /* Full-screen detail = a centered card on a blurred, dimmed backdrop (the CV blooms behind it). */
     .proto-detail {
         position: fixed;
         z-index: 2000;
         inset: 0;
-        padding: 4rem 1.5rem;
-        overflow-y: auto;
-        overscroll-behavior: contain; /* don't chain the overlay's scroll to the page */
-        background-color: var(--p-cream);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        background-color: rgb(15 23 42 / 35%);
+        backdrop-filter: blur(8px);
         opacity: 0;
         visibility: hidden;
-        transition: opacity 0.2s ease;
+        transition: opacity 0.25s ease;
     }
 
     .proto-detail:target {
@@ -561,22 +571,49 @@ h4 {
         overflow: hidden;
     }
 
-    .proto-detail__inner { max-width: 720px; margin: 0 auto; }
-    .proto-detail__period { color: var(--p-terra); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.8rem; }
-    .proto-detail__close { position: fixed; top: 1.25rem; right: 1.5rem; font-size: 1.75rem; line-height: 1; color: var(--p-ink); text-decoration: none; }
-}
-
-/* Print: hide the prototype rail/summary chrome; render the detail overlays' full content linearly. */
-@media print {
-    .proto-rail,
-    .proto-detail__close { display: none; }
-
-    .proto-detail {
-        position: static;
-        padding: 0;
-        opacity: 1;
-        visibility: visible;
+    .proto-detail__inner {
+        position: relative;
+        width: 100%;
+        max-width: 640px;
+        max-height: 85vh;
+        padding: 2.75rem;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        background-color: #fffdfa;
+        border-radius: 1.25rem;
+        box-shadow: 0 30px 70px rgb(15 23 42 / 40%);
+        transform: scale(0.96);
+        transition: transform 0.25s ease;
     }
 
-    .proto-detail__inner { max-width: none; }
+    .proto-detail:target .proto-detail__inner { transform: scale(1); }
+
+    .proto-detail__period { color: var(--p-terra); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.8rem; }
+
+    .proto-detail__close {
+        position: absolute;
+        top: 1rem;
+        right: 1.25rem;
+        font-size: 1.6rem;
+        line-height: 1;
+        color: var(--p-ink);
+        text-decoration: none;
+    }
+}
+
+/* Print: render everything as plain linear content. Professional Experience's teaser rail is redundant
+   (its detail overlays carry the full content, and overlays are visible by default in print since their
+   hidden state is screen-only); Additional/Competitions rails ARE the full content, so they stack. */
+@media print {
+    #experience .proto-rail,
+    .proto-detail__close { display: none; }
+
+    .proto-rail {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .proto-summary,
+    .proto-detail__inner { margin-bottom: 1.5rem; }
 }
