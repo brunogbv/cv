@@ -11,3 +11,16 @@
 time {
   visibility: hidden !important;
 }
+
+/* Normalize the rail scrollbars (rails scroll x, capped cards scroll y) so their rendering can't add
+   environment-/content-dependent pixels to the snapshot. Test-only — the real page keeps its
+   scrollbars as a "there's more" affordance. */
+.cv-rail,
+.cv-rail-item {
+  scrollbar-width: none;
+}
+
+.cv-rail::-webkit-scrollbar,
+.cv-rail-item::-webkit-scrollbar {
+  display: none;
+}

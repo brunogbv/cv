@@ -383,3 +383,74 @@ h4 {
         transition: none !important;
     }
 }
+
+/* =====================================================================================
+   Interactive card rails (US1): the three content-dense sections become horizontally
+   swipeable, snapping rails on screen (one focal card + a peek of the next). Pure CSS
+   scroll-snap — no JS required for the baseline. Screen-only: @media print dissolves each
+   rail back to the 002 linear, stacked entries so the PDF is unchanged (see
+   contracts/rail-interaction-contract.md). Smooth-scroll is already gated behind
+   prefers-reduced-motion by the rule above; user swipe/arrow scrolling is unaffected. */
+
+/* Track reset (both media): the <ul> carries no list chrome. */
+.cv-rail-track {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* ---- Screen: horizontal scroll-snap rail with a peek of the next card ---- */
+@media not print {
+    .cv-rail {
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        overscroll-behavior-x: contain; /* don't chain scrolling to the page at the rail ends */
+        scroll-padding-inline: 0.5rem; /* inset snapped cards so their focus ring isn't clipped */
+    }
+
+    .cv-rail-track {
+        display: flex;
+        gap: 1.5rem;
+        padding: 0.5rem 0.5rem 1rem; /* inline room for focus rings; block room for shadows/scrollbar */
+    }
+
+    .cv-rail-item {
+        flex: 0 0 clamp(260px, 85%, 720px); /* < track width so the next card peeks */
+        min-width: 0; /* prevent flex items from overflowing the page (SC-002) */
+        scroll-snap-align: start;
+        margin: 0; /* inter-card spacing is the track gap */
+        overscroll-behavior: contain; /* a long card's own scroll doesn't chain to the page */
+
+        /* Cap tall/variable entries so cards stay uniform and the rail flicks compactly; the card is a
+           focusable, labelled scroll region (tabindex + aria-label in the template) so keyboard users
+           can read long prose cards that have no links to tab to. Screen-only — print shows full text. */
+        max-height: 34rem;
+        overflow-y: auto;
+    }
+
+    /* The card (not the rail) is the focusable unit — it's the capped scroll region. */
+    .cv-rail-item:focus-visible {
+        outline: 2px solid #595959;
+        outline-offset: 3px;
+    }
+}
+
+/* ---- Print: dissolve the rail back to linear, stacked entries (unchanged PDF) ---- */
+@media print {
+    .cv-rail {
+        overflow: visible;
+    }
+
+    .cv-rail-track {
+        display: block;
+    }
+
+    .cv-rail-item {
+        margin: 0;
+    }
+
+    /* Match the pre-003 inter-entry spacing (each non-last entry carried `mb-5` = 3rem). */
+    .cv-rail-item:not(:last-child) {
+        margin-bottom: 3rem;
+    }
+}

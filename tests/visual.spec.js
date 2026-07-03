@@ -16,6 +16,14 @@ for (const bp of BREAKPOINTS) {
     await page.goto('index.html')
     // page.evaluate awaits a returned promise, so this blocks until webfonts have loaded.
     await page.evaluate(() => document.fonts.ready)
+    // Pin each rail's resting scroll position so the snapshot is deterministic — snap containers
+    // otherwise re-snap / restore a prior position (research D6). reducedMotion:'reduce' (config)
+    // already makes this instant (no smooth-scroll glide).
+    await page.evaluate(() => {
+      history.scrollRestoration = 'manual'
+      document.querySelectorAll('.cv-rail').forEach((rail) => { rail.scrollLeft = 0 })
+      document.querySelectorAll('.cv-rail-item').forEach((card) => { card.scrollTop = 0 })
+    })
     await expect(page).toHaveScreenshot(`cv-${bp.name}.png`, { fullPage: true })
   })
 }
