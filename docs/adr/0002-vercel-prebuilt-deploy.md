@@ -59,8 +59,8 @@ Forces:
   offline builds (no CDN dependency); no server or certbot to operate; the deploy command lives in
   the `Makefile` (`make deploy`), consistent with the "Makefile is the interface" principle.
 - **Negative / trade-offs:** deploys depend on the Vercel CLI + a `VERCEL_TOKEN` secret and on the
-  Vercel platform; the Vercel CLI is installed unpinned in CI (`npm i -g vercel`) — a minor
-  reproducibility gap, acceptable because the deploy is of an already-built artifact.
+  Vercel platform. The Vercel CLI is a lockfile-pinned `devDependency` invoked via `npx vercel`
+  (installed by the same `npm ci` as the build, not a global `npm i -g vercel`), so its version is
+  reproducible and can't drift — at the cost of its transitive tree in `package-lock.json` (#127).
 - **Follow-ups:** Vercel Deployment Protection auth-walls previews by default, so production must be
-  kept public (captured in the cutover runbook in `docs/ci-cd.md`). Pinning the Vercel CLI version
-  would close the remaining reproducibility gap.
+  kept public (captured in the cutover runbook in `docs/ci-cd.md`).
