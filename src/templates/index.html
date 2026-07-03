@@ -11,6 +11,10 @@
     <link rel="stylesheet" href="vendor/roboto/latin-500.css">
     <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+    <!-- PROTOTYPE ONLY: reference fonts via CDN for speed; production would vendor these (no CDN). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Spline+Sans:wght@400;500;600&display=swap">
     <link rel="stylesheet" href="styles.css">
     <!-- Loaded synchronously so `.js` is set before first paint (no flash of pre-revealed content);
          reveal.js then wires the scroll-reveal observer once the DOM is ready. Progressive enhancement:
@@ -85,7 +89,7 @@
         <main>
         {{#if about_me}}
         <section id="about" class="cv-section reveal">
-            <h2 class="cv-section-title">About me</h2>
+            <h2 class="cv-section-title" data-eyebrow="Who I am">About me</h2>
             <div class="card cv-card">
                 <div class="card-body">{{{markdown about_me}}}</div>
             </div>
@@ -97,7 +101,7 @@
              `.row` whose gutters render subtly differently inside a card box in print, so keeping the
              structure identical guarantees the PDF's skills grid is unchanged (FR-005 / SC-004). -->
         <section id="skills" class="cv-section reveal">
-            <h2 class="cv-section-title">Skills</h2>
+            <h2 class="cv-section-title" data-eyebrow="What I know">Skills</h2>
             <div class="row align-items-center">
                 {{#each skills}}
                 <div class="col-print-skills col-5 col-md-2 col-lg-2 text-right">
@@ -115,24 +119,31 @@
 
         {{#if positions}}
         <section id="experience" class="cv-section reveal">
-            <h2 class="cv-section-title">Professional Experience</h2>
+            <h2 class="cv-section-title" data-eyebrow="Where I've worked">Professional Experience</h2>
+            <ul class="proto-rail">
+                {{#each positions}}
+                <li>
+                    <a class="proto-summary" href="#p{{@index}}">
+                        <div class="period">{{ period }}</div>
+                        <div class="title">{{ title }}</div>
+                        <div class="teaser">{{{markdown contents}}}</div>
+                        <div class="more">Read more →</div>
+                    </a>
+                </li>
+                {{/each}}
+            </ul>
             {{#each positions}}
-            <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
-                <div class="card-body row-cols-1 d-block d-md-flex">
-                    <div class="col-md-2 pt-1 cv-entry-period">
-                        {{ period }}
-                    </div>
-                    <div class="col-md-10">
-                        <h3 class="fs-4 fw-normal">{{ title }}</h3>
-
-                        <div>{{{markdown contents}}}</div>
-
-                        <p>
-                            {{#each skills}}
-                            <span class="badge text-body border border-1">{{ this }}</span>
-                            {{/each}}
-                        </p>
-                    </div>
+            <div id="p{{@index}}" class="proto-detail">
+                <a class="proto-detail__close" href="#experience" aria-label="Close">✕</a>
+                <div class="proto-detail__inner cv-entry">
+                    <div class="proto-detail__period">{{ period }}</div>
+                    <h3 class="fs-4 fw-normal">{{ title }}</h3>
+                    <div>{{{markdown contents}}}</div>
+                    <p>
+                        {{#each skills}}
+                        <span class="badge text-body border border-1">{{ this }}</span>
+                        {{/each}}
+                    </p>
                 </div>
             </div>
             {{/each}}
@@ -141,7 +152,7 @@
 
         {{#if experience}}
         <section id="additional" class="cv-section reveal">
-            <h2 class="cv-section-title">Additional Experience</h2>
+            <h2 class="cv-section-title" data-eyebrow="Courses & training">Additional Experience</h2>
             {{#each experience}}
             <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
                 <div class="card-body row-cols-1 d-block d-md-flex">
@@ -167,7 +178,7 @@
 
         {{#if competitions}}
         <section id="competitions" class="cv-section reveal">
-            <h2 class="cv-section-title">Robotics Competitions</h2>
+            <h2 class="cv-section-title" data-eyebrow="Earlier chapters">Robotics Competitions</h2>
             {{#each competitions}}
             <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
                 <div class="card-body row-cols-1 d-block d-md-flex">
