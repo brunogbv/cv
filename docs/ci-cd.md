@@ -85,9 +85,11 @@ Caveats:
 publishes it to the GitHub Container Registry (GHCR), so `devcontainer up` — on any machine and in
 each `make worktree` — pulls cached layers instead of building the image from scratch.
 
-- **Triggers:** `push` to `main` and `pull_request`, both filtered to the paths that determine the
-  image (`.devcontainer/**`, `package.json`, `package-lock.json`, and the workflow file); plus
-  manual `workflow_dispatch`.
+- **Triggers:** runs on **every** pull request (so it can be a required check — see below) and on
+  `push` to `main` filtered to the paths that determine the image (`.devcontainer/**`,
+  `package.json`, `package-lock.json`, and the workflow file); plus manual `workflow_dispatch`. On a
+  PR it first detects whether those inputs changed and **skips the build (reporting success) when
+  they didn't**, so unrelated PRs stay fast and unblocked.
 - **What it does:** logs in to GHCR (`docker/login-action`, `packages: write` + `GITHUB_TOKEN`),
   then `devcontainers/ci@v0.3` builds the image (Dockerfile + features), runs the container
   lifecycle (`postCreate`: `npm ci` + `playwright install`), and runs **`make page`** inside it as a
@@ -100,6 +102,13 @@ each `make worktree` — pulls cached layers instead of building the image from 
   so `devcontainer up` reuses the published layers (near-instant when unchanged). If the registry is
   unreachable or the image is missing, the build simply falls back to a normal local build — the
   prebuild is an optimization, never a hard dependency.
+- **Required check (no deadlock):** because the job runs and reports on every PR — building when the
+  inputs changed, skipping *green* when they didn't — `Build, smoke-test, and publish` is a
+  **required** status check on `main`, alongside `Lint`, `Visual + PDF checks`, and `Build and
+  deploy`. A path-filtered check *can't* be required: on PRs that don't touch its paths it never
+  runs, so a required context waits "Expected" forever and blocks the merge. Dropping the
+  trigger-level `paths` filter from `pull_request` (and skipping the build in-job instead) is what
+  makes it safe to require.
 
 **One-time owner step (manual):** for anonymous pulls to work — so contributors get the cache
 without a `docker login` — the GHCR package must be **public**. After the first publish from `main`,
