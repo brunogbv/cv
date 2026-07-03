@@ -16,8 +16,31 @@
 </head>
 
 <body>
+    <!-- Screen-only sticky section navigation (FR-002): hidden in print via `.screen`. No JS: a native
+         <details> gives a collapsible menu below Bootstrap's md breakpoint, and a plain inline list at
+         md and up (toggled by Bootstrap's d-*/d-md-* display utilities — robust across browsers, unlike
+         revealing a closed <details>'s contents with CSS). The link list is defined once as an inline
+         partial and reused in both. target="_self" overrides <base target="_blank"> so the in-page
+         anchors scroll the current page instead of opening a new tab. -->
+    <nav class="section-nav screen" aria-label="CV sections">
+        <div class="container">
+            {{#*inline "navLinks"}}
+            {{#if about_me}}<li><a href="#about" target="_self">About</a></li>{{/if}}
+            {{#if skills}}<li><a href="#skills" target="_self">Skills</a></li>{{/if}}
+            {{#if positions}}<li><a href="#experience" target="_self">Experience</a></li>{{/if}}
+            {{#if experience}}<li><a href="#additional" target="_self">Additional</a></li>{{/if}}
+            {{#if competitions}}<li><a href="#competitions" target="_self">Competitions</a></li>{{/if}}
+            {{/inline}}
+            <details class="section-nav-menu d-md-none">
+                <summary class="section-nav-summary">Sections</summary>
+                <ul class="section-nav-list">{{> navLinks}}</ul>
+            </details>
+            <ul class="section-nav-list section-nav-list-inline d-none d-md-flex">{{> navLinks}}</ul>
+        </div>
+    </nav>
+
     <div class="container page">
-        <div class="border-bottom border-2 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
+        <header class="border-bottom border-2 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
             <div class="row">
                 <div class="col-md-3 col-print-4 d-block align-self-center text-center pb-print-0 mb-print-0">
                     <img src="photo.jpg" class="rounded-circle img-fluid" alt="Personal photo">
@@ -34,9 +57,6 @@
                         </p>
                     </div>
                 </div>
-                <!-- <div class="col-4 col-md-3 col-lg-2 offset-lg-1 d-block align-self-center text-center">
-                    <img src="photo.jpg" class="rounded-circle img-fluid" alt="Personal photo">
-                </div> -->
                 <div class="col-print-4 col-12 col-md-5 offset-lg-1 col-lg-4">
                     <ul class="list-group list-group-flush">
                         {{#each facts}}
@@ -55,17 +75,24 @@
                     </span>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <div class="border-bottom border-2 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
-            <h2 class="mb-4">About me</h2>
-            <div class="row align-items-center">
-                <div>{{{markdown about_me}}}</div>
+        <main>
+        {{#if about_me}}
+        <section id="about" class="cv-section">
+            <h2 class="cv-section-title">About me</h2>
+            <div class="card cv-card">
+                <div class="card-body">{{{markdown about_me}}}</div>
             </div>
-        </div>
+        </section>
+        {{/if}}
 
-        <div class="border-bottom border-2 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
-            <h2 class="mb-4">Skills</h2>
+        {{#if skills}}
+        <!-- Skills keep their original grid markup (no card wrapper): the dot-bars use a Bootstrap
+             `.row` whose gutters render subtly differently inside a card box in print, so keeping the
+             structure identical guarantees the PDF's skills grid is unchanged (FR-005 / SC-004). -->
+        <section id="skills" class="cv-section">
+            <h2 class="cv-section-title">Skills</h2>
             <div class="row align-items-center">
                 {{#each skills}}
                 <div class="col-print-skills col-5 col-md-2 col-lg-2 text-right">
@@ -78,70 +105,82 @@
                 </div>
                 {{/each}}
             </div>
-        </div>
+        </section>
+        {{/if}}
 
-        <div class="border-bottom border-2 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
-            <h2 class="mb-4">Professional Experience</h2>
+        {{#if positions}}
+        <section id="experience" class="cv-section">
+            <h2 class="cv-section-title">Professional Experience</h2>
             {{#each positions}}
-            <div class="row-cols-1 d-block d-md-flex {{#unless @last}}mb-5{{/unless}}">
-                <div class="col-md-2 pt-1">
-                    {{ period }}
-                </div>
-                <div class="col-md-10">
-                    <h3 class="fs-4 fw-normal">{{ title }}</h3>
+            <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
+                <div class="card-body row-cols-1 d-block d-md-flex">
+                    <div class="col-md-2 pt-1 cv-entry-period">
+                        {{ period }}
+                    </div>
+                    <div class="col-md-10">
+                        <h3 class="fs-4 fw-normal">{{ title }}</h3>
 
-                    <div>{{{markdown contents}}}</div>
+                        <div>{{{markdown contents}}}</div>
 
-                    <p>
-                        {{#each skills}}
-                        <span class="badge text-body border border-1">{{ this }}</span>
-                        {{/each}}
-                    </p>
+                        <p>
+                            {{#each skills}}
+                            <span class="badge text-body border border-1">{{ this }}</span>
+                            {{/each}}
+                        </p>
+                    </div>
                 </div>
             </div>
             {{/each}}
-        </div>
+        </section>
+        {{/if}}
 
-        <div class="border-bottom border-2 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
-            <h2 class="mb-4">Additional Experience</h2>
-
+        {{#if experience}}
+        <section id="additional" class="cv-section">
+            <h2 class="cv-section-title">Additional Experience</h2>
             {{#each experience}}
-            <div class="row-cols-1 d-block d-md-flex {{#unless @last}}mb-5{{/unless}}">
-                <div class="col-md-2 pt-1">
-                    {{ period }}
-                </div>
-                <div class="col-md-10">
-                    <h3 class="fs-4 fw-normal">{{ title }}</h3>
+            <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
+                <div class="card-body row-cols-1 d-block d-md-flex">
+                    <div class="col-md-2 pt-1 cv-entry-period">
+                        {{ period }}
+                    </div>
+                    <div class="col-md-10">
+                        <h3 class="fs-4 fw-normal">{{ title }}</h3>
 
-                    <div>{{{markdown contents}}}</div>
+                        <div>{{{markdown contents}}}</div>
 
-                    <p>
-                        {{#each skills}}
-                        <span class="badge text-body border border-1">{{ this }}</span>
-                        {{/each}}
-                    </p>
+                        <p>
+                            {{#each skills}}
+                            <span class="badge text-body border border-1">{{ this }}</span>
+                            {{/each}}
+                        </p>
+                    </div>
                 </div>
             </div>
             {{/each}}
-        </div>
+        </section>
+        {{/if}}
 
-        <div class="border-bottom border-2 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
-            <h2 class="mb-4">Robotics Competitions</h2>
-
+        {{#if competitions}}
+        <section id="competitions" class="cv-section">
+            <h2 class="cv-section-title">Robotics Competitions</h2>
             {{#each competitions}}
-            <div class="row-cols-1 d-block d-md-flex {{#unless @last}}mb-5{{/unless}}">
-                <div class="col-md-2 pt-1">
-                    {{ period }}
-                </div>
-                <div class="col-md-10">
-                    <h3 class="fs-4 fw-normal">{{ title }}</h3>
+            <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
+                <div class="card-body row-cols-1 d-block d-md-flex">
+                    <div class="col-md-2 pt-1 cv-entry-period">
+                        {{ period }}
+                    </div>
+                    <div class="col-md-10">
+                        <h3 class="fs-4 fw-normal">{{ title }}</h3>
 
-                    <div>{{{markdown contents}}}</div>
+                        <div>{{{markdown contents}}}</div>
 
+                    </div>
                 </div>
             </div>
             {{/each}}
-        </div>
+        </section>
+        {{/if}}
+        </main>
 
     </div>
 </body>

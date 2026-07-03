@@ -218,3 +218,142 @@ h4 {
     content: '•••••';
     color: red;
 }
+
+/* =====================================================================================
+   Digital CV redesign (US2): section/card layout + sticky section navigation.
+   Screen gets the rich presentation; @media print flattens it back to the clean, linear
+   document the PDF has always been (FR-005 / SC-004). One template, one stylesheet — the
+   split stays media-driven (see contracts/rendering-contract.md).
+   ===================================================================================== */
+
+/* ---- Screen presentation (sections, cards, sticky nav) ---- */
+@media not print {
+    .cv-section {
+        margin-bottom: 3rem;
+        scroll-margin-top: 4.5rem; /* offset anchored scrolling so the sticky nav doesn't cover a heading */
+    }
+
+    .cv-section-title {
+        margin-top: 0;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--light-color);
+    }
+
+    .cv-card {
+        border: 1px solid var(--light-color);
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgb(0 0 0 / 6%);
+    }
+
+    .cv-card > .card-body {
+        padding: 1.5rem;
+    }
+
+    .cv-entry-period {
+        color: var(--dark-color);
+    }
+
+    /* Sticky section navigation — a bar pinned to the top of the viewport on scroll. It is also
+       marked `.screen`, so the existing `@media print { .screen { display: none } }` keeps it out of
+       the PDF. */
+    .section-nav {
+        position: sticky;
+        top: 0;
+        z-index: 1030;
+        margin-bottom: 2rem;
+        background-color: #fff;
+        border-bottom: 1px solid var(--light-color);
+        box-shadow: 0 1px 4px rgb(0 0 0 / 8%);
+    }
+
+    .section-nav-summary {
+        list-style: none;          /* hide the default disclosure triangle */
+        padding: 0.85rem 0;
+        font-weight: 500;
+        color: #000;
+        cursor: pointer;
+    }
+
+    .section-nav-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .section-nav-summary::after {
+        content: "\25be";          /* ▾ */
+        margin-left: 0.4rem;
+    }
+
+    /* Shared list reset (both the mobile dropdown and the desktop inline list). */
+    .section-nav-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    /* Mobile dropdown (< md): stacked links revealed when the <details> is open. */
+    .section-nav-menu .section-nav-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding-bottom: 0.85rem;
+    }
+
+    /* Desktop inline list (>= md): a row of links, shown via Bootstrap's d-md-flex utility. */
+    .section-nav-list-inline {
+        flex-wrap: wrap;
+        gap: 1.75rem;
+        padding: 0.85rem 0;
+    }
+
+    .section-nav-list a {
+        /* #595959 clears WCAG AA (~7:1 on white); --dark-color (#7a7a7a) is ~4:1 and would fail for
+           these primary interactive links (FR-011). */
+        color: #595959;
+        font-weight: 500;
+    }
+
+    .section-nav-list a:hover,
+    .section-nav-list a:focus {
+        color: #000;
+    }
+}
+
+/* ---- Smooth in-page scrolling to anchors, disabled when the visitor prefers reduced motion ---- */
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+/* ---- Print: flatten the screen chrome back to the linear PDF document ---- */
+@media print {
+    /* Cards flatten to plain linear blocks. `.card-body { padding: 0 }` above nulls the Bootstrap
+       body padding; `border: none` here keeps the flatten self-contained rather than relying on the
+       earlier `.card { border: none }` rule. */
+    .cv-card {
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        background-color: transparent;
+    }
+
+    /* Keep a single experience/competition entry from being split across pages. */
+    .cv-entry {
+        break-inside: avoid;
+    }
+
+    /* Section dividers + tight spacing, matching the pre-redesign block wrappers
+       (border-bottom border-2 border-dark + pb-print-0 + mb-print-1). #212529 is Bootstrap's
+       `border-dark`, kept identical to the old divider (and to the header, which still uses it). */
+    .cv-section {
+        margin-bottom: 1rem;
+        padding-bottom: 0;
+        border-bottom: 2px solid #212529;
+    }
+
+    /* Match the pre-redesign heading spacing (h2 carried `mb-4`) so pagination is unchanged. */
+    .cv-section-title {
+        margin-bottom: 1.5rem;
+    }
+}
