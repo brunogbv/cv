@@ -1,0 +1,13 @@
+/* Test-only stylesheet applied during visual-regression capture (via toHaveScreenshot stylePath).
+   Forces scroll-reveal elements to their final, settled state so screenshots are deterministic
+   regardless of the IntersectionObserver, which Playwright does not run during capture. */
+.reveal {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Hide the build-time "Last update" date (the only <time>) so snapshots are stable day-to-day;
+   visibility (not display:none) keeps its box so the full-page height stays deterministic. */
+time {
+  visibility: hidden !important;
+}

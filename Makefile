@@ -1,6 +1,6 @@
 MAKEFLAGS += -s
 
-.PHONY: dev clean page page-container worktree worktree-rm worktree-prune lint lint-actions lint-fast dev-build deploy
+.PHONY: dev clean page page-container worktree worktree-rm worktree-prune lint lint-actions lint-fast dev-build deploy visual visual-update
 
 # Remove build artifacts
 clean:
@@ -67,6 +67,22 @@ deploy:
 	vercel pull --yes --environment=$(if $(PROD),production,preview) >&2
 	vercel build $(if $(PROD),--prod) >&2
 	vercel deploy --prebuilt --yes $(if $(PROD),--prod)
+
+# Visual-regression + PDF-render gate (Playwright), run in the SAME pinned Playwright image CI uses,
+# so local rendering and the committed baselines match CI exactly (font rendering is the #1 snapshot
+# flake). The anonymous `node_modules` volume keeps the container's Linux install from clobbering the
+# host's. The image has no `make`, so it calls `npm run build` (what `make page` wraps).
+# Dependencies: Docker.
+VISUAL_IMAGE := mcr.microsoft.com/playwright:v1.61.1-noble
+visual:
+	docker run --rm -v "$(CURDIR):/work" -v /work/node_modules -w /work $(VISUAL_IMAGE) \
+		sh -c 'npm ci && npm run build && npx playwright test'
+
+# Refresh the committed snapshot baselines — a reviewed step for intentional visual changes; commit
+# the regenerated PNGs. Same pinned image so baselines match CI. Dependencies: Docker.
+visual-update:
+	docker run --rm -v "$(CURDIR):/work" -v /work/node_modules -w /work $(VISUAL_IMAGE) \
+		sh -c 'npm ci && npm run build && npx playwright test --update-snapshots'
 
 # Full CI-parity lint via the same Super-Linter image CI uses.
 #   - Pinned to CI's version (v6.7.0), not `latest`, so a local pass == CI.
