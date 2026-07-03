@@ -97,23 +97,15 @@
         {{/if}}
 
         {{#if skills}}
-        <!-- Skills keep their original grid markup (no card wrapper): the dot-bars use a Bootstrap
-             `.row` whose gutters render subtly differently inside a card box in print, so keeping the
-             structure identical guarantees the PDF's skills grid is unchanged (FR-005 / SC-004). -->
+        <!-- PROTOTYPE: skills as compact chips so the section fits one viewport (deck slide). The
+             production build can keep the proficiency bars if wanted, in a layout that still fits. -->
         <section id="skills" class="cv-section reveal">
             <h2 class="cv-section-title" data-eyebrow="What I know">Skills</h2>
-            <div class="row align-items-center">
+            <ul class="proto-skills">
                 {{#each skills}}
-                <div class="col-print-skills col-5 col-md-2 col-lg-2 text-right">
-                    <small>{{ this.[0] }}</small>
-                </div>
-                <div class="col-print-skills col-5 col-md-2 col-lg-2 offset-1 offset-lg-2 offset-md-4">
-                    <div class="skills">
-                        <div class="skills-bar" style="width: {{ this.[1] }}%"></div>
-                    </div>
-                </div>
+                <li>{{ this.[0] }}</li>
                 {{/each}}
-            </div>
+            </ul>
         </section>
         {{/if}}
 

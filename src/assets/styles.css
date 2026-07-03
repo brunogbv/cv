@@ -443,15 +443,26 @@ h4 {
         border: 0;
     }
 
-    /* Vertical section-snap: mandatory + scroll-snap-stop:always forces a hard, felt stop at each
-       section (you can't fly past one in a single flick). */
-    html { scroll-snap-type: y mandatory; scroll-padding-top: 5rem; }
+    /* Vertical "deck": each section fills the viewport with vertically-centered content, so scrolling
+       moves one full section at a time (uniform heights → smooth, decisive mandatory snap, no fight). */
+    html { scroll-snap-type: y mandatory; }
 
     .cv-section,
     body > .container.page > header {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 100vh;
+        margin-bottom: 0;
+        padding-block: 5.5rem 2.5rem; /* top clears the sticky nav */
+        box-sizing: border-box;
         scroll-snap-align: start;
         scroll-snap-stop: always;
     }
+
+    /* Neutralize the header's Bootstrap spacing utilities so it behaves as a full-height deck slide. */
+    body > .container.page > header.mb-5 { margin-bottom: 0 !important; }
+    body > .container.page > header.pb-5 { padding-bottom: 2.5rem !important; }
 
     /* Nav restyle */
     .section-nav {
@@ -466,6 +477,26 @@ h4 {
         font-weight: 600;
         letter-spacing: 0.1em;
         text-transform: uppercase;
+    }
+
+    /* Skills as compact chips (fits one viewport as a deck slide). */
+    .proto-skills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        max-width: 60rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .proto-skills li {
+        padding: 0.35rem 0.9rem;
+        border: 1px solid rgb(15 23 42 / 15%);
+        border-radius: 999px;
+        background-color: #fff;
+        font-size: 0.9rem;
+        color: var(--p-ink);
     }
 
     /* Flatten the 002 boxy cards into the editorial look (non-prototype sections read as clean lists). */
