@@ -134,8 +134,8 @@
             </ul>
             {{#each positions}}
             <div id="p{{@index}}" class="proto-detail">
+                <a class="proto-detail__backdrop" href="#experience" aria-label="Close details" target="_self"></a>
                 <div class="proto-detail__inner cv-entry">
-                    <a class="proto-detail__close" href="#experience" aria-label="Close" target="_self">✕</a>
                     <div class="proto-detail__period">{{ period }}</div>
                     <h3 class="fs-4 fw-normal">{{ title }}</h3>
                     <div>{{{markdown contents}}}</div>
@@ -189,6 +189,12 @@
         </main>
 
     </div>
+    <script>
+      // PROTOTYPE: close the :target detail overlay on Escape (backdrop click closes without JS).
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && /^#p\d+$/.test(location.hash)) { location.hash = 'experience' }
+      })
+    </script>
 </body>
 
 </html>

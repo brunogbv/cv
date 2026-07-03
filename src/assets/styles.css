@@ -443,9 +443,15 @@ h4 {
         border: 0;
     }
 
-    /* Vertical section-snap: firmer mandatory snap so each section settles clearly into view. */
+    /* Vertical section-snap: mandatory + scroll-snap-stop:always forces a hard, felt stop at each
+       section (you can't fly past one in a single flick). */
     html { scroll-snap-type: y mandatory; scroll-padding-top: 5rem; }
-    .cv-section, body > .container.page > header { scroll-snap-align: start; }
+
+    .cv-section,
+    body > .container.page > header {
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+    }
 
     /* Nav restyle */
     .section-nav {
@@ -571,8 +577,16 @@ h4 {
         overflow: hidden;
     }
 
+    /* The backdrop is a full-size link: clicking outside the card closes the overlay (no JS). */
+    .proto-detail__backdrop {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+    }
+
     .proto-detail__inner {
         position: relative;
+        z-index: 1; /* above the backdrop close link */
         width: 100%;
         max-width: 640px;
         max-height: 85vh;
@@ -589,16 +603,6 @@ h4 {
     .proto-detail:target .proto-detail__inner { transform: scale(1); }
 
     .proto-detail__period { color: var(--p-terra); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.8rem; }
-
-    .proto-detail__close {
-        position: absolute;
-        top: 1rem;
-        right: 1.25rem;
-        font-size: 1.6rem;
-        line-height: 1;
-        color: var(--p-ink);
-        text-decoration: none;
-    }
 }
 
 /* Print: render everything as plain linear content. Professional Experience's teaser rail is redundant
@@ -606,7 +610,7 @@ h4 {
    hidden state is screen-only); Additional/Competitions rails ARE the full content, so they stack. */
 @media print {
     #experience .proto-rail,
-    .proto-detail__close { display: none; }
+    .proto-detail__backdrop { display: none; }
 
     .proto-rail {
         margin: 0;
