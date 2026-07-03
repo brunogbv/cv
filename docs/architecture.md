@@ -14,20 +14,27 @@ backend, database, or client-side framework — the page is plain HTML/CSS produ
 │   │   └── metadata.js           # CV content — the data model (see below)
 │   ├── templates/
 │   │   └── index.html            # Handlebars page template (Bootstrap 5 markup)
-│   ├── assets/                   # Copied verbatim into dist/: styles.css, photo.jpg,
+│   ├── assets/                   # Copied verbatim into dist/: styles.css, reveal.js, photo.jpg,
 │   │                             #   favicons, url-qr-code.svg
 │   └── utils/
 │       ├── pdf.js                # Playwright HTML → PDF renderer
 │       └── helpers/
 │           └── markdown.js       # Handlebars {{markdown}} helper
+├── tests/                        # Playwright visual-regression + PDF gate (see ci-cd.md)
+│   ├── visual.spec.js            #   fullPage snapshots at the 6 breakpoints
+│   ├── pdf.spec.js               #   asserts a valid PDF was built
+│   ├── snapshot.css              #   test-only styles for deterministic capture
+│   └── __screenshots__/          #   committed baseline PNGs
+├── playwright.config.js          # Test runner config (breakpoints, snapshot tolerance)
 ├── config/
 │   └── lint/super-linter.env     # Super-Linter configuration (see ci-cd.md)
 ├── vercel.json                   # Vercel serving config: prebuilt output + cache/security headers
 ├── Dockerfile                    # Builder image (node:22 + Playwright Chromium) for `make dev-build`
-├── Makefile                      # Dev, build, lint, and Vercel deploy commands
+├── Makefile                      # Dev, build, lint, visual, and Vercel deploy commands
 ├── package.json                  # npm scripts + dependencies
-└── .github/workflows/            # CI: Lint, Dev Container prebuild, Vercel Deploy
+└── .github/workflows/            # CI: Lint, Visual, Dev Container prebuild, Vercel Deploy
     ├── superlinter.yml
+    ├── visual.yml
     ├── devcontainer.yml
     └── deploy.yml
 ```
@@ -40,8 +47,8 @@ The whole build is `src/build.js`, run via `node src/build.js` (wrapped by `npm 
 `make page`). In order, it:
 
 1. **Empties `dist/`** — `fs.emptyDirSync(outputDir)` (`outputDir` = `<repo>/dist`).
-2. **Copies assets** — `src/assets/` → `dist/` verbatim (styles, photo, favicons, QR code), and
-   vendors Bootstrap / Font Awesome / Roboto (CSS + fonts) from pinned `node_modules` into
+2. **Copies assets** — `src/assets/` → `dist/` verbatim (styles, `reveal.js`, photo, favicons, QR
+   code), and vendors Bootstrap / Font Awesome / Roboto (CSS + fonts) from pinned `node_modules` into
    `dist/vendor/`, so the page and PDF need no CDN at build or render time (#24).
 3. **Registers the `markdown` helper** so templates can render Markdown content fields to HTML.
 4. **Compiles the template** — reads `src/templates/index.html`, compiles it with Handlebars, and
@@ -62,10 +69,14 @@ index.html ──┘                      ▲
                                 src/assets/ (copied into dist/)
 ```
 
-Because the PDF is rendered from the same HTML, the HTML and PDF versions stay consistent by
-construction. The CSS uses `screen` / `print` classes to vary output: the on-screen page shows a
-"Download PDF" link, while the print/PDF version shows a QR code to the site instead
-(`src/templates/index.html`).
+Because the PDF is rendered from the same HTML, the two versions stay consistent in **content** by
+construction, while their **presentation is decoupled via CSS media** (one template, one stylesheet —
+no separate print template, no `emulateMedia` call in `pdf.js`). On screen the CV is a rich,
+card/section-based layout with a sticky section nav and a subtle scroll-reveal; `@media print` flattens
+the cards back to a clean linear document, hides the nav, and disables the animation, so the PDF is
+unchanged by the redesign. The `screen` / `print` classes also swap the cross-links — the on-screen
+page shows a "Download PDF" link, the print/PDF version a QR code back to the site
+(`src/templates/index.html`, `src/assets/styles.css`).
 
 ## Content data model
 
@@ -98,13 +109,34 @@ Font Awesome `<i>` tags and `<a>` links.
 - `src/templates/index.html` is a Handlebars template producing a Bootstrap 5 single-page layout.
   Bootstrap 5.2, Font Awesome 6.1, and Roboto are **vendored** into `dist/vendor/` at build time
   (copied from pinned `node_modules`) and referenced locally — no CDN at runtime (#24).
-- Sections rendered: header (photo + name + facts + PDF/QR), About me, Skills (bar chart),
-  Professional Experience, Additional Experience, Robotics Competitions. Lists use Handlebars
-  `{{#each}}` over the arrays above.
-- `src/assets/styles.css` holds project-specific styling on top of Bootstrap, including the
-  `screen` / `print` visibility rules and the skill-bar styling.
+- Sections rendered: header (photo + name + facts + PDF/QR), then `<main>` with About me, Skills
+  (bar chart), Professional Experience, Additional Experience, Robotics Competitions — each a
+  `<section id>` (nav anchor). On screen, About and the three experience sections present their content
+  as Bootstrap **cards**, while Skills keeps its bare bar-chart grid (un-carded, so its PDF output is
+  byte-identical). Lists use Handlebars
+  `{{#each}}` over the arrays above; a screen-only sticky **section nav** (a `<details>` menu below
+  Bootstrap `md`, an inline list at `md+`) links to the section ids, with its link list defined once as
+  a Handlebars inline partial.
+- `src/assets/styles.css` holds project-specific styling on top of Bootstrap: the `screen` / `print`
+  visibility rules, the skill-bar styling, the card/section/nav layout, and the scroll-reveal. The
+  screen/print split is media-driven — `@media print` flattens the cards, hides the nav, and disables
+  motion so the PDF stays linear (Skills keeps its original grid markup, un-carded, so its print output
+  is byte-identical). See the [rendering contract](../specs/002-digital-cv-redesign/contracts/rendering-contract.md).
+- `src/assets/reveal.js` is a small progressive-enhancement script (loaded from `<head>`): it sets a
+  `.js` root class, then a one-shot `IntersectionObserver` reveals `.reveal` sections as they scroll
+  in. It **fails visible** — with no JS, no `IntersectionObserver`, or any error, all content stays
+  shown — and the reveal is disabled for reduced-motion users and in print.
 - Note: this template/repo originates from the [`sneas/cv-template`](https://github.com/sneas/cv-template)
   project.
+
+## Tests
+
+The one automated test suite is a **visual-regression + PDF-render gate** (Playwright), not a
+unit/integration suite — it protects how the site renders across breakpoints and that the PDF still
+builds. It lives in `tests/` (`visual.spec.js`, `pdf.spec.js`, `snapshot.css`, committed baselines in
+`__screenshots__/`) with `playwright.config.js` at the root, runs via `make visual` / `make
+visual-update`, and is a required PR check. See [ci-cd.md](ci-cd.md#visual--pdf-gate) for how it runs
+and how baselines are updated.
 
 ## Runtime & dependencies
 

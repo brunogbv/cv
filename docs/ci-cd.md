@@ -1,15 +1,17 @@
 # CI/CD
 
-CI lints every change and prebuilds the Dev Container image. CD is automated: GitHub Actions builds
-the site and deploys the prebuilt output to **Vercel** on every push — production from `main`, a
-preview per PR — with Vercel-managed TLS. There is no manual server or certificate step.
+CI lints every change, runs a visual-regression + PDF-render gate, and prebuilds the Dev Container
+image. CD is automated: GitHub Actions builds the site and deploys the prebuilt output to **Vercel**
+on every push — production from `main`, a preview per PR — with Vercel-managed TLS. There is no
+manual server or certificate step.
 
 ## Continuous Integration — GitHub Actions
 
-Three workflows: **`.github/workflows/superlinter.yml`** (name: `Lint`) lints every change,
-**`.github/workflows/devcontainer.yml`** (name: `Dev Container`) prebuilds the Dev Container image
-(see [Dev Container image prebuild](#dev-container-image-prebuild)), and
-**`.github/workflows/deploy.yml`** (name: `Deploy`) builds and deploys the site to Vercel (push to
+Four workflows: **`.github/workflows/superlinter.yml`** (name: `Lint`) lints every change,
+**`.github/workflows/visual.yml`** (name: `Visual`) runs the visual-regression + PDF-render gate (see
+[Visual + PDF gate](#visual--pdf-gate)), **`.github/workflows/devcontainer.yml`** (name: `Dev
+Container`) prebuilds the Dev Container image (see [Dev Container image prebuild](#dev-container-image-prebuild)),
+and **`.github/workflows/deploy.yml`** (name: `Deploy`) builds and deploys the site to Vercel (push to
 `main` → production, `pull_request` → preview; see [Continuous Deployment](#continuous-deployment--vercel)).
 The lint workflow:
 
@@ -22,7 +24,8 @@ The lint workflow:
      (`permissions: statuses: write`, using the default `GITHUB_TOKEN`).
 - A Super-Linter status badge is shown at the top of the root [`README.md`](../README.md).
 
-There are **no automated tests** for the site — linting is the gate on site changes. Site build +
+Site changes are gated by **two** required checks: linting (above) and the **visual-regression +
+PDF-render** gate ([below](#visual--pdf-gate)) — there is no unit/integration suite. Site build +
 deploy runs in CI via the `Deploy` workflow ([below](#continuous-deployment--vercel)); the Dev
 Container workflow builds and smoke-tests the *dev-environment* image (not the site itself).
 
@@ -83,6 +86,37 @@ Caveats:
   against `main`. Local is broader, not narrower.
 - **Vercel:** the deploy-preview check runs on Vercel's side and is **not** covered by `make lint`;
   it can only be validated after pushing.
+
+### Visual + PDF gate
+
+`.github/workflows/visual.yml` (name: `Visual`, job `Visual + PDF checks`) is a **required PR check**
+that guards how the site renders. It runs in the **pinned Playwright image**
+(`mcr.microsoft.com/playwright:v1.61.1-noble`) — the same image `make visual` uses locally — so CI
+rendering matches the committed baselines exactly (cross-environment font rendering is the #1 snapshot
+flake).
+
+- **Triggers:** `push` to `main` and every `pull_request`.
+- **What it does:** `npm ci` → `npm run build` (the noble image ships no `make`) → `npx playwright
+  test`, running two specs, then uploads the Playwright HTML report + diff images as an artifact on
+  failure:
+  - `tests/visual.spec.js` — `toHaveScreenshot({ fullPage: true })` of `dist/index.html` at the six
+    Bootstrap breakpoints (375/576/768/992/1200/1440), diffed against `tests/__screenshots__/`.
+  - `tests/pdf.spec.js` — asserts the build produced a valid, non-empty `dist/*.pdf` (`%PDF-` header).
+- **Determinism:** baselines are committed and rendered in the pinned image; snapshots run with
+  `reducedMotion: 'reduce'` and a test-only `tests/snapshot.css` that forces scroll-reveal elements to
+  their settled state and hides the daily "Last update" date, so re-runs are stable.
+
+Run it locally (same result as CI):
+
+```sh
+make visual         # build + run the gate in the pinned Playwright image
+make visual-update  # regenerate the committed baselines after an *intentional* visual change
+```
+
+`make visual` is the authoritative check; `make visual-update` is a **reviewed** step — when a change
+deliberately alters the page, run it and commit the regenerated PNGs in the same PR (the baseline diff
+is the review surface). A missing or mismatched baseline fails the gate (CI never passes
+`--update-snapshots`).
 
 ### Dev Container image prebuild
 

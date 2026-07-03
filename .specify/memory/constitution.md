@@ -22,12 +22,16 @@ A change that alters behavior, commands, architecture, or workflow updates the r
 same PR (`docs/`, `README.md`, `AGENTS.md`). Significant, expensive-to-reverse decisions are
 captured as an ADR in `docs/adr/`.
 
-### IV. Validate locally; CI is the gate
+### IV. Validate locally; CI gates are the safety net
 
-Linting (Super-Linter) is the only automated CI gate — reproduce it with `make lint` before
-pushing. There is no test suite; quality comes from lint + self-review + verifying the generated
-PDF. Keep the feedback loop local and fast. Builds and PDF rendering run in the Dev Container or CI,
-not the host — see [`docs/local-development.md`](../../docs/local-development.md).
+Two automated CI gates run on every PR and must pass: **linting** (Super-Linter, `make lint`) and the
+**visual-regression + PDF-render check** (Playwright, `make visual`). Reproduce both locally before
+pushing. The visual gate snapshots the page at each breakpoint and verifies the PDF renders;
+intentional visual changes update the committed baselines (`make visual-update`) as a reviewed step.
+There is no *unit/integration* suite — beyond the automated gates, quality still comes from
+self-review and inspecting the generated PDF. Keep the feedback loop local and fast. Builds, PDF
+rendering, and the visual check run in the Dev Container or CI, not the host — see
+[`docs/local-development.md`](../../docs/local-development.md).
 
 ### V. Reproducible and minimal
 
@@ -58,4 +62,4 @@ that links its issue with `Closes #<n>`.
 This constitution reflects and defers to [`AGENTS.md`](../../AGENTS.md); amendments update both and
 keep them consistent. All PRs are expected to comply, and added complexity must be justified.
 
-**Version**: 1.2.0 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-02
+**Version**: 1.3.0 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-03

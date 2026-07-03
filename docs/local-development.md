@@ -71,6 +71,8 @@ Everything goes through the `Makefile` — run `make <target>`:
 | Build on the host (HTML + PDF) | `make page` | needs host Node + Playwright Chromium |
 | Fast lint (inner loop) | `make lint-fast` | native JS + Markdown; approximates CI |
 | Full lint (CI parity) | `make lint` | the Super-Linter image; the authoritative gate |
+| Visual + PDF gate | `make visual` | runs the Playwright snapshot + PDF check in the pinned image; a required PR check |
+| Update visual baselines | `make visual-update` | regenerates the committed snapshots after an *intentional* visual change (reviewed; commit the PNGs) |
 | Dockerized build (no local Node) | `make dev-build` | builds in Docker, copies output to `dist/` |
 
 > **Builds and PDF rendering run in the Dev Container (or CI), not the host.** The PDF is rendered

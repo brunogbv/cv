@@ -58,6 +58,13 @@ Everything goes through the `Makefile`. The common targets:
 - **`make lint-fast`** — quick JavaScript + Markdown lint for the inner loop.
 - **`make lint-actions`** — `actionlint` on the GitHub Actions workflows.
 
+### Test
+
+- **`make visual`** — the visual-regression + PDF-render gate (Playwright, pinned image); a required
+  PR check that snapshots the page at every breakpoint and verifies the PDF builds.
+- **`make visual-update`** — regenerate the committed snapshot baselines after an *intentional* visual
+  change (a reviewed step; commit the PNGs).
+
 ### Deploy
 
 Deployment is **automatic** — GitHub Actions builds and deploys to Vercel on every push (production

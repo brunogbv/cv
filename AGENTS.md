@@ -59,12 +59,21 @@ Deploy is **automatic** — see [`docs/ci-cd.md`](docs/ci-cd.md):
 
 ## Testing Instructions
 
-- There are **no** unit or integration tests in this repo.
+- The automated test gate is **visual-regression + PDF-render** (Playwright), not a unit/integration
+  suite: `tests/visual.spec.js` snapshots the page at the six Bootstrap breakpoints against committed
+  baselines (`tests/__screenshots__/`), and `tests/pdf.spec.js` asserts the build produced a valid
+  PDF. It runs as a **required PR check** (`.github/workflows/visual.yml`, name `Visual + PDF checks`)
+  alongside linting.
 - **Validate locally before pushing.** During iteration use `make lint-fast` (fast native JS +
-  Markdown lint) and/or the Dev Container's editor extensions; before opening/updating a PR run
-  `make lint` — it runs the *same* Super-Linter image CI uses (linting is the CI gate for code and
-  content changes), so you catch failures locally instead of waiting on the push-and-wait PR cycle.
+  Markdown lint) and/or the Dev Container's editor extensions; before opening/updating a PR run both
+  `make lint` (the *same* Super-Linter image CI uses) and `make visual` (Playwright in the pinned
+  image), so you catch lint and rendering failures locally instead of on the push-and-wait PR cycle.
   See [`docs/ci-cd.md`](docs/ci-cd.md) for details and caveats.
+- **Visual baselines:** `make visual` checks the current render against the committed baselines; when
+  a change *intentionally* alters the page, regenerate them with `make visual-update` and commit the
+  updated PNGs (a reviewed step). Both run in the pinned Playwright image
+  (`mcr.microsoft.com/playwright:v1.61.1-noble`) so local rendering matches CI — the #1 snapshot flake
+  is cross-environment font rendering.
 - Linting via Super-Linter runs on every push/PR (`.github/workflows/superlinter.yml`); `make lint`
   reproduces it locally — including on Apple Silicon (it runs the amd64 image emulated) and from a
   `make worktree` sibling. On arm64 it skips the GitHub Actions validator (actionlint segfaults under
