@@ -357,3 +357,29 @@ h4 {
         margin-bottom: 1.5rem;
     }
 }
+
+/* ---- Scroll reveal (US3): subtle, accessible entrance animation ----
+   Base state is fully visible — the no-JS fallback (see reveal.js). Only once reveal.js has set `.js`
+   on the root AND the visitor has not requested reduced motion do `.reveal` elements start hidden and
+   ease in when marked `.is-visible`. Only opacity/transform animate, so there is no layout shift. */
+@media (prefers-reduced-motion: no-preference) {
+    .js .reveal {
+        opacity: 0;
+        transform: translateY(1.5rem);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .js .reveal.is-visible {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Never hide or animate in the PDF, regardless of `.js`/observer state (mirrors tests/snapshot.css). */
+@media print {
+    .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}

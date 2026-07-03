@@ -12,6 +12,11 @@
     <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <!-- Loaded synchronously so `.js` is set before first paint (no flash of pre-revealed content);
+         reveal.js then wires the scroll-reveal observer once the DOM is ready. Progressive enhancement:
+         with no JS the content stays fully visible, and the effect is screen-only (styles.css keeps
+         `.reveal` visible in print). -->
+    <script src="reveal.js"></script>
     <base target="_blank">
 </head>
 
@@ -79,7 +84,7 @@
 
         <main>
         {{#if about_me}}
-        <section id="about" class="cv-section">
+        <section id="about" class="cv-section reveal">
             <h2 class="cv-section-title">About me</h2>
             <div class="card cv-card">
                 <div class="card-body">{{{markdown about_me}}}</div>
@@ -91,7 +96,7 @@
         <!-- Skills keep their original grid markup (no card wrapper): the dot-bars use a Bootstrap
              `.row` whose gutters render subtly differently inside a card box in print, so keeping the
              structure identical guarantees the PDF's skills grid is unchanged (FR-005 / SC-004). -->
-        <section id="skills" class="cv-section">
+        <section id="skills" class="cv-section reveal">
             <h2 class="cv-section-title">Skills</h2>
             <div class="row align-items-center">
                 {{#each skills}}
@@ -109,7 +114,7 @@
         {{/if}}
 
         {{#if positions}}
-        <section id="experience" class="cv-section">
+        <section id="experience" class="cv-section reveal">
             <h2 class="cv-section-title">Professional Experience</h2>
             {{#each positions}}
             <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
@@ -135,7 +140,7 @@
         {{/if}}
 
         {{#if experience}}
-        <section id="additional" class="cv-section">
+        <section id="additional" class="cv-section reveal">
             <h2 class="cv-section-title">Additional Experience</h2>
             {{#each experience}}
             <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
@@ -161,7 +166,7 @@
         {{/if}}
 
         {{#if competitions}}
-        <section id="competitions" class="cv-section">
+        <section id="competitions" class="cv-section reveal">
             <h2 class="cv-section-title">Robotics Competitions</h2>
             {{#each competitions}}
             <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
