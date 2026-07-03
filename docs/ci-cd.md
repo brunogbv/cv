@@ -74,6 +74,11 @@ Caveats:
   arm64** (and says so); check workflows with **`make lint-actions`**, which runs actionlint natively
   (pinned to the version Super-Linter bundles). On amd64 (CI/Intel) nothing is skipped. `make
   lint-fast` stays the quick inner-loop check.
+- **Markdown line-length:** `make lint-fast`'s markdownlint config
+  (`config/lint/markdownlint-fast.json`) mirrors Super-Linter's **MD013 `line_length: 400`** (and its
+  default table/code-block behaviour), so an over-length line — e.g. a wide table row that can't wrap
+  — now fails `lint-fast` as it does in CI. Native `markdownlint-cli2` and Super-Linter's bundled
+  markdownlint can still differ on newer/edge rules; `make lint` remains the exact mirror.
 - **Scope:** locally, Super-Linter lints the whole workspace; in CI it lints only files changed
   against `main`. Local is broader, not narrower.
 - **Vercel:** the deploy-preview check runs on Vercel's side and is **not** covered by `make lint`;
