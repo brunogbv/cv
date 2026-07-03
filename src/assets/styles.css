@@ -543,6 +543,7 @@ h4 {
         inset: 0;
         padding: 4rem 1.5rem;
         overflow-y: auto;
+        overscroll-behavior: contain; /* don't chain the overlay's scroll to the page */
         background-color: var(--p-cream);
         opacity: 0;
         visibility: hidden;
@@ -552,6 +553,12 @@ h4 {
     .proto-detail:target {
         opacity: 1;
         visibility: visible;
+    }
+
+    /* Lock the page scroll while a detail overlay is open, so a short (non-scrolling) overlay can't
+       scroll the CV behind it. */
+    body:has(.proto-detail:target) {
+        overflow: hidden;
     }
 
     .proto-detail__inner { max-width: 720px; margin: 0 auto; }
