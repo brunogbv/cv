@@ -1,7 +1,7 @@
-# Specification Quality Checklist: Digital CV — interactive swipeable card rails
+# Specification Quality Checklist: Digital CV — interactive editorial deck
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2026-07-03
+**Created**: 2026-07-03 (re-validated after the 2026-07-04 re-spec)
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -31,9 +31,19 @@
 
 ## Notes
 
-- Tech mentions (vanilla / no-framework, native snap-to-card scrolling) are **scope constraints and
-  documented assumptions** carried from the user's explicit non-goals — consistent with how 002's spec
-  recorded "Handlebars/Playwright retained." They bound scope rather than prescribe implementation.
-- No [NEEDS CLARIFICATION] markers: informed defaults are recorded in **Assumptions** (which sections
-  become rails; snap-with-peek behavior; signature form deferred to design). `/speckit-clarify` can
-  refine these before planning.
+- **Re-spec (2026-07-04):** this feature pivoted from "horizontal card rails on a vertical page" to a
+  **full-viewport editorial deck** (native scroll-snap) + summary-card rails with full-screen `:target`
+  detail overlays + editorial restyle, after the `003-proto` prototype validated it (owner-confirmed).
+  The checklist was re-validated against the rewritten spec.
+- **Scroll-mechanism specifics are intentional settled constraints, not leaked implementation detail.**
+  The spec names *native CSS Scroll Snap (and explicitly NOT a hand-rolled wheel/touch scroll-jacker)*
+  because the prototype proved the jacker fights native trackpad momentum, and the harness now documents
+  this (`docs/interaction-gotchas.md`). Recording it is load-bearing — it prevents re-building the known
+  failure mode — mirroring how 002's spec recorded "Handlebars/Playwright retained" as a constraint.
+  The same applies to `:target` (the no-JS overlay mechanism) and vendored (non-CDN) fonts.
+- **No [NEEDS CLARIFICATION] markers:** most decisions were settled by the prototype and are recorded in
+  **Clarifications (Session 2026-07-04)** and **Assumptions**. Genuinely open, design-time items remain
+  for `/speckit-clarify` / `/speckit-plan`: the signature moment's concrete form; the keyboard/focus
+  model for the detail overlay (trap + return); nested-scroll behaviour (a horizontal rail inside a
+  vertical snap panel); and whether the full-viewport deck applies at every breakpoint or relaxes to
+  normal scroll on small screens.
