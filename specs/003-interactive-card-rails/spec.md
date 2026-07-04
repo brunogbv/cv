@@ -49,6 +49,13 @@ existing visual-regression + PDF-render gate keeps guarding it."
 - Q: Are fonts loaded from a CDN? → A: **No.** The prototype used a CDN for speed; production MUST
   **vendor** the display + body fonts (self-hosted, screen-only) so there is no third-party request at
   render time (consistent with the existing vendored Roboto/Bootstrap/Font Awesome).
+- Q: Does the full-viewport deck apply on small phones, or relax there? → A: **Deck everywhere, relax
+  tall panels** — the deck + snap apply at all breakpoints, but any section whose content exceeds the
+  viewport (mainly small phones) relaxes to internal scroll (mandatory snap only for panels that fit),
+  so content is never trapped. Keeps the deck feel for the phone-first audience.
+- Q: How should the deck behave under `prefers-reduced-motion`? → A: **Keep snap, drop the glide** —
+  sections still snap to rest (a resting position, not animation), but the smooth animated glide and
+  overlay/emphasis transitions are suppressed (movement is immediate).
 
 ### Session 2026-07-03 (carried over, still valid)
 
@@ -244,7 +251,9 @@ reduced-motion-aware and layout-shift-free; in the PDF, none of it appears.
 - **FR-001**: The digital (screen) CV MUST present its sections as a **full-viewport vertical "deck"** —
   each section ~one viewport tall with vertically-centred content — where one wheel/trackpad/touch
   gesture or one Arrow/Page keypress advances **exactly one section** and the page **rests centred on a
-  section, never between two**.
+  section, never between two**. The deck applies at **all breakpoints**; however, a section whose content
+  **exceeds the viewport** (chiefly on small phones) MUST relax so that section scrolls internally and is
+  never clipped or trapped — mandatory snapping is reserved for panels that fit the viewport.
 - **FR-002**: Deck scrolling MUST be driven by **native CSS Scroll Snap** (`scroll-snap-type: y
   mandatory`, `scroll-snap-align`, `scroll-snap-stop: always`) so the browser owns wheel/trackpad/touch
   momentum. The implementation MUST NOT hand-roll a wheel/touch scroll-jacker (per
@@ -289,7 +298,9 @@ reduced-motion-aware and layout-shift-free; in the PDF, none of it appears.
 - **FR-013**: The page MUST include **one distinctive "signature" interactive moment** that makes it
   memorable while the rest stays disciplined; its concrete form is chosen at design time.
 - **FR-014**: Motion (deck glide, snap feedback, focused-card emphasis, overlay transition, the signature
-  moment) MUST be **subtle, reduced-motion-aware, and cause no layout shift**.
+  moment) MUST be **subtle, reduced-motion-aware, and cause no layout shift**. Under
+  `prefers-reduced-motion`, section **snapping is retained** (it is a resting position, not animation)
+  while the smooth glide and overlay/emphasis transitions are **suppressed** (movement is immediate).
 - **FR-015**: CV **content is unchanged** — it remains sourced from the existing content data file; this
   feature changes presentation and interaction, not content.
 - **FR-016**: The site MUST remain a **static build** with **no backend, database, or API**; any

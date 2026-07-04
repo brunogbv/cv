@@ -41,9 +41,11 @@
   this (`docs/interaction-gotchas.md`). Recording it is load-bearing — it prevents re-building the known
   failure mode — mirroring how 002's spec recorded "Handlebars/Playwright retained" as a constraint.
   The same applies to `:target` (the no-JS overlay mechanism) and vendored (non-CDN) fonts.
-- **No [NEEDS CLARIFICATION] markers:** most decisions were settled by the prototype and are recorded in
-  **Clarifications (Session 2026-07-04)** and **Assumptions**. Genuinely open, design-time items remain
-  for `/speckit-clarify` / `/speckit-plan`: the signature moment's concrete form; the keyboard/focus
-  model for the detail overlay (trap + return); nested-scroll behaviour (a horizontal rail inside a
-  vertical snap panel); and whether the full-viewport deck applies at every breakpoint or relaxes to
-  normal scroll on small screens.
+- **No [NEEDS CLARIFICATION] markers:** most decisions were settled by the prototype and recorded in
+  **Clarifications (Session 2026-07-04)** and **Assumptions**. `/speckit-clarify` (2026-07-04) resolved
+  two more: the deck applies at **all breakpoints but relaxes any panel taller than the viewport**
+  (FR-001), and under reduced-motion **snapping is kept while the glide is dropped** (FR-014).
+- **Deferred to `/speckit-plan` / design (not spec-level):** the signature moment's concrete form; the
+  detail-overlay focus mechanics (the *requirement* — trap + return — is fixed in FR-012, the *how* is
+  implementation); and nested-scroll handling (a horizontal rail inside a vertical snap panel — the
+  requirement is FR-006, the mechanism is plan-level).
