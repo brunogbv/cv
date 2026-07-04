@@ -16,6 +16,13 @@ for (const bp of BREAKPOINTS) {
     await page.goto('index.html')
     // page.evaluate awaits a returned promise, so this blocks until webfonts have loaded.
     await page.evaluate(() => document.fonts.ready)
+    // Deck determinism: the full-viewport snap deck must be captured from a fixed resting state.
+    // Pin scroll to the top (the hero) and disable scroll restoration so the fullPage capture is
+    // stable regardless of any prior scroll position.
+    await page.evaluate(() => {
+      history.scrollRestoration = 'manual'
+      window.scrollTo(0, 0)
+    })
     await expect(page).toHaveScreenshot(`cv-${bp.name}.png`, { fullPage: true })
   })
 }
