@@ -449,8 +449,14 @@ h4 {
         justify-content: center;
         min-height: 100vh;
         margin-bottom: 0;
-        padding-block: 5.5rem 2.5rem; /* top clears the sticky nav */
+        padding-block: 5.5rem 2.5rem; /* top clears the fixed nav */
         box-sizing: border-box;
+
+        /* Deck sections are full-viewport with centred content, so anchor / :target navigation (the
+           nav fallback, and closing the detail overlay via #experience) must land exactly on the
+           section top = the centred deck position. The inherited 4.5rem nav-clearance offset shifted
+           it up ~72px on overlay close, breaking the centring. */
+        scroll-margin-top: 0;
     }
 
     /* Drop the container's block padding so the deck sits flush; each slide owns its spacing. */
