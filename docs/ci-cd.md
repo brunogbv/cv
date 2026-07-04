@@ -212,10 +212,15 @@ and everyone else falls back to a local build (which still works, just slower).
 is disabled via `vercel.json` → `git.deploymentEnabled: false`. It builds `dist/` in CI (Node 22 +
 the lockfile-pinned Playwright Chromium, then `make page`) and deploys the prebuilt output with
 **`make deploy`** (`vercel pull` → `vercel build` → `vercel deploy --prebuilt`). Push to `main`
-deploys `--prod` (aliased to `valerio.dev`); a `pull_request` deploys a preview whose URL is posted
-back to the PR. `framework: null` + `buildCommand: ""` in `vercel.json` make `vercel build` package
-the existing `dist/` instead of re-running the Node build. TLS for `valerio.dev` + `www.valerio.dev`
-is provisioned and renewed automatically by Vercel; `www` 301-redirects to the apex.
+deploys `--prod` (aliased to `valerio.dev`); a `pull_request` deploys a preview surfaced back on the
+PR two ways, both tied to the head commit so neither goes stale: a **GitHub Deployment + status**
+(environment `preview-pr-<n>`, so it shows in the PR's *Deployments* box and on the commit, refreshed
+per push) and a single upserted **comment** stamped with the short SHA + UTC time. The deploy step
+extracts the `*.vercel.app` URL by pattern (not the last stdout line) and fails if none is found, so a
+broken capture can't post an empty link. `framework: null` + `buildCommand: ""` in `vercel.json` make
+`vercel build` package the existing `dist/` instead of re-running the Node build. TLS for
+`valerio.dev` + `www.valerio.dev` is provisioned and renewed automatically by Vercel; `www`
+301-redirects to the apex.
 
 If `make page` fails (including a PDF render error) the job fails **before** any deploy, so a broken
 build never publishes — the last good production deployment keeps serving.

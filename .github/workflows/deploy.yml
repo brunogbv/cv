@@ -23,6 +23,7 @@ concurrency:
 permissions:
   contents: read
   pull-requests: write
+  deployments: write
 
 jobs:
   deploy:
@@ -67,37 +68,89 @@ jobs:
       - name: Deploy to Vercel
         id: deploy
         run: |
+          set -o pipefail
+          # Capture make deploy's real exit code (a command substitution discards it otherwise) and
+          # fail on it — don't infer success purely from the URL match below.
           if [ "${{ github.event_name }}" = "push" ]; then
-            url="$(make deploy PROD=1 | tail -1)"
+            out="$(make deploy PROD=1)"; rc=$?
           else
-            url="$(make deploy | tail -1)"
+            out="$(make deploy)"; rc=$?
+          fi
+          if [ "$rc" -ne 0 ]; then
+            echo "::error::make deploy failed (exit $rc)"
+            printf '%s\n' "$out"
+            exit "$rc"
+          fi
+          # Extract the deployment URL by pattern rather than trusting the last stdout line, so a
+          # stray CLI line/warning can't be captured as the "URL". Fail loudly if none is found — the
+          # PR-surfacing step below is also gated on this output being non-empty.
+          url="$(printf '%s\n' "$out" | grep -Eo 'https://[A-Za-z0-9.-]+\.vercel\.app' | tail -n1 || true)"
+          if [ -z "$url" ]; then
+            echo "::error::No Vercel deployment URL found in 'make deploy' output"
+            printf '%s\n' "$out"
+            exit 1
           fi
           echo "url=$url" >> "$GITHUB_OUTPUT"
           echo "Deployed to: $url"
 
-      # Surface the preview URL on the PR (the CLI-only setup has no Vercel bot comment).
-      - name: Comment the preview URL on the PR
-        if: github.event_name == 'pull_request'
+      # Surface the preview URL on the PR (the CLI-only setup has no Vercel bot comment). Two
+      # surfaces, both tied to the head commit so they can't look stale:
+      #   1. A GitHub Deployment + status → shows in the PR's "Deployments" box and on the commit,
+      #      updated per commit (an edited-in-place comment alone is silent and gets buried).
+      #   2. A single upserted comment, stamped with the short SHA + time so an in-place edit is
+      #      unmistakably current.
+      # Gated on a non-empty deploy URL (the Deploy step exits non-zero otherwise, skipping this).
+      - name: Surface the preview on the PR
+        if: github.event_name == 'pull_request' && steps.deploy.outputs.url != ''
         uses: actions/github-script@v7
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
         with:
           script: |
             const url = process.env.DEPLOY_URL
-            const marker = '<!-- vercel-preview -->'
-            const body = `${marker}\n🔺 **Vercel preview:** ${url}`
             const { owner, repo } = context.repo
             const issue_number = context.issue.number
+            const sha = context.payload.pull_request.head.sha
+            const shortSha = sha.slice(0, 7)
+            const env = `preview-pr-${issue_number}`
+
+            // 1) Native surface: a Deployment tied to the head commit. required_contexts: [] so it
+            // never waits on other checks; transient + auto_inactive so superseded previews retire.
+            // Non-fatal: a deployment hiccup must not fail the deploy or block the comment below.
+            try {
+              const dep = await github.rest.repos.createDeployment({
+                owner, repo, ref: sha, environment: env,
+                transient_environment: true, auto_merge: false, required_contexts: [],
+                description: `Vercel preview for ${shortSha}`
+              })
+              if (dep.data && dep.data.id) {
+                await github.rest.repos.createDeploymentStatus({
+                  owner, repo, deployment_id: dep.data.id, state: 'success',
+                  environment: env, environment_url: url, log_url: url,
+                  auto_inactive: true, description: `Vercel preview for ${shortSha}`
+                })
+              } else {
+                core.warning(`createDeployment returned no id: ${JSON.stringify(dep.data)}`)
+              }
+            } catch (e) {
+              core.warning(`Could not publish deployment status: ${e.message}`)
+            }
+
+            // 2) Conversation surface: one upserted comment, stamped so it's obviously live.
+            const marker = '<!-- vercel-preview -->'
+            const stamp = `${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC`
+            const body = [
+              marker,
+              `🔺 **Vercel preview:** ${url}`,
+              '',
+              `<sub>commit \`${shortSha}\` · updated ${stamp}</sub>`
+            ].join('\n')
             const { data: comments } = await github.rest.issues.listComments({
-              owner, repo, issue_number
+              owner, repo, issue_number, per_page: 100
             })
-            const existing = comments.find((c) => c.body.includes(marker))
+            const existing = comments.find((c) => c.body && c.body.includes(marker))
             if (existing) {
-              await github.rest.issues.updateComment({
-                owner, repo, comment_id: existing.id, body
-              })
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body })
             } else {
-              await github.rest.issues.createComment({
-                owner, repo, issue_number, body
-              })
+              await github.rest.issues.createComment({ owner, repo, issue_number, body })
             }
