@@ -158,8 +158,11 @@ constitution is `.specify/memory/constitution.md`. See [`docs/spec-driven.md`](d
 an issue *and* repurposes its `tasks.md` checkbox into a link to that issue
 (`- [ ] T001 …` → `- [T001](…/issues/12) …`); thereafter `tasks.md` is the decomposition + issue map,
 completion is the linked issue closing via `Closes #<n>`, and the milestone progress bar is the
-status view — `/speckit-implement` does not tick checkboxes. (These are local customizations to the
-vendored spec-kit skills; re-apply them if the skills are ever re-synced from upstream.)
+status view — `/speckit-implement` does not tick checkboxes. `/speckit-taskstoissues` also scopes its
+issues per feature: the canonical issue title is prefixed with the feature number (`003-T001: …`) and
+dedup matches that feature-scoped id, so per-feature task IDs (which restart at `T001` each feature)
+don't collide with prior features' `T001…` issues. (These are local customizations to the vendored
+spec-kit skills; re-apply them if the skills are ever re-synced from upstream.)
 
 ## Required Skills
 
