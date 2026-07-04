@@ -561,3 +561,178 @@ h4 {
         color: var(--p-ink);
     }
 }
+
+/* =====================================================================================
+   Summary-card rails + detail overlays (US2). The three content-dense sections become
+   horizontal rails of short summary cards; activating a card opens the full entry in a
+   full-screen :target overlay. Screen-only (@media not print) + the markup is `.screen`,
+   so print shows the original linear `.cv-card.cv-entry.print` blocks and the PDF is
+   pixel-identical. The rail owns the X axis (overscroll-behavior: contain) so swiping it
+   never disturbs the vertical deck snap. Spec: FR-003/004/005/006, D3/D4/D5.
+   ===================================================================================== */
+@media not print {
+    /* ---- Rail of summary cards ---- */
+    .cv-rail {
+        display: flex;
+        gap: 1.25rem;
+        margin: 0;
+        padding: 0.5rem 0.25rem 1.5rem;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-padding-inline: 0.25rem;
+        overscroll-behavior: contain; /* an X-fling stays in the rail; never triggers the deck snap */
+        touch-action: pan-x pan-y; /* let the browser route horizontal-swipe to the rail, vertical to the deck */
+        list-style: none;
+    }
+
+    .cv-rail > li {
+        flex: 0 0 clamp(260px, 76%, 380px); /* the <li> is the flex/scroll item, not the <a> */
+        min-width: 0;
+        scroll-snap-align: start;
+    }
+
+    .cv-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        height: 100%;
+        padding: 1.5rem;
+        border: 1px solid rgb(15 23 42 / 12%);
+        border-radius: 1rem;
+        background-color: #fff;
+        color: var(--p-slate);
+        text-decoration: none;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .cv-summary .period {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--p-terra);
+    }
+
+    .cv-summary .title {
+        font-family: "Fraunces Variable", georgia, serif;
+        font-size: 1.35rem;
+        line-height: 1.15;
+        color: var(--p-ink);
+    }
+
+    .cv-summary .teaser {
+        display: -webkit-box;
+        overflow: hidden;
+        font-size: 0.95rem;
+        color: var(--p-slate-2);
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+
+    .cv-summary .more {
+        margin-top: auto;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--p-terra);
+    }
+
+    a.cv-summary:hover,
+    a.cv-summary:focus-visible {
+        transform: translateY(-3px);
+        border-color: var(--p-terra);
+        box-shadow: 0 12px 28px rgb(15 23 42 / 12%);
+    }
+
+    /* ---- Full-screen detail overlay (CSS :target — works with no JS) ---- */
+    .cv-detail {
+        position: fixed;
+        z-index: 2000;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        background-color: rgb(15 23 42 / 35%);
+        backdrop-filter: blur(8px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s ease;
+    }
+
+    .cv-detail:target {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Lock page scroll while an overlay is open so a short overlay can't scroll the CV behind it. */
+    body:has(.cv-detail:target) {
+        overflow: hidden;
+    }
+
+    /* Full-size backdrop link: clicking outside the card closes the overlay (no JS). */
+    .cv-detail-backdrop {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+    }
+
+    .cv-detail-inner {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 640px;
+        max-height: 85vh;
+        overflow: hidden; /* clip the inner scroller to the rounded corners */
+        background-color: #fffdfa;
+        border-radius: 1.25rem;
+        box-shadow: 0 30px 70px rgb(15 23 42 / 40%);
+        transform: scale(0.96);
+        transition: transform 0.25s ease;
+    }
+
+    .cv-detail:target .cv-detail-inner {
+        transform: scale(1);
+    }
+
+    .cv-detail-scroll {
+        max-height: 85vh;
+        padding: 2.75rem;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgb(15 23 42 / 30%) transparent;
+    }
+
+    .cv-detail-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .cv-detail-scroll::-webkit-scrollbar-thumb {
+        background-color: rgb(15 23 42 / 30%);
+        border-radius: 3px;
+    }
+
+    /* Visible close control (top-right of the card) — an anchor so it works with no JS too. */
+    .cv-detail-close {
+        position: absolute;
+        top: 0.9rem;
+        right: 1.1rem;
+        font-size: 1.6rem;
+        line-height: 1;
+        color: var(--p-slate-2);
+        text-decoration: none;
+    }
+
+    .cv-detail-close:hover,
+    .cv-detail-close:focus-visible {
+        color: var(--p-terra);
+    }
+
+    .cv-detail-period {
+        color: var(--p-terra);
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+    }
+}
