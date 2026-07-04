@@ -432,9 +432,6 @@ h4 {
 
     a { color: var(--p-terra); }
 
-    /* header hero: drop the heavy black divider for the editorial look */
-    body > .container.page > header { border-bottom: 1px solid rgb(15 23 42 / 10%); }
-
     /* facts (location/email/github/…): plain text links on the page, not a white boxed list */
     .list-group-item {
         padding-left: 0;
@@ -456,18 +453,32 @@ h4 {
         box-sizing: border-box;
     }
 
-    /* Drop the container's block padding so there's no empty strip above the hero or below the last
-       section — each deck section carries its own padding-block; side insets are kept. */
+    /* Drop the container's block padding so the deck sits flush; each slide owns its spacing. */
     body > .container.page { padding-block: 0; }
 
-    /* Header is a natural-height hero at the very top — NOT a forced full-viewport centered slide (its
-       min-height + centering + the nav above it left blank space and an off-centre first screen). */
-    body > .container.page > header.mb-5 { margin-bottom: 0 !important; }
-    body > .container.page > header.pb-5 { padding-bottom: 3rem !important; }
+    /* Header is the FIRST full-viewport slide: hero content vertically centred so the next section can't
+       peek in. The nav is fixed (below), out of flow, so "centred" is the true viewport centre — no
+       blank space above and no off-centre start (the reason the earlier natural-height hero looked
+       wrong: it filled only the top half, leaving the divider mid-screen with About showing beneath). */
+    body > .container.page > header {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-sizing: border-box;
+        margin-bottom: 0;
+        padding-block: 6rem 3rem; /* top keeps tall content clear of the fixed nav */
+        border-bottom: 1px solid rgb(15 23 42 / 10%); /* subtle divider at the slide foot (editorial look) */
+    }
 
-    /* Nav restyle */
+    /* Nav restyle — fixed (out of flow) so the full-viewport slides centre against the true viewport
+       instead of being pushed down by the nav's flow height. */
     .section-nav {
+        position: fixed;
+        right: 0;
+        left: 0;
         background-color: rgb(250 247 241 / 88%);
+        backdrop-filter: blur(6px);
         border-bottom: 1px solid rgb(15 23 42 / 8%);
     }
 
