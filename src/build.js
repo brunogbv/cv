@@ -4,12 +4,32 @@ const markdownHelper = require('./utils/helpers/markdown')
 const templateData = require('./metadata/metadata')
 const getSlug = require('speakingurl')
 const dayjs = require('dayjs')
+const dayjsUtc = require('dayjs/plugin/utc')
 const buildPdf = require('./utils/pdf.js')
 const path = require('path')
+
+dayjs.extend(dayjsUtc)
 
 const srcDir = __dirname
 const outputDir = path.join(__dirname, '/../dist')
 const nodeModules = path.join(__dirname, '/../node_modules')
+
+// Build date. Honours SOURCE_DATE_EPOCH (the reproducible-builds convention: seconds since the Unix
+// epoch) so a build can be made deterministic — the visual gate sets it so the PDF's "Last update"
+// text is stable day-to-day (the screen snapshots instead hide that <time> via tests/snapshot.css,
+// but the PDF is a fixed render that bakes it in). Unset (normal builds) it's today's date, as before.
+// The pinned date is formatted in UTC so it's independent of the runtime's timezone — a fixed epoch
+// must render the same calendar day everywhere, or the PDF's date text (and its wrapped layout)
+// would drift and break the exact-match gate on a non-UTC host.
+const epoch = process.env.SOURCE_DATE_EPOCH
+let buildDate = dayjs()
+if (epoch) {
+  const seconds = Number(epoch)
+  if (!Number.isFinite(seconds)) {
+    throw new Error(`SOURCE_DATE_EPOCH must be a number (Unix seconds); got: ${JSON.stringify(epoch)}`)
+  }
+  buildDate = dayjs.unix(seconds).utc()
+}
 
 // Vendored CSS/fonts copied from pinned node_modules into dist/ so the page and PDF render with no
 // third-party CDN at build/render time (issue #24). [from, to-relative-to-dist]
@@ -46,7 +66,7 @@ async function build () {
     ...templateData,
     baseUrl: 'https://valerio.dev',
     pdfFileName,
-    updated: dayjs().format('MMMM D, YYYY')
+    updated: buildDate.format('MMMM D, YYYY')
   })
 
   fs.writeFileSync(outputDir + '/index.html', html)
