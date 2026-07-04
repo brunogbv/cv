@@ -319,11 +319,13 @@ h4 {
     }
 }
 
-/* ---- In-page scrolling ----
-   The deck drives its own smooth scrolling from JS (scrollTo({behavior})), so CSS `scroll-behavior:
-   smooth` on the scroller is intentionally NOT set on screen: with both, the native smooth and the
-   programmatic smooth fought each other and landings drifted between sections. Nav-anchor clicks are
-   smoothed in JS instead (see the deck script). */
+/* ---- Smooth in-page scrolling (anchors + keyboard section nav), disabled for reduced motion.
+   Native scroll snapping itself is configured screen-only in the prototype block below. ---- */
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
 
 /* ---- Print: flatten the screen chrome back to the linear PDF document ---- */
 @media print {
@@ -439,10 +441,10 @@ h4 {
         border: 0;
     }
 
-    /* Vertical "deck": each section fills the viewport with vertically-centered content. Navigation is
-       driven entirely by JS (one full section per gesture, wheel + keys + touch). We deliberately do
-       NOT use CSS scroll-snap: programmatic smooth-scroll fights `scroll-snap-type: mandatory`, which
-       force-snaps mid-animation to the wrong point (the hiccup). JS-only scrolling is conflict-free. */
+    /* Vertical "deck": each section fills the viewport with vertically-centred content. Scrolling is
+       handled by NATIVE CSS scroll-snap (scroll-snap-type on <html> above; scroll-snap-align/stop
+       below), so the browser owns wheel/trackpad/touch momentum — no JS scroll-jacking to fight it.
+       Keyboard nav is a thin, orthogonal JS layer (see the deck script). */
     .cv-section {
         display: flex;
         flex-direction: column;
@@ -451,6 +453,8 @@ h4 {
         margin-bottom: 0;
         padding-block: 5.5rem 2.5rem; /* top clears the fixed nav */
         box-sizing: border-box;
+        scroll-snap-align: start;
+        scroll-snap-stop: always; /* a hard flick advances one section, never skips */
 
         /* Deck sections are full-viewport with centred content, so anchor / :target navigation (the
            nav fallback, and closing the detail overlay via #experience) must land exactly on the
@@ -461,6 +465,14 @@ h4 {
 
     /* Drop the container's block padding so the deck sits flush; each slide owns its spacing. */
     body > .container.page { padding-block: 0; }
+
+    /* Native scroll snapping: the browser owns wheel/trackpad/touch momentum (no JS scroll-jacking to
+       fight — that fight was the sluggish/flickering start). It rests on a section or animates to the
+       neighbour, and scroll-snap-stop:always keeps even a hard flick to a single section. Keyboard nav
+       is a thin JS layer on top (orthogonal to snap). Screen-only, so the PDF/print flow is untouched. */
+    html {
+        scroll-snap-type: y mandatory;
+    }
 
     /* Header is the FIRST full-viewport slide: hero content vertically centred so the next section can't
        peek in. The nav is fixed (below), out of flow, so "centred" is the true viewport centre — no
@@ -475,6 +487,9 @@ h4 {
         margin-bottom: 0;
         padding-block: 6rem 3rem; /* top keeps tall content clear of the fixed nav */
         border-bottom: 1px solid rgb(15 23 42 / 10%); /* subtle divider at the slide foot (editorial look) */
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        scroll-margin-top: 0;
     }
 
     /* Nav restyle — fixed (out of flow) so the full-viewport slides centre against the true viewport

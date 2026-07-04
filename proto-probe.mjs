@@ -9,32 +9,33 @@ await p.waitForTimeout(900)
 
 const tops = await p.evaluate(() =>
   [...document.querySelectorAll('header, .cv-section')].map(s => Math.round(s.getBoundingClientRect().top + window.scrollY)))
+const onTop = y => tops.some(t => Math.abs(t - y) <= 3)
 console.log('section tops:', JSON.stringify(tops), 'startY', Math.round(await p.evaluate(() => window.scrollY)))
 
-// single-gesture landings
-const down = []
-for (let i = 0; i < 5; i++) { await p.mouse.wheel(0, 400); await p.waitForTimeout(900); down.push(Math.round(await p.evaluate(() => window.scrollY))) }
-console.log('single wheel down:', JSON.stringify(down))
+// keyboard: one ArrowDown press = one section (via scrollIntoView + snap)
+const keys = []
+for (let i = 0; i < 5; i++) { await p.keyboard.press('ArrowDown'); await p.waitForTimeout(700); keys.push(Math.round(await p.evaluate(() => window.scrollY))) }
+console.log('ArrowDown landings:', JSON.stringify(keys), '| all on a section?', keys.every(onTop))
+const ups = []
+for (let i = 0; i < 3; i++) { await p.keyboard.press('ArrowUp'); await p.waitForTimeout(700); ups.push(Math.round(await p.evaluate(() => window.scrollY))) }
+console.log('ArrowUp landings:  ', JSON.stringify(ups), '| all on a section?', ups.every(onTop))
 
-// back to top
-await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(700)
+// native wheel + snap: a scroll should REST on a snap point (never between)
+await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(600)
+await p.mouse.wheel(0, 500); await p.waitForTimeout(900)
+const wy = Math.round(await p.evaluate(() => window.scrollY))
+console.log('after one wheel down:', wy, '| resting on a section?', onTop(wy))
 
-// BURST: many rapid wheel events (approximates a hard flick — should still advance exactly ONE section)
-for (let i = 0; i < 20; i++) { await p.mouse.wheel(0, 150) }
-await p.waitForTimeout(1200)
-const burstY = Math.round(await p.evaluate(() => window.scrollY))
-const onSection = tops.some(t => Math.abs(t - burstY) <= 2)
-console.log('burst landing:', burstY, '| on a section top?', onSection, '| == About('+tops[1]+')?', Math.abs(burstY - tops[1]) <= 2)
-
-// OVERLAY: go to experience, open a card, close it — position must be preserved (centred)
-const expIdx = await p.evaluate(() => [...document.querySelectorAll('header, .cv-section')].findIndex(s => s.id === 'experience'))
-await p.evaluate(i => { const t = [...document.querySelectorAll('header, .cv-section')]; window.scrollTo(0, Math.round(t[i].getBoundingClientRect().top + window.scrollY)) }, expIdx)
-await p.waitForTimeout(500)
-const beforeOpen = Math.round(await p.evaluate(() => window.scrollY))
-await p.evaluate(() => { location.hash = 'p1' }); await p.waitForTimeout(400)   // open card
-await p.evaluate(() => { location.hash = 'experience' }); await p.waitForTimeout(500) // close (as the link/Esc do)
-const afterClose = Math.round(await p.evaluate(() => window.scrollY))
-console.log('overlay: experienceTop', tops[expIdx], '| beforeOpen', beforeOpen, '| afterClose', afterClose, '| drift', afterClose - beforeOpen)
+// overlay open -> close preserves centred position
+const expIdx = tops.findIndex((_, i) => i >= 0) // placeholder
+const eIdx = await p.evaluate(() => [...document.querySelectorAll('header, .cv-section')].findIndex(s => s.id === 'experience'))
+await p.evaluate(i => document.querySelectorAll('header, .cv-section')[i].scrollIntoView(), eIdx)
+await p.waitForTimeout(700)
+const before = Math.round(await p.evaluate(() => window.scrollY))
+await p.evaluate(() => { location.hash = 'p1' }); await p.waitForTimeout(400)
+await p.evaluate(() => { location.hash = 'experience' }); await p.waitForTimeout(700)
+const after = Math.round(await p.evaluate(() => window.scrollY))
+console.log('overlay: expTop', tops[eIdx], '| before', before, '| afterClose', after, '| drift', after - before)
 
 await b.close()
 console.log('probe done')
