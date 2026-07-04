@@ -96,8 +96,8 @@
 
         <main>
         {{#if about_me}}
-        <section id="about" class="cv-section reveal">
-            <h2 class="cv-section-title" data-eyebrow="Who I am">About me</h2>
+        <section id="about" class="cv-section reveal" aria-labelledby="about-title">
+            <h2 id="about-title" class="cv-section-title" data-eyebrow="Who I am">About me</h2>
             <div class="card cv-card">
                 <div class="card-body">{{{markdown about_me}}}</div>
             </div>
@@ -108,8 +108,8 @@
         <!-- US3: screen shows proficiency CHIPS (.cv-skills, screen-only); PRINT keeps the original 002
              dot-bar grid (.print) verbatim, so the PDF's skills section is unchanged (SC-005). Both are
              rendered; .screen/.print toggle which one is visible per media. -->
-        <section id="skills" class="cv-section reveal">
-            <h2 class="cv-section-title" data-eyebrow="What I know">Skills</h2>
+        <section id="skills" class="cv-section reveal" aria-labelledby="skills-title">
+            <h2 id="skills-title" class="cv-section-title" data-eyebrow="What I know">Skills</h2>
             <ul class="cv-skills screen">
                 {{#each skills}}
                 <li style="--pct: {{ this.[1] }}%">{{ this.[0] }}</li>
@@ -131,10 +131,10 @@
         {{/if}}
 
         {{#if positions}}
-        <section id="experience" class="cv-section reveal">
-            <h2 class="cv-section-title" data-eyebrow="Where I've worked">Professional Experience</h2>
+        <section id="experience" class="cv-section reveal" aria-labelledby="experience-title">
+            <h2 id="experience-title" class="cv-section-title" data-eyebrow="Where I've worked">Professional Experience</h2>
             <!-- SCREEN: horizontal rail of short summary cards; each opens a full-screen :target detail. -->
-            <ul class="cv-rail screen">
+            <ul class="cv-rail screen" aria-label="Professional Experience — swipe or tab through entries">
                 {{#each positions}}
                 <li>
                     <a class="cv-summary" href="#e{{@index}}" target="_self">
@@ -148,7 +148,7 @@
             </ul>
             {{#each positions}}
             <div id="e{{@index}}" class="cv-detail screen" role="dialog" aria-modal="true" aria-labelledby="e{{@index}}-title">
-                <a class="cv-detail-backdrop" href="#experience" aria-label="Close details" target="_self"></a>
+                <a class="cv-detail-backdrop" href="#experience" target="_self" tabindex="-1" aria-hidden="true"></a>
                 <div class="cv-detail-inner">
                     <a class="cv-detail-close" href="#experience" target="_self" aria-label="Close details">&times;</a>
                     <div class="cv-detail-scroll">
@@ -189,9 +189,9 @@
         {{/if}}
 
         {{#if experience}}
-        <section id="additional" class="cv-section reveal">
-            <h2 class="cv-section-title" data-eyebrow="Courses &amp; training">Additional Experience</h2>
-            <ul class="cv-rail screen">
+        <section id="additional" class="cv-section reveal" aria-labelledby="additional-title">
+            <h2 id="additional-title" class="cv-section-title" data-eyebrow="Courses &amp; training">Additional Experience</h2>
+            <ul class="cv-rail screen" aria-label="Additional Experience — swipe or tab through entries">
                 {{#each experience}}
                 <li>
                     <a class="cv-summary" href="#x{{@index}}" target="_self">
@@ -205,7 +205,7 @@
             </ul>
             {{#each experience}}
             <div id="x{{@index}}" class="cv-detail screen" role="dialog" aria-modal="true" aria-labelledby="x{{@index}}-title">
-                <a class="cv-detail-backdrop" href="#additional" aria-label="Close details" target="_self"></a>
+                <a class="cv-detail-backdrop" href="#additional" target="_self" tabindex="-1" aria-hidden="true"></a>
                 <div class="cv-detail-inner">
                     <a class="cv-detail-close" href="#additional" target="_self" aria-label="Close details">&times;</a>
                     <div class="cv-detail-scroll">
@@ -246,9 +246,9 @@
         {{/if}}
 
         {{#if competitions}}
-        <section id="competitions" class="cv-section reveal">
-            <h2 class="cv-section-title" data-eyebrow="Earlier chapters">Robotics Competitions</h2>
-            <ul class="cv-rail screen">
+        <section id="competitions" class="cv-section reveal" aria-labelledby="competitions-title">
+            <h2 id="competitions-title" class="cv-section-title" data-eyebrow="Earlier chapters">Robotics Competitions</h2>
+            <ul class="cv-rail screen" aria-label="Robotics Competitions — swipe or tab through entries">
                 {{#each competitions}}
                 <li>
                     <a class="cv-summary" href="#c{{@index}}" target="_self">
@@ -262,7 +262,7 @@
             </ul>
             {{#each competitions}}
             <div id="c{{@index}}" class="cv-detail screen" role="dialog" aria-modal="true" aria-labelledby="c{{@index}}-title">
-                <a class="cv-detail-backdrop" href="#competitions" aria-label="Close details" target="_self"></a>
+                <a class="cv-detail-backdrop" href="#competitions" target="_self" tabindex="-1" aria-hidden="true"></a>
                 <div class="cv-detail-inner">
                     <a class="cv-detail-close" href="#competitions" target="_self" aria-label="Close details">&times;</a>
                     <div class="cv-detail-scroll">
