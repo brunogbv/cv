@@ -56,8 +56,8 @@ no-JS / reduced-motion checks.
 | Aspect | Requirement |
 |--------|-------------|
 | Form | Deck panels, rails, overlays, chips, restyle, and the Through-Line **flatten/vanish**; entries render as the existing clean, linear **Roboto** blocks, `break-inside: avoid` per entry (as 002). |
-| Fonts | Print keeps **Roboto** — the screen font families are referenced only under `@media not print`. |
-| Generation | Produced by the **unchanged** `src/utils/pdf.js` (default print media, A4). No `emulateMedia`; **PDF unchanged** from 002 (same entries, order, typography, layout). (FR-009, SC-005) |
+| Fonts | Print keeps **Roboto** — the screen font families are referenced only under `@media not print`, and the vendored editorial fonts are linked `media="screen"` so they are never fetched for the PDF. |
+| Generation | Produced by `src/utils/pdf.js` (A4), which now calls `page.emulateMedia({ media: 'print' })` **before** navigating so screen-only CSS/webfonts never affect the PDF — it renders exactly the print document. **PDF unchanged** from 002 (same entries, order, typography, layout); machine-verified by the PDF-visual baseline. (FR-009, SC-005) |
 | Cross-link | Download-PDF (screen) and QR (print) intact. |
 
 ## G. Gate (visual-regression + PDF-visual)

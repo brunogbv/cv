@@ -22,6 +22,8 @@
   },
   "homepage": "https://github.com/brunogbv/cv#readme",
   "devDependencies": {
+    "@fontsource-variable/fraunces": "^5",
+    "@fontsource-variable/spline-sans": "^5",
     "@fontsource/roboto": "^5.2.10",
     "@fortawesome/fontawesome-free": "^6.1.2",
     "@playwright/test": "1.61.1",

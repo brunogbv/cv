@@ -6,6 +6,13 @@ module.exports = async function buildPdf (inputFile, outputFile) {
   })
   try {
     const page = await browser.newPage()
+    // Force PRINT media BEFORE navigating so the PDF is the clean linear document regardless of any
+    // screen-only presentation layer: `@media not print` rules (the editorial deck/restyle) are
+    // excluded, and screen-only assets like the `media="screen"` editorial webfonts are never even
+    // fetched — so the PDF renders in Roboto, pixel-identical to before the screen redesign. Relying on
+    // page.pdf()'s default print emulation proved insufficient (screen fonts loaded during navigation
+    // still perturbed the render); emulating before goto is what actually isolates the print output.
+    await page.emulateMedia({ media: 'print' })
     // Assets are vendored locally (issue #24), so 'load' is sufficient and the explicit timeout
     // makes a missing/slow resource fail fast instead of hanging.
     await page.goto(`file://${inputFile}`, {

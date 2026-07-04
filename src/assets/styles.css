@@ -440,3 +440,124 @@ h4 {
         margin-bottom: 0;
     }
 }
+
+/* =====================================================================================
+   Editorial restyle (US3): the screen adopts the reference identity (theopenengine.com) —
+   Fraunces display serif + Spline Sans body (both vendored, screen-only), a warm
+   cream/ink/slate/terracotta palette, un-boxed cards, uppercase terracotta "eyebrow"
+   labels, and skills as proficiency chips. All screen-only: @media print is untouched, so
+   the PDF stays clean/linear Roboto (SC-005). Skills specifically render as chips on screen
+   but keep the 002 bar-grid in print (the template ships both, toggled by .screen/.print).
+   Spec: FR-007/008, US3. Fonts vendored via @fontsource-variable in build.js.
+   ===================================================================================== */
+@media not print {
+    :root {
+        --p-cream: #faf7f1;
+        --p-ink: #0f172a;
+        --p-slate: #475569;
+        --p-slate-2: #64748b;
+        --p-terra: #c2240c;
+    }
+
+    body {
+        background-color: var(--p-cream);
+        color: var(--p-slate);
+        font-family: "Spline Sans Variable", roboto, sans-serif;
+    }
+
+    h1,
+    h2,
+    h3,
+    .cv-section-title {
+        font-family: "Fraunces Variable", georgia, serif;
+        font-optical-sizing: auto;
+        font-weight: 600;
+        color: var(--p-ink);
+        letter-spacing: -0.02em;
+    }
+
+    .cv-section-title {
+        font-size: clamp(2rem, 5vw, 3.25rem);
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+
+    /* Uppercase terracotta eyebrow above each section title (from data-eyebrow). Screen-only,
+       so the PDF's headings are unchanged. */
+    .cv-section-title::before {
+        content: attr(data-eyebrow);
+        display: block;
+        margin-bottom: 0.5rem;
+        font-family: "Spline Sans Variable", sans-serif;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--p-terra);
+    }
+
+    a {
+        color: var(--p-terra);
+    }
+
+    /* Facts (location/email/github/…): plain text on the cream page, not a white boxed list. */
+    .list-group-item {
+        padding-left: 0;
+        background-color: transparent;
+        border: 0;
+    }
+
+    /* Flatten the 002 boxy cards into the editorial look (clean, un-boxed blocks). */
+    .cv-card {
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background-color: transparent;
+    }
+
+    .cv-card > .card-body {
+        padding: 0;
+    }
+
+    /* Header hero: a light editorial divider instead of the heavy 002 black border (screen only). */
+    body > .container.page > header {
+        border-bottom: 1px solid rgb(15 23 42 / 10%);
+    }
+
+    /* Restyle the (US1-fixed) nav as a translucent cream bar. */
+    .section-nav {
+        background-color: rgb(250 247 241 / 88%);
+        backdrop-filter: blur(6px);
+        border-bottom: 1px solid rgb(15 23 42 / 8%);
+    }
+
+    .section-nav-list a {
+        font-family: "Spline Sans Variable", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    /* Skills as compact proficiency chips (screen only). Each chip fills with a terracotta tint up to
+       its proficiency % (the --pct set inline). Print keeps the 002 dot-bar grid (see the template's
+       .print block) so the PDF is unchanged. */
+    .cv-skills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        max-width: 60rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .cv-skills li {
+        padding: 0.35rem 0.9rem;
+        border: 1px solid rgb(15 23 42 / 15%);
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgb(194 36 12 / 14%) 0 var(--pct, 0%), #fff var(--pct, 0%));
+        font-size: 0.9rem;
+        color: var(--p-ink);
+    }
+}
