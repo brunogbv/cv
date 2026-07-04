@@ -32,7 +32,12 @@ jobs:
         run: npm ci
 
       - name: Build the site (HTML + PDF)
+        # Pin the build's "Last update" date so the date baked into the PDF (which the PDF-visual
+        # spec rasterises and diffs) is stable. Must match VISUAL_SOURCE_DATE_EPOCH in the Makefile
+        # (2026-07-03 12:00 UTC → "July 3, 2026") so `make visual` / `make visual-update` and CI agree.
         run: npm run build
+        env:
+          SOURCE_DATE_EPOCH: '1783080000'
 
       - name: Run visual + PDF checks
         run: npx playwright test

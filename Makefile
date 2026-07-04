@@ -73,16 +73,24 @@ deploy:
 # so local rendering and the committed baselines match CI exactly (font rendering is the #1 snapshot
 # flake). The anonymous `node_modules` volume keeps the container's Linux install from clobbering the
 # host's. The image has no `make`, so it calls `npm run build` (what `make page` wraps).
-# Dependencies: Docker.
+# SOURCE_DATE_EPOCH pins the build's "Last update" date (build.js, which formats it in UTC so the
+# calendar day is TZ-independent) so the date baked into the PDF — which the PDF-visual spec
+# rasterises and diffs — is stable day-to-day; it matches CI's value in .github/workflows/visual.yml.
+# The value (2026-07-03 12:00 UTC → "July 3, 2026") is chosen so the screen render stays
+# byte-identical to the committed screen baselines: the "Last update" <time> is hidden in snapshots
+# but still occupies layout, so its wrapped height depends on the date string's length (12 chars
+# here) — a longer date would reflow it and drift the screen baselines. Dependencies: Docker.
 VISUAL_IMAGE := mcr.microsoft.com/playwright:v1.61.1-noble
+VISUAL_SOURCE_DATE_EPOCH := 1783080000
 visual:
-	docker run --rm -v "$(CURDIR):/work" -v /work/node_modules -w /work $(VISUAL_IMAGE) \
+	docker run --rm -e SOURCE_DATE_EPOCH=$(VISUAL_SOURCE_DATE_EPOCH) -v "$(CURDIR):/work" -v /work/node_modules -w /work $(VISUAL_IMAGE) \
 		sh -c 'npm ci && npm run build && npx playwright test'
 
 # Refresh the committed snapshot baselines — a reviewed step for intentional visual changes; commit
-# the regenerated PNGs. Same pinned image so baselines match CI. Dependencies: Docker.
+# the regenerated PNGs (screen breakpoints and PDF pages). Same pinned image + pinned build date so
+# baselines match CI. Dependencies: Docker.
 visual-update:
-	docker run --rm -v "$(CURDIR):/work" -v /work/node_modules -w /work $(VISUAL_IMAGE) \
+	docker run --rm -e SOURCE_DATE_EPOCH=$(VISUAL_SOURCE_DATE_EPOCH) -v "$(CURDIR):/work" -v /work/node_modules -w /work $(VISUAL_IMAGE) \
 		sh -c 'npm ci && npm run build && npx playwright test --update-snapshots'
 
 # Full CI-parity lint via the same Super-Linter image CI uses.

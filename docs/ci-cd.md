@@ -97,14 +97,26 @@ flake).
 
 - **Triggers:** `push` to `main` and every `pull_request`.
 - **What it does:** `npm ci` → `npm run build` (the noble image ships no `make`) → `npx playwright
-  test`, running two specs, then uploads the Playwright HTML report + diff images as an artifact on
+  test`, running three specs, then uploads the Playwright HTML report + diff images as an artifact on
   failure:
   - `tests/visual.spec.js` — `toHaveScreenshot({ fullPage: true })` of `dist/index.html` at the six
     Bootstrap breakpoints (375/576/768/992/1200/1440), diffed against `tests/__screenshots__/`.
   - `tests/pdf.spec.js` — asserts the build produced a valid, non-empty `dist/*.pdf` (`%PDF-` header).
+  - `tests/pdf-visual.spec.js` — **PDF visual-regression:** rasterises every page of the built PDF
+    to a PNG (via [`mupdf`](https://www.npmjs.com/package/mupdf), a pure-WASM engine — no native
+    binaries or apt packages) and `toMatchSnapshot`s each against a committed baseline
+    (`tests/__screenshots__/pdf-visual.spec.js/pdf-page-NN.png`), so a change to the PDF's
+    content/layout fails the gate (`pdf.spec.js` only checks the PDF *exists* and is valid). It also
+    asserts the baseline count matches the rendered page count, catching a page added or removed.
 - **Determinism:** baselines are committed and rendered in the pinned image; snapshots run with
   `reducedMotion: 'reduce'` and a test-only `tests/snapshot.css` that forces scroll-reveal elements to
-  their settled state and hides the daily "Last update" date, so re-runs are stable.
+  their settled state and hides the daily "Last update" date, so re-runs are stable. The PDF-visual
+  spec adds two determinism levers: `mupdf` is byte-deterministic (so it uses an *exact* pixel match,
+  `maxDiffPixels: 0`, rather than the screen gate's 0.01 ratio — a one-line text edit changes only
+  ~0.1 % of a page and would slip past a loose ratio), and the build's "Last update" date is pinned
+  via `SOURCE_DATE_EPOCH` (set by the `make visual` / `make visual-update` targets and matched in
+  `visual.yml`) so the date baked into the PDF is stable day-to-day; the value is chosen so the screen
+  render stays identical to the committed screen baselines.
 
 Run it locally (same result as CI):
 
@@ -114,9 +126,10 @@ make visual-update  # regenerate the committed baselines after an *intentional* 
 ```
 
 `make visual` is the authoritative check; `make visual-update` is a **reviewed** step — when a change
-deliberately alters the page, run it and commit the regenerated PNGs in the same PR (the baseline diff
-is the review surface). A missing or mismatched baseline fails the gate (CI never passes
-`--update-snapshots`).
+deliberately alters the page **or the PDF**, run it and commit the regenerated PNGs (screen
+breakpoints *and* PDF pages) in the same PR (the baseline diff is the review surface). A missing or
+mismatched baseline fails the gate (CI never passes `--update-snapshots`). Baselines are generated
+only in the pinned image via `make visual-update` — never on the host toolchain, whose fonts differ.
 
 ### Dev Container image prebuild
 
