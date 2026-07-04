@@ -42,7 +42,15 @@ Defined in `config/lint/super-linter.env`:
 | Enabled validators               | Bash (shellcheck), CSS, Dockerfile (hadolint), GitHub Actions, HTML, JavaScript (`standard`), JSON, JSX, Markdown, TypeScript (`standard`), XML, YAML |
 
 JavaScript is checked against the **`standard`** style; CSS uses `stylelint` with
-`stylelint-config-standard` (declared in `package.json`). Shell scripts are checked with
+`stylelint-config-standard` (both declared as devDependencies in `package.json`). In CI,
+Super-Linter has no repo stylelint config, so it uses its own **bundled default**
+(`{ "extends": "stylelint-config-standard" }`, resolved against the *image's* pinned
+stylelint) — do **not** add a `config/lint/.stylelintrc.json`: Super-Linter would load it
+and resolve `stylelint-config-standard` against the repo's *newer* `node_modules`, whose
+rules the image's older bundled stylelint doesn't recognize, breaking the CSS check. The
+native `make lint-fast` CSS step mirrors the same ruleset via `config/lint/stylelint-fast.json`
+(deliberately *not* the auto-loaded filename — see [below](#validate-locally-before-pushing)).
+Shell scripts are checked with
 **shellcheck** (`VALIDATE_BASH`); the vendored spec-kit scripts under `.specify/` are excluded (we
 don't own them and they don't pass), so only repo-owned scripts (`scripts/`, `.claude/hooks/`) are
 gated. `shfmt` formatting is intentionally not enabled — its style conflicts with the scripts'
@@ -63,11 +71,41 @@ Silicon (the image is amd64-only, so the target runs it via `--platform linux/am
 `make worktree` sibling (the target also bind-mounts the shared git dir — a worktree's `.git` is a
 file pointing at the main checkout — so Super-Linter can resolve `main`).
 
-For a quicker inner-loop check, `make lint-fast` runs just the JavaScript (`standard`) and Markdown
-(`markdownlint`) linters natively — no Docker, no full image — calibrated to approximate CI's
-behavior for those file types (`make lint` is the exact mirror). The Dev Container also installs editor extensions (markdownlint, StandardJS,
-Stylelint, Hadolint, YAML) for live in-editor feedback. `make lint` remains the authoritative
-CI-parity check.
+For a quicker inner-loop check, `make lint-fast` runs the JavaScript (`standard`), CSS (`stylelint`),
+and Markdown (`markdownlint`) linters natively — no Docker, no full image — calibrated to approximate
+CI's behavior for those file types (`make lint` is the exact mirror). The CSS step uses
+`config/lint/stylelint-fast.json` (`{ "extends": "stylelint-config-standard" }`, the same base as
+Super-Linter's bundled default) over the same file scope Super-Linter lints (`src/**/*.css` +
+`tests/**/*.css`), so a CSS rule violation now fails `lint-fast` locally instead of only surfacing in
+CI. Like `markdownlint-fast.json`, it's a `*-fast` config that **mirrors** the CI ruleset without being
+picked up by CI: it's deliberately *not* named `.stylelintrc.json`, because that (Super-Linter's default
+CSS config filename under `LINTER_RULES_PATH`) would make Super-Linter load it and resolve
+`stylelint-config-standard` against the repo's newer `node_modules`, whose rules the image's older
+bundled stylelint rejects. So local (`stylelint` 16 + config-standard 36) and CI (the image's bundled
+older pair) share the same *base config* but run different *stylelint versions* — an approximation, not a
+byte-for-byte mirror; `make lint` remains the exact CSS check. The Dev Container also installs editor
+extensions (markdownlint, StandardJS, Stylelint, Hadolint, YAML) for live in-editor feedback. `make
+lint` remains the authoritative CI-parity check.
+
+#### Style conventions this repo trips on
+
+The rules below have repeatedly bitten changes here; know them before writing CSS or Markdown so you
+don't burn a lint round-trip. All are covered by `make lint-fast` (and `make lint`).
+
+- **stylelint `selector-class-pattern`** — class names must be **kebab-case** (`.card-title`), lower
+  case with hyphens only. BEM `__element` / `--modifier` separators are **rejected** — use
+  `.card-title` / `.card-title-active`, not `.card__title` / `.card--active`.
+- **stylelint `comment-empty-line-before`** — a comment needs a blank line before it (unless it's the
+  first thing in its block or directly follows an opening brace).
+- **stylelint `no-descending-specificity`** — a lower-specificity selector must not override a
+  higher-specificity one that appears earlier; order rules so specificity is non-descending (or scope
+  them so they don't collide).
+- **markdownlint `MD040`** — every fenced code block needs a language tag (```` ```sh ````,
+  ```` ```json ````, etc.); a bare ```` ``` ```` fence fails.
+- **markdownlint `MD013`** — lines must be **≤ 400 characters**;
+  `config/lint/markdownlint-fast.json` sets `line_length: 400` to mirror CI (Super-Linter's bundled
+  markdownlint uses the same 400 limit — see the "Markdown line-length" caveat below); wrap long prose
+  and split wide table rows.
 
 Caveats:
 
@@ -97,14 +135,26 @@ flake).
 
 - **Triggers:** `push` to `main` and every `pull_request`.
 - **What it does:** `npm ci` → `npm run build` (the noble image ships no `make`) → `npx playwright
-  test`, running two specs, then uploads the Playwright HTML report + diff images as an artifact on
+  test`, running three specs, then uploads the Playwright HTML report + diff images as an artifact on
   failure:
   - `tests/visual.spec.js` — `toHaveScreenshot({ fullPage: true })` of `dist/index.html` at the six
     Bootstrap breakpoints (375/576/768/992/1200/1440), diffed against `tests/__screenshots__/`.
   - `tests/pdf.spec.js` — asserts the build produced a valid, non-empty `dist/*.pdf` (`%PDF-` header).
+  - `tests/pdf-visual.spec.js` — **PDF visual-regression:** rasterises every page of the built PDF
+    to a PNG (via [`mupdf`](https://www.npmjs.com/package/mupdf), a pure-WASM engine — no native
+    binaries or apt packages) and `toMatchSnapshot`s each against a committed baseline
+    (`tests/__screenshots__/pdf-visual.spec.js/pdf-page-NN.png`), so a change to the PDF's
+    content/layout fails the gate (`pdf.spec.js` only checks the PDF *exists* and is valid). It also
+    asserts the baseline count matches the rendered page count, catching a page added or removed.
 - **Determinism:** baselines are committed and rendered in the pinned image; snapshots run with
   `reducedMotion: 'reduce'` and a test-only `tests/snapshot.css` that forces scroll-reveal elements to
-  their settled state and hides the daily "Last update" date, so re-runs are stable.
+  their settled state and hides the daily "Last update" date, so re-runs are stable. The PDF-visual
+  spec adds two determinism levers: `mupdf` is byte-deterministic (so it uses an *exact* pixel match,
+  `maxDiffPixels: 0`, rather than the screen gate's 0.01 ratio — a one-line text edit changes only
+  ~0.1 % of a page and would slip past a loose ratio), and the build's "Last update" date is pinned
+  via `SOURCE_DATE_EPOCH` (set by the `make visual` / `make visual-update` targets and matched in
+  `visual.yml`) so the date baked into the PDF is stable day-to-day; the value is chosen so the screen
+  render stays identical to the committed screen baselines.
 
 Run it locally (same result as CI):
 
@@ -114,9 +164,10 @@ make visual-update  # regenerate the committed baselines after an *intentional* 
 ```
 
 `make visual` is the authoritative check; `make visual-update` is a **reviewed** step — when a change
-deliberately alters the page, run it and commit the regenerated PNGs in the same PR (the baseline diff
-is the review surface). A missing or mismatched baseline fails the gate (CI never passes
-`--update-snapshots`).
+deliberately alters the page **or the PDF**, run it and commit the regenerated PNGs (screen
+breakpoints *and* PDF pages) in the same PR (the baseline diff is the review surface). A missing or
+mismatched baseline fails the gate (CI never passes `--update-snapshots`). Baselines are generated
+only in the pinned image via `make visual-update` — never on the host toolchain, whose fonts differ.
 
 ### Dev Container image prebuild
 

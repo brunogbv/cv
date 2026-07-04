@@ -80,3 +80,11 @@ hidden and ease in (opacity/transform only — no layout shift). It **fails visi
   (lint + visual), not one.
 - **Follow-ups:** consider extending the gate's determinism notes if content grows; a bolder
   gesture/deck screen experience is scoped as its own future initiative (the decoupling makes it safe).
+
+**Update (#157):** the PDF is now **pixel-gated**, not validity-only. `tests/pdf-visual.spec.js`
+rasterises every PDF page with `mupdf` (pure WASM — no native/apt deps) and diffs each against a
+committed baseline (exact match, since the render is byte-deterministic); the "Last update" date is
+pinned via `SOURCE_DATE_EPOCH` so the PDF is stable day-to-day. A change to the PDF's content/layout
+now fails a PR, and intentional PDF changes update baselines via `make visual-update` (as the screen
+snapshots do). This strengthens decision **1** without changing it (the original `pdf.spec.js`
+validity check stays).
