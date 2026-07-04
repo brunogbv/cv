@@ -11,6 +11,11 @@
     <link rel="stylesheet" href="vendor/roboto/latin-500.css">
     <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+    <!-- Editorial display + body fonts (US3), vendored like Roboto — no CDN. media="screen" so they
+         load only for the screen experience; the PDF build emulates print media before navigating
+         (src/utils/pdf.js), so these are never fetched or applied for the PDF (it stays Roboto). -->
+    <link rel="stylesheet" href="vendor/fraunces/opsz.css" media="screen">
+    <link rel="stylesheet" href="vendor/spline-sans/wght.css" media="screen">
     <link rel="stylesheet" href="styles.css">
     <!-- Loaded synchronously so `.js` is set before first paint (no flash of pre-revealed content);
          reveal.js then wires the scroll-reveal observer once the DOM is ready. Progressive enhancement:
@@ -89,7 +94,7 @@
         <main>
         {{#if about_me}}
         <section id="about" class="cv-section reveal">
-            <h2 class="cv-section-title">About me</h2>
+            <h2 class="cv-section-title" data-eyebrow="Who I am">About me</h2>
             <div class="card cv-card">
                 <div class="card-body">{{{markdown about_me}}}</div>
             </div>
@@ -97,12 +102,17 @@
         {{/if}}
 
         {{#if skills}}
-        <!-- Skills keep their original grid markup (no card wrapper): the dot-bars use a Bootstrap
-             `.row` whose gutters render subtly differently inside a card box in print, so keeping the
-             structure identical guarantees the PDF's skills grid is unchanged (FR-005 / SC-004). -->
+        <!-- US3: screen shows proficiency CHIPS (.cv-skills, screen-only); PRINT keeps the original 002
+             dot-bar grid (.print) verbatim, so the PDF's skills section is unchanged (SC-005). Both are
+             rendered; .screen/.print toggle which one is visible per media. -->
         <section id="skills" class="cv-section reveal">
-            <h2 class="cv-section-title">Skills</h2>
-            <div class="row align-items-center">
+            <h2 class="cv-section-title" data-eyebrow="What I know">Skills</h2>
+            <ul class="cv-skills screen">
+                {{#each skills}}
+                <li style="--pct: {{ this.[1] }}%">{{ this.[0] }}</li>
+                {{/each}}
+            </ul>
+            <div class="row align-items-center print">
                 {{#each skills}}
                 <div class="col-print-skills col-5 col-md-2 col-lg-2 text-right">
                     <small>{{ this.[0] }}</small>
@@ -119,7 +129,7 @@
 
         {{#if positions}}
         <section id="experience" class="cv-section reveal">
-            <h2 class="cv-section-title">Professional Experience</h2>
+            <h2 class="cv-section-title" data-eyebrow="Where I've worked">Professional Experience</h2>
             {{#each positions}}
             <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
                 <div class="card-body row-cols-1 d-block d-md-flex">
@@ -145,7 +155,7 @@
 
         {{#if experience}}
         <section id="additional" class="cv-section reveal">
-            <h2 class="cv-section-title">Additional Experience</h2>
+            <h2 class="cv-section-title" data-eyebrow="Courses &amp; training">Additional Experience</h2>
             {{#each experience}}
             <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
                 <div class="card-body row-cols-1 d-block d-md-flex">
@@ -171,7 +181,7 @@
 
         {{#if competitions}}
         <section id="competitions" class="cv-section reveal">
-            <h2 class="cv-section-title">Robotics Competitions</h2>
+            <h2 class="cv-section-title" data-eyebrow="Earlier chapters">Robotics Competitions</h2>
             {{#each competitions}}
             <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
                 <div class="card-body row-cols-1 d-block d-md-flex">

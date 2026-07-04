@@ -18,7 +18,8 @@ dialog a11y layered on as progressive enhancement). The screen adopts an **edito
 boxy cards; skills as proficiency chips). The distinctive **signature** is **"The Through-Line"** — a
 fixed terracotta thread down the left margin with one node per section that fills as you snap, doubling
 as the progress/section-nav spine. Everything is **screen-only**; `@media print` flattens back to the
-existing clean, linear **Roboto PDF** (unchanged; no `pdf.js` change). The existing visual + PDF gate
+existing clean, linear **Roboto PDF** (unchanged). `pdf.js` gains one line — `emulateMedia('print')`
+before navigating — to guarantee screen-only CSS/webfonts never reach the PDF. The existing visual + PDF gate
 guards it — screen baselines regenerated (intentional restyle), the PDF baseline unchanged as the
 guardrail.
 
