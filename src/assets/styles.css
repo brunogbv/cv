@@ -363,15 +363,17 @@ h4 {
    on the root AND the visitor has not requested reduced motion do `.reveal` elements start hidden and
    ease in when marked `.is-visible`. Only opacity/transform animate, so there is no layout shift. */
 @media (prefers-reduced-motion: no-preference) {
+    /* Opacity-only (no translate): the deck measures section tops (getBoundingClientRect) to drive
+       keyboard scrollIntoView, and a `transform` offsets that box from its layout position — desyncing
+       the landing from the snap point by the translate distance (a 24px mid-section drift). Fading
+       only keeps measured tops == snap tops. Cross-cutting with the deck (US1); the gentle fade stays. */
     .js .reveal {
         opacity: 0;
-        transform: translateY(1.5rem);
-        transition: opacity 0.5s ease, transform 0.5s ease;
+        transition: opacity 0.5s ease;
     }
 
     .js .reveal.is-visible {
         opacity: 1;
-        transform: none;
     }
 }
 
@@ -381,5 +383,60 @@ h4 {
         opacity: 1 !important;
         transform: none !important;
         transition: none !important;
+    }
+}
+
+/* =====================================================================================
+   Interactive deck (US1): each section is a full-viewport panel and the page snaps one
+   section per gesture, driven by NATIVE CSS Scroll Snap (the browser owns wheel/trackpad/
+   touch momentum — no JS scroll-jacker; see docs/interaction-gotchas.md). Keyboard nav is a
+   thin scrollIntoView layer (src/assets/deck.js) that coexists with snap. Screen-only — every
+   rule here is inside @media not print, so @media print keeps the clean linear Roboto PDF
+   (the deck adds no min-height/snap in print). Spec: FR-001/002, SC-001/003. Restyle, rails,
+   detail overlays and the signature arrive in later user stories.
+   ===================================================================================== */
+@media not print {
+    /* Native vertical snap on the scroller. Snapping is a resting position (not animation), so it
+       stays on under reduced-motion; only the smooth glide is gated (the rule above, line ~323). */
+    html {
+        scroll-snap-type: y mandatory;
+    }
+
+    /* The container sits flush so panels own the vertical rhythm; keep the side padding. */
+    body > .container.page {
+        padding-block: 0;
+    }
+
+    /* Each section (and the header hero) fills the viewport with vertically-centred content and is a
+       snap target. `safe center` centres panels that fit but falls back to top-alignment when a panel
+       is taller than the viewport (the multi-entry sections until US2 adds summary-card rails), so tall
+       content is never clipped/trapped — it scrolls through as an over-viewport snap area (FR-001 tall
+       relaxation). `scroll-snap-stop: always` keeps a hard flick to one section; `scroll-margin-top: 0`
+       lands anchor/keyboard navigation exactly on the panel top (the centred position). */
+    .cv-section,
+    body > .container.page > header {
+        display: flex;
+        flex-direction: column;
+        justify-content: safe center;
+        min-height: 100vh;
+        margin-bottom: 0;
+        padding-block: 5.5rem 2.5rem; /* top clears the fixed section nav */
+        box-sizing: border-box;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        scroll-margin-top: 0;
+    }
+
+    /* Neutralise the header's Bootstrap spacing so it behaves as the first full-viewport panel. */
+    body > .container.page > header.mb-5 { margin-bottom: 0 !important; }
+    body > .container.page > header.pb-5 { padding-bottom: 2.5rem !important; }
+
+    /* The section nav is fixed (out of flow) so panels centre against the true viewport rather than
+       being pushed down by the nav's flow height (a sticky nav left the first panel off-centre). */
+    .section-nav {
+        position: fixed;
+        right: 0;
+        left: 0;
+        margin-bottom: 0;
     }
 }
