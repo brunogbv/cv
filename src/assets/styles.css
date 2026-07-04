@@ -490,11 +490,12 @@ h4 {
         list-style: none;
     }
 
+    /* Each chip fills with a terracotta tint up to its proficiency % (the --pct set inline). */
     .proto-skills li {
         padding: 0.35rem 0.9rem;
         border: 1px solid rgb(15 23 42 / 15%);
         border-radius: 999px;
-        background-color: #fff;
+        background: linear-gradient(90deg, rgb(194 36 12 / 14%) 0 var(--pct, 0%), #fff var(--pct, 0%));
         font-size: 0.9rem;
         color: var(--p-ink);
     }
@@ -621,15 +622,26 @@ h4 {
         width: 100%;
         max-width: 640px;
         max-height: 85vh;
-        padding: 2.75rem;
-        overflow-y: auto;
-        overscroll-behavior: contain;
+        overflow: hidden; /* clip the inner scroller to the rounded corners */
         background-color: #fffdfa;
         border-radius: 1.25rem;
         box-shadow: 0 30px 70px rgb(15 23 42 / 40%);
         transform: scale(0.96);
         transition: transform 0.25s ease;
     }
+
+    /* The actual scroller lives inside the clipped card, with a thin, integrated scrollbar. */
+    .proto-detail__scroll {
+        max-height: 85vh;
+        padding: 2.75rem;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgb(15 23 42 / 30%) transparent;
+    }
+
+    .proto-detail__scroll::-webkit-scrollbar { width: 6px; }
+    .proto-detail__scroll::-webkit-scrollbar-thumb { background-color: rgb(15 23 42 / 30%); border-radius: 3px; }
 
     .proto-detail:target .proto-detail__inner { transform: scale(1); }
 
