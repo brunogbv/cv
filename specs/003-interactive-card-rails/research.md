@@ -1,126 +1,160 @@
-# Research: interactive swipeable card rails
+# Research: interactive editorial deck (Phase 0)
 
-Phase 0 decisions. Grounded in the WAI-ARIA APG, MDN, web.dev, Playwright docs, and a11y practitioners
-(Adrian Roselli, Sara Soueidan, Ahmad Shadeed). Each: **Decision / Rationale / Alternatives**.
+Technical + design decisions for the re-spec'd feature 003 (full-viewport deck + summary-card rails +
+detail overlays + editorial restyle). Each decision is **Decision / Rationale / Alternatives**. Most
+were validated in the throwaway prototype (`003-proto`, owner-confirmed); the open ones were resolved
+by targeted research (fonts, signature, nested-scroll, dialog a11y).
 
-## D1 — Rail semantics: labelled scrollable region + list (not the APG carousel widget)
+## D1 — Scroll mechanism: native CSS Scroll Snap deck (NOT a JS scroll-jacker)
 
-- **Decision**: Build each rail as a **labelled, focusable, scrollable `region`** (`role="region"` +
-  `aria-label`, or `role="group"`) wrapping a plain `<ul>`/`<li>` of cards. No `aria-roledescription`,
-  no tablist slide-picker, no play/pause.
-- **Rationale**: The APG "carousel" pattern targets **auto-rotating, JS-driven slideshows** with
-  scripted controls; a no-JS scroll-snap strip has all cards present and user-scrollable, so
-  carousel/slide/tab roles would mislabel it and imply behaviors it lacks. A region + `<ul>` exposes
-  what it is — a named area containing a countable, ordered list (SR announces "list, N items" +
-  position). `aria-roledescription` has patchy AT/localization support.
-- **Alternatives**: Full APG carousel (overkill, mislabels a static rail); native CSS Carousels
-  (`::scroll-marker`/`::scroll-button()`) — Chromium-only (135+), documented ARIA defects for
-  multi-item rails → **enhancement only, never baseline**.
+- **Decision**: The vertical "deck" uses **native CSS Scroll Snap** — `html { scroll-snap-type: y
+  mandatory }`, and each panel (`header`, `.cv-section`) `scroll-snap-align: start; scroll-snap-stop:
+  always`. Wheel/trackpad/touch are 100% browser-driven. Keyboard section nav is a **thin JS layer**
+  (`scrollIntoView({behavior})`) that coexists with snap; it does **not** intercept wheel/touch.
+- **Rationale**: The prototype first hand-rolled a `requestAnimationFrame` wheel/touch scroll-jacker;
+  it fought macOS trackpad momentum (a swipe emits ~40+ non-cancelable inertial `wheel` events) →
+  sluggish/flickering start that no tuning removed. Switching to native snap fixed it in less code
+  (owner: "works perfectly"). Codified in [`docs/interaction-gotchas.md`](../../docs/interaction-gotchas.md).
+- **Alternatives**: JS scroll-jacker (rejected — the failure above); `fullPage.js` (GPLv3 would
+  relicense the repo + same Mac bug); Swiper (Mac "jumps 2 slides" bug, weak no-JS).
 
-## D2 — Keyboard focus: `tabindex="0"` on the scroll container; don't tabindex cards
+## D2 — Deck breakpoint scope & reduced motion
 
-- **Decision**: Put `tabindex="0"` + `role`/`aria-label` on the **scroll container** so keyboard users
-  can Tab to it and arrow-scroll in every browser. Do **not** add `tabindex` to cards — rely on the
-  real links inside them; keep off-screen cards in normal flow and the tab order. Add
-  `scroll-padding` so a focused/snapped card lands inside the track and its focus ring isn't clipped.
-- **Rationale**: A scroll container is **not** universally keyboard-focusable — Chromium only added
-  auto-focusable scrollers in 132 (2025), and **Safari/WebKit still doesn't** — so an explicit
-  `tabindex="0"` is the portable fix. A focusable element needs a name+role (WCAG 4.1.2), hence the
-  region+label. Bare `tabindex` on cards adds nameless focus stops; real links are already correctly
-  in the tab order. `overflow` can clip an edge card's focus ring (WCAG 2.4.7 / 2.4.11), which
-  `scroll-padding` + gutter + `outline-offset` fix.
-- **Alternatives**: Rely on Chromium auto-focusable scrollers (not portable — Safari); `tabindex="-1"`
-  on cards (useless with no JS to move focus); `inert` off-screen cards via `scroll-state()` (Chromium
-  only, and Chrome warns it breaks SR item counts for list rails).
+- **Decision**: The deck applies at **all breakpoints**, but a panel whose content **exceeds the
+  viewport** (chiefly small phones) relaxes so it scrolls internally (mandatory snap is native-exempt
+  for over-viewport snap areas). Under `prefers-reduced-motion`, **snapping is kept** (a resting
+  position, not animation) while the smooth glide + overlay/emphasis transitions are **suppressed**.
+- **Rationale**: Primary audience is a recruiter on a phone, so the deck should hold on mobile; but
+  mandatory snap only suits uniform ~viewport panels (gotchas doc), so tall panels must relax to avoid
+  trapping content. Reduced-motion: snapping is a rest state, safe to keep; only the tween is gated
+  (matches the prototype + gotchas guidance). Confirmed via `/speckit-clarify` (2026-07-04).
+- **Alternatives**: snap only ≥ md (drops the deck for the phone-first audience); mandatory everywhere
+  unconditionally (clips tall content); fully disable snap under reduce (loses the rest-on-section
+  wayfinding it gives for free).
 
-## D3 — Progressive enhancement: CSS-only baseline, JS additive-only
+## D3 — Content-dense sections: summary-card rails → full-screen detail overlay
 
-- **Decision**: The no-JS baseline is a horizontally scrollable, snapping strip with **all cards in the
-  DOM and reachable** (swipe / trackpad / keyboard). `src/assets/rails.js` adds only *affordances* —
-  prev/next controls, the position/route indicator, and an `aria-live` position status — layered on
-  top. Content is **never** hidden behind JS.
-- **Rationale**: Snap + overflow are pure CSS (web.dev/MDN); content is plain HTML. Mirrors the 002
-  `reveal.js` "fail visible" principle: JS improves ergonomics, never gates access.
-- **Alternatives**: JS-mounted carousel (content vanishes without JS — rejected); native CSS
-  marker/button controls (Chromium-only — use as an optional extra, not the affordance baseline).
+- **Decision**: Professional Experience, Additional Experience, Robotics Competitions render as
+  **horizontal rails** (`overflow-x:auto; scroll-snap-type: x mandatory`, peek of the next card) of
+  **short summary cards** (period, title, teaser). Activating a card opens the **full entry in a
+  full-screen overlay** — a focused card on a dimmed/blurred backdrop.
+- **Rationale**: Short cards keep each rail scannable and each deck panel ~one viewport; long content
+  goes to the overlay instead of an unintuitive in-card scroll (the rejected original UX). Validated in
+  the prototype.
+- **Alternatives**: long scrolling cards (rejected — the original UX the owner disliked); expanding a
+  card in place (breaks the deck panel height / snap).
 
-## D4 — Peek + snap mechanics (CSS)
+## D4 — Nested scrolling: a horizontal rail inside a vertical snap panel
 
-- **Decision**: Container: `overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline:
-  <gutter>; overscroll-behavior-x: contain`. Cards: `flex: 0 0 clamp(<min>, <sub-100%>, <max>);
-  min-width: 0; scroll-snap-align: start`. Keep a (thin) scrollbar or provide an equivalent
-  "there's-more" affordance (the peek + route indicator serve this). Use **logical** properties
-  (`scroll-padding-inline`, `inline` axis) for RTL-safety.
-- **Rationale**: `scroll-snap-type: x mandatory` + `scroll-snap-align` is the canonical mechanism;
-  `mandatory` suits per-card snapping. A sub-100% card basis makes the next card **peek**;
-  `scroll-padding-inline` turns the remainder into a stable gutter. `min-width: 0` is essential — the
-  default `min-width: auto` refuses to shrink and would overflow the **page** (violating SC-002).
-  `overscroll-behavior-x: contain` stops scroll-chaining to the page / swipe-nav at the rail ends.
-- **Alternatives**: `proximity` snap (softer; better only for cards taller than the viewport — keep
-  `mandatory` here but see edge cases); `scroll-snap-align: center` (symmetric peeks — `start` chosen
-  for a left-aligned rail with one trailing peek); hiding the scrollbar with no replacement (rejected —
-  removes an affordance/operability, WCAG 2.1.1).
+- **Decision**: Keep both axes native and isolate them with **`overscroll-behavior`**: the rail sets
+  `overscroll-behavior: contain` (already `overscroll-behavior-x: contain` in the prototype) plus
+  `touch-action: pan-x pan-y` as hardening. The rail owns X; the deck owns Y; neither chains into the
+  other. Do **not** set `overscroll-behavior` on the root deck. The flex/scroll item must be the
+  `<li>`, not the inner `<a>`.
+- **Rationale**: `overscroll-behavior-x: contain` stops an X-fling from chaining to the deck and
+  triggering a panel snap, while a genuinely vertical gesture still reaches the deck. Scroll snapping is
+  per-axis per-container, so an `x` rail inside a `y` deck does not cause diagonal/"between-panels"
+  snapping (panels are uniform ~100vh + `scroll-snap-stop: always`). The prototype already works this
+  way; the additions are defensive. Consistent with the gotchas rule (no wheel/touch jacking).
+- **Alternatives**: `touch-action: none` + JS gesture routing (a scroll-jacker by another name —
+  rejected); `proximity` on the rail (unnecessary; cards are uniform and shorter than the track).
 
-## D5 — Reduced motion: keep snapping, gate only the smooth glide
+## D5 — Detail overlay accessibility: `:target` no-JS baseline + dialog PE
 
-- **Decision**: Snapping stays on always; gate only the animated smooth-scroll glide behind
-  `@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth } }`. Any
-  JS-driven prev/next scroll MUST branch on `matchMedia('(prefers-reduced-motion: reduce)')` (an
-  explicit `behavior:'smooth'` in `scrollTo` overrides CSS and ignores the preference).
-- **Rationale**: Snapping is a resting-position behavior, not animation; the motion to suppress is the
-  glide. Instant-as-fallback (the `no-preference` gate) means older/unmatched UAs get the safe
-  behavior. WCAG 2.3.3.
-- **Alternatives**: Disabling `scroll-snap-type` under reduced-motion (wrong — kills a useful,
-  non-animated behavior); inverse `@media (reduce)` form (works, but `no-preference` gating makes the
-  accessible path the default).
+- **Decision**: Baseline is CSS **`:target`** (summary card `<a href="#pN">`; overlay `#pN:target`;
+  close links `<a href="#experience">`; `body:has(.proto-detail:target){overflow:hidden}` locks scroll)
+  — works with **no JS**. Layer dialog semantics on top as progressive enhancement (only when JS runs):
+  static `role="dialog" aria-modal="true" aria-labelledby`, a **visible** close control, and JS on
+  `hashchange` to **move focus in / trap it / return it to the triggering card**, mark the background
+  `inert` (fallback `aria-hidden`), and **Escape-to-close** (routing through `location.hash='experience'`,
+  the same target the links use).
+- **Rationale**: `:target` gives open/close/scroll-lock/Back-button for free with no JS; the one thing
+  it cannot do — focus management — is exactly the a11y gap, added minimally via the hash state machine
+  (every open/close path flows through the hash, so one listener covers all). Nothing added breaks the
+  no-JS path. `inert` removes the background from tab order + a11y tree (feature-detected).
+- **Alternatives**: native `<dialog>` + `showModal()` (no no-JS fallback — rejected as baseline; could
+  be a further enhancement); full JS click-handler modal (throws away the no-JS baseline + Back button).
+- **Pitfall**: `<base target="_blank">` silently breaks in-page anchors — **every** overlay anchor
+  (card, backdrop, visible close) MUST set `target="_self"` (gotchas doc; bit 002 nav + 003 cards).
 
-## D6 — Deterministic snapshots for the gate
+## D6 — Editorial design system (screen-only)
 
-- **Decision**: In the visual spec, before asserting a rail: set `history.scrollRestoration =
-  'manual'`, reset the rail's `scrollLeft = 0` (or `scrollIntoView({behavior:'instant'})` a chosen
-  card), disable smooth scroll, `await document.fonts.ready`, and normalize the scrollbar consistently.
-  Keep Playwright defaults (`animations:'disabled'`, `caret:'hide'`) and allow a small
-  `maxDiffPixelRatio`/`threshold` for subpixel snap jitter. Generate baselines in the **pinned
-  Playwright image** (as today), never the host.
-- **Rationale**: Snap containers re-snap to the previously snapped element and `scrollRestoration`
-  defaults to `auto`; a screenshot mid-smooth-scroll catches a between-snap frame; `animations:
-  'disabled'` does **not** cover scrolling. Subpixel snap positions cause 1px edge diffs, absorbed by
-  tolerance. Matches this repo's container-first determinism (002).
-- **Alternatives**: `stylePath` masking of volatile bits (already used via `tests/snapshot.css` — extend
-  if needed); snapshot the rail element rather than full page (keep full-page for consistency with 002,
-  add per-rail only if jitter demands).
+- **Decision**: Reference theopenengine.com. **Type**: Fraunces (variable display serif, optical-size
+  tracked) for headings; Spline Sans (variable) for body. **Palette tokens**: `--p-cream #FAF7F1`
+  (bg), `--p-ink #0F172A` (headings), `--p-slate #475569` / `--p-slate-2 #64748B` (body), `--p-terra
+  #C2240C` (accent). **Layout**: no boxy cards; small uppercase terracotta **eyebrow** labels above
+  section titles (`data-eyebrow`); generous type scale (`clamp()`), airy spacing. **Skills**: compact
+  chips filled to each skill's proficiency %. All under `@media not print` — the PDF keeps Roboto/linear.
+- **Rationale**: Validated in the prototype and owner-approved; encodes a distinctive editorial identity
+  without touching the PDF (screen/print split from 002).
+- **Alternatives**: keep the 002 Roboto/Bootstrap look (rejected — the restyle is core to the validated
+  design); a heavier framework/theme (violates vanilla/minimal).
 
-## D7 — Design accent & type discipline (frontend-design pass — see design.md)
+## D7 — Vendored fonts (no CDN at render time)
 
-- **Decision**: **No new color and no new font.** Keep the neutral base (ink/gray/white) and reuse the
-  existing skill-bar **red as the single "signal/active" accent**; spend the boldness on the
-  interaction/**signature form**, not a new palette. Keep Roboto (PDF + body) with a stronger,
-  intentional screen type scale rather than adding a display face.
-- **Rationale**: frontend-design's "spend boldness in one place" + constitution Principle V (minimal,
-  pin what determines output). A new color/font would touch the PDF or add vendored weight for little
-  gain; the routing signature carries the personality. Avoids the generic AI-default palettes.
-- **Alternatives**: A second accent (indigo) for the route signature (rejected — two accents clutter,
-  the reused red already reads as "the live signal"); a screen-only display face (rejected — extra
-  vendored font, more baseline churn; Roboto at a deliberate scale suffices).
+- **Decision**: Self-host via **`@fontsource-variable/fraunces`** (ship `opsz.css` + latin woff2) and
+  **`@fontsource-variable/spline-sans`** (ship `wght.css` + latin woff2), added as **devDependencies**
+  and copied from `node_modules` into `dist/vendor/` by the existing `vendoredAssets` loop in
+  `src/build.js` — byte-for-byte the pattern Roboto already uses (#24, no CDN). Reference the families
+  **only inside the `@media not print` block** in `styles.css` (Bootstrap `--bs-font-sans-serif` →
+  `'Spline Sans Variable', roboto, sans-serif`; headings → `'Fraunces Variable', serif;
+  font-optical-sizing: auto`). `@media print` is untouched → the PDF stays Roboto.
+- **Rationale**: Matches the vendored-asset invariant (no third-party request at render time), keeps
+  `dist/` generated, needs no Makefile/CI change (`build.js` copy loop picks new files up). Both fonts
+  are **OFL-1.1** (self-hosting permitted). `font-display: swap` is already set in both packages
+  (FOUT, no invisible text). Roboto stays the fallback so screen degrades safely mid-load.
+- **Alternatives**: Google Fonts CDN (violates #24 / offline PDF); committing static woff2 under
+  `src/assets` (diverges from the Roboto precedent, bloats git); non-variable `@fontsource/*` (needs
+  multiple weight files — the variable package is leaner).
+- **Note**: fonts are screen-only, so they change the **screen** baselines (intentional →
+  `make visual-update`, reviewed); the **PDF** baseline must stay unchanged — if it moves, the
+  screen-only scoping leaked into print.
 
-## D8 — The signature: "route between nodes" (justified sequence indicator)
+## D8 — The signature: "The Through-Line"
 
-- **Decision**: The distinctive moment is each rail's **position/progress rendered as a route between
-  nodes** — the cards as ordered nodes on a connected route line, the active card the filled "live"
-  (red) node — doubling as the rail's position affordance and `aria-live` target.
-- **Rationale**: frontend-design says structural devices (numbering/markers) must encode something
-  *true*: a rail **is** an ordered sequence, so a position/route indicator is content-justified (not
-  decorative). It ties directly to the subject's distributed-systems / dispatch-routing domain,
-  concentrates the boldness in one memorable element, and solves the a11y "where am I / there's more"
-  need. Screen-only (absent in the PDF).
-- **Alternatives**: Plain carousel dots (generic, fails the "is this a choice for *this* brief" test);
-  a full-screen hero deck (rejected earlier — Direction B chosen); numbering without the route line
-  (loses the domain metaphor).
+- **Decision**: A single continuous **terracotta thread down the left margin of the whole deck**, with
+  one node per section; as each section snaps in, the thread's fill advances to that section's node and
+  the current node fills terracotta. It doubles as the section-nav/progress spine (so it adds net-zero
+  chrome), `position: fixed` in the gutter (CLS ≈ 0), `.screen`-classed (absent from the PDF via the
+  existing `@media print { .screen { display:none } }`).
+- **Rationale**: An engineering manager from distributed-systems / dispatch-routing — "a route with a
+  live node advancing one hop at a time" is his domain, rendered as one editorial hairline (not a
+  diagram). It tracks the deck's **primary axis** (one node per snap), so the signature and the
+  "one gesture = one section" mechanic are the same motion — the right scale. Spends boldness once
+  (one terracotta accent against cream); reuses existing section IDs + the `--p-terra` token.
+- **PE / reduced-motion / no-JS**: JS (reusing the deck's section-observer) sets `--progress` +
+  `aria-current` + an `aria-live` "Section N of M". No-JS: a static hairline with plain anchor-dot
+  jump links (fail-visible, like `reveal.js`). Reduced-motion: the fill/active node **jump** (state
+  shown, tween suppressed). Only compositor-friendly props animate → no layout shift.
+- **Alternatives**: the rejected per-rail "route between nodes" indicator (built for the rails paradigm;
+  tracks a secondary axis, reads infographic — superseded); a hero typographic reveal (fires once, risks
+  FOUT/CLS); plain progress dots (generic; drops the routing tie-in).
 
-## Meta-note (from research)
+## D9 — Deterministic snapshots + the visual/PDF gate
 
-Practitioners (Roselli) caution that users pattern-match horizontal rails to "marketing carousels" and
-skip them. Our mitigations directly address this: the **sticky section nav still jumps to sections**
-(rails aren't the only way to content), the **route indicator makes position + "there's more"
-explicit**, and content is never hidden. Keep a deliberate "does this section benefit from a rail?"
-check — hence rails are limited to the three genuinely multi-entry, content-dense sections.
+- **Decision**: Extend the existing Playwright visual + PDF gate. Capture a **deterministic resting
+  state**: scroll to top (deck on the hero), fonts ready, no overlay open (`:target` cleared),
+  reduced-motion forced (existing `tests/snapshot.css` + config). Regenerate the six **screen**
+  baselines (intentional restyle → `make visual-update`, reviewed). The **PDF** visual baseline (added
+  in #164) MUST stay unchanged — it is the guardrail proving the restyle/deck is screen-only.
+- **Rationale**: The restyle deliberately changes every screen pixel, so screen baselines must be
+  re-generated; the PDF staying byte-identical is the machine-checked proof of SC-005 (PDF unchanged).
+- **Alternatives**: snapshot mid-scroll / overlay-open states (non-deterministic — rejected for the
+  committed baseline; may be added as separate, explicitly-driven states later).
+
+## D10 — Progressive enhancement / no-JS posture
+
+- **Decision**: The whole feature degrades without JS: the deck still snaps (pure CSS), rails stay
+  horizontally scrollable strips, detail overlays open/close via `:target`, the Through-Line is a static
+  index of jump links. JS is **additive only**, gated by an `.js` class on `<html>` set before first
+  paint (the `reveal.js` precedent), and enriches: keyboard section nav, overlay focus management + Esc,
+  the Through-Line fill/`aria-current`, and the `.reveal` opacity fade.
+- **Rationale**: Constitution + spec (FR-011/SC-003) require 100% content reachable with no JS; the
+  `.js`-gate "fail visible" pattern is already established (`reveal.js`).
+- **Alternatives**: JS-required interactions (rejected — violates progressive enhancement).
+
+## Meta-note
+
+The editorial design system (D6) and the signature (D8) supersede the stale `design.md` from the
+original rails-era 003; that file is removed and its concerns folded here. The concrete DOM/ARIA and
+screen/print obligations are captured in [`contracts/interaction-contract.md`](contracts/interaction-contract.md).

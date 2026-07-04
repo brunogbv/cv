@@ -1,74 +1,95 @@
-# Quickstart: validating interactive card rails
+# Quickstart: validating the interactive editorial deck
 
 Runnable checks that prove the feature works end-to-end. Build in the Dev Container / pinned image (not
-the host), per the repo convention. See [spec.md](spec.md), [contracts/](contracts/rail-interaction-contract.md).
+the host), per the repo convention. See [spec.md](spec.md),
+[contracts/interaction-contract.md](contracts/interaction-contract.md).
 
 ## Prerequisites
 
-- The 003 worktree (`../cv-003-interactive-card-rails`), Docker (for `make visual` / the pinned image).
+- The 003 worktree, Docker (for `make visual` / the pinned image).
 - Build: `make page-container` (or `npm run build` in the pinned image) → `dist/index.html` + `dist/*.pdf`.
 
-## Scenario 1 — Rails render and swipe (US1)
+## Scenario 1 — Deck: one section per gesture, rests centred (US1, SC-001)
 
-1. Open `dist/index.html`; resize across xs/sm/md/lg/xl/xxl.
-2. **Expect**: Professional Experience, Additional Experience, and Robotics Competitions each render as
-   a horizontal rail — one focal card + a peek of the next — that snaps between cards on swipe/drag.
-   Header, About, Skills unchanged. The **page never scrolls horizontally** at any width.
+1. Open `dist/index.html` on a desktop viewport. Scroll with the mouse wheel, then a **hard trackpad
+   flick**, then Arrow/Page keys.
+2. **Expect**: each gesture/press advances **exactly one section**; the page **rests centred on a
+   section, never between two**; a hard flick advances only one. The sticky/section nav (Through-Line)
+   jumps to a section and rests centred too.
 
-## Scenario 2 — Desktop / pointer + keyboard (US1, US2)
+## Scenario 2 — Deck on mobile + tall panels (US1, D2)
 
-1. On a desktop viewport, Tab to a rail; use arrow keys (and any prev/next control) to move through
-   cards; Tab into a card's links.
-2. **Expect**: the rail region is focusable with a visible focus ring; cards advance; the focused
-   card/links are never clipped by the track; a position/route indicator shows where you are and that
-   more cards exist.
+1. Resize across xs/sm/md/lg/xl/xxl (and a real phone if possible).
+2. **Expect**: the deck holds at all breakpoints; any section taller than the viewport scrolls
+   internally rather than clipping; the page **never scrolls horizontally**.
 
-## Scenario 3 — Screen reader (US2)
+## Scenario 3 — Rails + detail overlay (US2, SC-002)
 
-1. With a screen reader, navigate into a rail.
-2. **Expect**: it's announced as a labelled region containing a list of N cards; you can move through
-   them in order; position changes are announced (`aria-live`). No "carousel/slide/tab" mislabeling.
+1. On Professional Experience (and Additional / Competitions), swipe/scroll the **rail** of summary
+   cards; tap/click a card, then close it (visible close, click outside, and — with JS — Esc).
+2. **Expect**: one focal summary card + a peek; swiping the rail does **not** move the deck; a card
+   opens its **full** detail full-screen on a dimmed/blurred backdrop; closing returns to the section
+   **centred**; the background never scrolled while open.
 
-## Scenario 4 — No JavaScript (US2, SC-003)
+## Scenario 4 — Screen reader + keyboard (US4, SC-006)
+
+1. Keyboard-only: traverse the deck, tab through a rail's cards, open a card, Tab within the overlay,
+   close it. With a screen reader, enter a rail and open an entry.
+2. **Expect**: sections announced as labelled regions, rails as labelled lists of cards, the open detail
+   as a **dialog**; focus moves **into** the overlay, is **trapped**, and **returns** to the card on
+   close; visible focus throughout.
+
+## Scenario 5 — No JavaScript (US4, SC-004)
 
 1. Disable JavaScript; reload `dist/index.html`.
-2. **Expect**: every rail is still a horizontally scrollable strip; **all** cards/entries are reachable
-   (swipe/trackpad/keyboard) and readable; nothing is hidden; the page still works.
+2. **Expect**: the deck still snaps (CSS), rails are still scrollable strips, each detail overlay still
+   opens/closes via the `#pN` / `#experience` links, the Through-Line is a static index of jump links.
+   **100%** of content reachable; nothing hidden.
 
-## Scenario 5 — Reduced motion (US2)
+## Scenario 6 — Reduced motion (US4, FR-014)
 
-1. Enable "reduce motion" at the OS level; interact with a rail and the nav.
-2. **Expect**: snapping still works (instant, no glide); no node pulse or non-essential animation; the
-   rail stays fully functional.
+1. Enable "reduce motion" at the OS level; navigate the deck and open an overlay.
+2. **Expect**: sections still **snap to rest** (instant, no smooth glide); overlay/emphasis transitions
+   and the Through-Line fill **jump** rather than animate; everything stays functional.
 
-## Scenario 6 — PDF unchanged (US1, SC-004)
+## Scenario 7 — Editorial restyle + vendored fonts (US3, SC-008)
 
-1. Open `dist/<name>.<title>.pdf` (and diff against a pre-003 build).
-2. **Expect**: same sections and entries in the same **linear** order; **no** rail chrome, route
-   indicator, or controls; `break-inside: avoid` per entry; QR + "Online at" present. Byte-for-content
-   unchanged from 002.
+1. On screen, confirm Fraunces headings + Spline Sans body, the cream/terracotta palette, eyebrow
+   labels, and skills-as-chips. In DevTools Network, reload and filter fonts.
+2. **Expect**: fonts load from `vendor/...` (same-origin) — **no third-party/CDN request**; no visible
+   layout shift on font swap.
 
-## Scenario 7 — The gate catches regressions (US1, SC-006)
+## Scenario 8 — PDF unchanged (US1/US2/US3, SC-005)
 
-1. Run `make visual` → all breakpoints + the PDF check pass against the committed baselines.
-2. Introduce a deliberate regression (e.g. remove `min-width: 0` so a rail overflows the page, or break
-   the PDF) → `make visual` fails and reports the diff/failure.
-3. Revert → green. For an *intentional* rail visual change, `make visual-update` regenerates the
-   baselines (reviewed; commit the PNGs).
+1. Open `dist/<name>.<title>.pdf` (and diff against a pre-003 build / the committed PDF baseline).
+2. **Expect**: same sections and entries in the same **linear** order, **Roboto** typography; **no**
+   deck/rail/overlay/chip/Through-Line chrome; `break-inside: avoid` per entry; QR + "Online at"
+   present. Unchanged from 002.
 
-## Scenario 8 — Signature & polish (US3)
+## Scenario 9 — Signature: the Through-Line (US5)
 
-1. On screen, observe the "route between nodes" indicator under each rail as you move through cards.
-2. **Expect**: one distinctive, on-brand signature; active node in the signal accent; reduced-motion
-   respected; absent in the PDF; no layout shift.
+1. Watch the left-margin terracotta thread as you snap through sections.
+2. **Expect**: one node per section; the fill/active node advances one hop per snap; on-brand and
+   disciplined; reduced-motion → jump not tween; absent in the PDF; no layout shift.
+
+## Scenario 10 — The gate catches regressions (SC-007)
+
+1. `make visual` → all screen breakpoints + the **PDF visual** check pass against committed baselines.
+2. Introduce a deliberate regression (e.g. a rail overflows the page horizontally, or a screen font
+   leaks into print so the PDF baseline moves) → `make visual` fails with the diff.
+3. Revert → green. For the *intentional* restyle, `make visual-update` regenerates the **screen**
+   baselines (reviewed; commit PNGs) — the **PDF** baseline must stay unchanged.
 
 ## Success-criteria map
 
 | Scenario | Criteria |
 |----------|----------|
-| 1, 2 | SC-001, SC-002 |
-| 3, 5 | SC-005 |
-| 4 | SC-003 |
-| 6 | SC-004 |
-| 7 | SC-006, SC-007 |
-| 8 | SC-008 (no layout shift) |
+| 1 | SC-001 |
+| 2, 3 | SC-002, SC-003 |
+| 4 | SC-006 |
+| 5 | SC-004 |
+| 6 | FR-014 |
+| 7 | SC-008, SC-009 |
+| 8 | SC-005 |
+| 9 | SC-009 (no layout shift) |
+| 10 | SC-007 |
