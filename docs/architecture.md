@@ -71,7 +71,10 @@ index.html ──┘                      ▲
 
 Because the PDF is rendered from the same HTML, the two versions stay consistent in **content** by
 construction, while their **presentation is decoupled via CSS media** (one template, one stylesheet —
-no separate print template, no `emulateMedia` call in `pdf.js`). On screen the CV is a rich,
+no separate print template). To keep that decoupling watertight, `pdf.js` calls
+`page.emulateMedia({ media: 'print' })` **before** navigating, so screen-only rules (`@media not print`)
+and screen-only assets (e.g. `media="screen"` webfonts) are never applied or even fetched for the PDF —
+it renders exactly the print document. On screen the CV is a rich,
 card/section-based layout with a sticky section nav and a subtle scroll-reveal; `@media print` flattens
 the cards back to a clean linear document, hides the nav, and disables the animation, so the PDF is
 unchanged by the redesign. The `screen` / `print` classes also swap the cross-links — the on-screen

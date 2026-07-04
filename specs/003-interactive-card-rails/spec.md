@@ -284,7 +284,10 @@ reduced-motion-aware and layout-shift-free; in the PDF, none of it appears.
 - **FR-009**: The deck, rails, overlays, restyle, chips, signature, and all interactive chrome MUST be
   **screen-only**; in print/PDF they flatten to the existing **clean, linear entries** (extending the
   002 screen/print decoupling). The **PDF MUST remain unchanged** in content, order, typography (Roboto),
-  and form, and its generation MUST NOT be complicated (no change to the PDF renderer).
+  and form. Its generation MUST stay simple; the PDF renderer (`src/utils/pdf.js`) MAY only be changed to
+  **strengthen** print isolation — during implementation it was found that screen-only webfonts loaded
+  during navigation perturbed the PDF, so `pdf.js` now emulates **print** media *before* navigating.
+  (This supersedes the earlier "no `emulateMedia` / no PDF-renderer change" assumption from 002/ADR-0003.)
 - **FR-010**: The existing **vertical page structure and sticky section navigation MUST be kept**; the
   sticky nav still jumps to (and rests centred on) each section.
 - **FR-011**: The CV MUST remain **usable with no JavaScript** — the deck still snaps (pure CSS), rails

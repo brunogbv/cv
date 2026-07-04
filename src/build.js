@@ -42,7 +42,14 @@ const vendoredAssets = [
   ['@fontsource/roboto/files/roboto-latin-400-normal.woff2', 'vendor/roboto/files/roboto-latin-400-normal.woff2'],
   ['@fontsource/roboto/files/roboto-latin-400-normal.woff', 'vendor/roboto/files/roboto-latin-400-normal.woff'],
   ['@fontsource/roboto/files/roboto-latin-500-normal.woff2', 'vendor/roboto/files/roboto-latin-500-normal.woff2'],
-  ['@fontsource/roboto/files/roboto-latin-500-normal.woff', 'vendor/roboto/files/roboto-latin-500-normal.woff']
+  ['@fontsource/roboto/files/roboto-latin-500-normal.woff', 'vendor/roboto/files/roboto-latin-500-normal.woff'],
+  ['@fontsource-variable/fraunces/opsz.css', 'vendor/fraunces/opsz.css'],
+  ['@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2', 'vendor/fraunces/files/fraunces-latin-opsz-normal.woff2'],
+  ['@fontsource-variable/fraunces/files/fraunces-latin-ext-opsz-normal.woff2', 'vendor/fraunces/files/fraunces-latin-ext-opsz-normal.woff2'],
+  ['@fontsource-variable/fraunces/files/fraunces-vietnamese-opsz-normal.woff2', 'vendor/fraunces/files/fraunces-vietnamese-opsz-normal.woff2'],
+  ['@fontsource-variable/spline-sans/wght.css', 'vendor/spline-sans/wght.css'],
+  ['@fontsource-variable/spline-sans/files/spline-sans-latin-wght-normal.woff2', 'vendor/spline-sans/files/spline-sans-latin-wght-normal.woff2'],
+  ['@fontsource-variable/spline-sans/files/spline-sans-latin-ext-wght-normal.woff2', 'vendor/spline-sans/files/spline-sans-latin-ext-wght-normal.woff2']
 ]
 
 async function build () {

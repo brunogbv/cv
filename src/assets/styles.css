@@ -363,15 +363,17 @@ h4 {
    on the root AND the visitor has not requested reduced motion do `.reveal` elements start hidden and
    ease in when marked `.is-visible`. Only opacity/transform animate, so there is no layout shift. */
 @media (prefers-reduced-motion: no-preference) {
+    /* Opacity-only (no translate): the deck measures section tops (getBoundingClientRect) to drive
+       keyboard scrollIntoView, and a `transform` offsets that box from its layout position — desyncing
+       the landing from the snap point by the translate distance (a 24px mid-section drift). Fading
+       only keeps measured tops == snap tops. Cross-cutting with the deck (US1); the gentle fade stays. */
     .js .reveal {
         opacity: 0;
-        transform: translateY(1.5rem);
-        transition: opacity 0.5s ease, transform 0.5s ease;
+        transition: opacity 0.5s ease;
     }
 
     .js .reveal.is-visible {
         opacity: 1;
-        transform: none;
     }
 }
 
@@ -381,5 +383,535 @@ h4 {
         opacity: 1 !important;
         transform: none !important;
         transition: none !important;
+    }
+}
+
+/* =====================================================================================
+   Interactive deck (US1): each section is a full-viewport panel and the page snaps one
+   section per gesture, driven by NATIVE CSS Scroll Snap (the browser owns wheel/trackpad/
+   touch momentum — no JS scroll-jacker; see docs/interaction-gotchas.md). Keyboard nav is a
+   thin scrollIntoView layer (src/assets/deck.js) that coexists with snap. Screen-only — every
+   rule here is inside @media not print, so @media print keeps the clean linear Roboto PDF
+   (the deck adds no min-height/snap in print). Spec: FR-001/002, SC-001/003. Restyle, rails,
+   detail overlays and the signature arrive in later user stories.
+   ===================================================================================== */
+@media not print {
+    /* Native vertical snap on the scroller. Snapping is a resting position (not animation), so it
+       stays on under reduced-motion; only the smooth glide is gated (the rule above, line ~323). */
+    html {
+        scroll-snap-type: y mandatory;
+    }
+
+    /* The container sits flush so panels own the vertical rhythm; keep the side padding. */
+    body > .container.page {
+        padding-block: 0;
+    }
+
+    /* Each section (and the header hero) fills the viewport with vertically-centred content and is a
+       snap target. `safe center` centres panels that fit but falls back to top-alignment when a panel
+       is taller than the viewport (the multi-entry sections until US2 adds summary-card rails), so tall
+       content is never clipped/trapped — it scrolls through as an over-viewport snap area (FR-001 tall
+       relaxation). `scroll-snap-stop: always` keeps a hard flick to one section; `scroll-margin-top: 0`
+       lands anchor/keyboard navigation exactly on the panel top (the centred position). */
+    .cv-section,
+    body > .container.page > header {
+        display: flex;
+        flex-direction: column;
+        justify-content: safe center;
+        min-height: 100vh;
+        margin-bottom: 0;
+        padding-block: 5.5rem 2.5rem; /* top clears the fixed section nav */
+        box-sizing: border-box;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        scroll-margin-top: 0;
+    }
+
+    /* Neutralise the header's Bootstrap spacing so it behaves as the first full-viewport panel. */
+    body > .container.page > header.mb-5 { margin-bottom: 0 !important; }
+    body > .container.page > header.pb-5 { padding-bottom: 2.5rem !important; }
+
+    /* The section nav is fixed (out of flow) so panels centre against the true viewport rather than
+       being pushed down by the nav's flow height (a sticky nav left the first panel off-centre). */
+    .section-nav {
+        position: fixed;
+        right: 0;
+        left: 0;
+        margin-bottom: 0;
+    }
+}
+
+/* =====================================================================================
+   Editorial restyle (US3): the screen adopts the reference identity (theopenengine.com) —
+   Fraunces display serif + Spline Sans body (both vendored, screen-only), a warm
+   cream/ink/slate/terracotta palette, un-boxed cards, uppercase terracotta "eyebrow"
+   labels, and skills as proficiency chips. All screen-only: @media print is untouched, so
+   the PDF stays clean/linear Roboto (SC-005). Skills specifically render as chips on screen
+   but keep the 002 bar-grid in print (the template ships both, toggled by .screen/.print).
+   Spec: FR-007/008, US3. Fonts vendored via @fontsource-variable in build.js.
+   ===================================================================================== */
+@media not print {
+    :root {
+        --p-cream: #faf7f1;
+        --p-ink: #0f172a;
+        --p-slate: #475569;
+        --p-slate-2: #64748b;
+        --p-terra: #c2240c;
+    }
+
+    body {
+        background-color: var(--p-cream);
+        color: var(--p-slate);
+        font-family: "Spline Sans Variable", roboto, sans-serif;
+    }
+
+    h1,
+    h2,
+    h3,
+    .cv-section-title {
+        font-family: "Fraunces Variable", georgia, serif;
+        font-optical-sizing: auto;
+        font-weight: 600;
+        color: var(--p-ink);
+        letter-spacing: -0.02em;
+    }
+
+    .cv-section-title {
+        font-size: clamp(2rem, 5vw, 3.25rem);
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+
+    /* Uppercase terracotta eyebrow above each section title (from data-eyebrow). Screen-only,
+       so the PDF's headings are unchanged. */
+    .cv-section-title::before {
+        content: attr(data-eyebrow);
+        display: block;
+        margin-bottom: 0.5rem;
+        font-family: "Spline Sans Variable", sans-serif;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--p-terra);
+    }
+
+    a {
+        color: var(--p-terra);
+    }
+
+    /* Facts (location/email/github/…): plain text on the cream page, not a white boxed list. */
+    .list-group-item {
+        padding-left: 0;
+        background-color: transparent;
+        border: 0;
+    }
+
+    /* Flatten the 002 boxy cards into the editorial look (clean, un-boxed blocks). */
+    .cv-card {
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background-color: transparent;
+    }
+
+    .cv-card > .card-body {
+        padding: 0;
+    }
+
+    /* Header hero: a light editorial divider instead of the heavy 002 black border (screen only). */
+    body > .container.page > header {
+        border-bottom: 1px solid rgb(15 23 42 / 10%);
+    }
+
+    /* Restyle the (US1-fixed) nav as a translucent cream bar. */
+    .section-nav {
+        background-color: rgb(250 247 241 / 88%);
+        backdrop-filter: blur(6px);
+        border-bottom: 1px solid rgb(15 23 42 / 8%);
+    }
+
+    .section-nav-list a {
+        font-family: "Spline Sans Variable", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    /* Skills as compact proficiency chips (screen only). Each chip fills with a terracotta tint up to
+       its proficiency % (the --pct set inline). Print keeps the 002 dot-bar grid (see the template's
+       .print block) so the PDF is unchanged. */
+    .cv-skills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        max-width: 60rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .cv-skills li {
+        padding: 0.35rem 0.9rem;
+        border: 1px solid rgb(15 23 42 / 15%);
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgb(194 36 12 / 14%) 0 var(--pct, 0%), #fff var(--pct, 0%));
+        font-size: 0.9rem;
+        color: var(--p-ink);
+    }
+}
+
+/* =====================================================================================
+   Summary-card rails + detail overlays (US2). The three content-dense sections become
+   horizontal rails of short summary cards; activating a card opens the full entry in a
+   full-screen :target overlay. Screen-only (@media not print) + the markup is `.screen`,
+   so print shows the original linear `.cv-card.cv-entry.print` blocks and the PDF is
+   pixel-identical. The rail owns the X axis (overscroll-behavior: contain) so swiping it
+   never disturbs the vertical deck snap. Spec: FR-003/004/005/006, D3/D4/D5.
+   ===================================================================================== */
+@media not print {
+    /* ---- Rail of summary cards ---- */
+    .cv-rail {
+        display: flex;
+        gap: 1.25rem;
+        margin: 0;
+        padding: 0.5rem 0.25rem 1.5rem;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-padding-inline: 0.25rem;
+        overscroll-behavior: contain; /* an X-fling stays in the rail; never triggers the deck snap */
+        touch-action: pan-x pan-y; /* let the browser route horizontal-swipe to the rail, vertical to the deck */
+        list-style: none;
+    }
+
+    .cv-rail > li {
+        flex: 0 0 clamp(260px, 76%, 380px); /* the <li> is the flex/scroll item, not the <a> */
+        min-width: 0;
+        scroll-snap-align: start;
+    }
+
+    .cv-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        height: 100%;
+        padding: 1.5rem;
+        border: 1px solid rgb(15 23 42 / 12%);
+        border-radius: 1rem;
+        background-color: #fff;
+        color: var(--p-slate);
+        text-decoration: none;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .cv-summary .period {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--p-terra);
+    }
+
+    .cv-summary .title {
+        font-family: "Fraunces Variable", georgia, serif;
+        font-size: 1.35rem;
+        line-height: 1.15;
+        color: var(--p-ink);
+    }
+
+    .cv-summary .teaser {
+        display: -webkit-box;
+        overflow: hidden;
+        font-size: 0.95rem;
+        color: var(--p-slate-2);
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+
+    .cv-summary .more {
+        margin-top: auto;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--p-terra);
+    }
+
+    a.cv-summary:hover,
+    a.cv-summary:focus-visible {
+        transform: translateY(-3px);
+        border-color: var(--p-terra);
+        box-shadow: 0 12px 28px rgb(15 23 42 / 12%);
+    }
+
+    /* ---- Full-screen detail overlay (CSS :target — works with no JS) ---- */
+    .cv-detail {
+        position: fixed;
+        z-index: 2000;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        background-color: rgb(15 23 42 / 35%);
+        backdrop-filter: blur(8px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s ease;
+    }
+
+    .cv-detail:target {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Lock page scroll while an overlay is open so a short overlay can't scroll the CV behind it.
+       The deck's scroll container is <html> (scroll-snap-type is set on html, ~line 401), so the
+       lock must target html — locking body alone left the deck scrollable behind the overlay. Both
+       are pinned to stay robust whichever element ends up the scroller. */
+    html:has(.cv-detail:target),
+    body:has(.cv-detail:target) {
+        overflow: hidden;
+    }
+
+    /* Full-size backdrop link: clicking outside the card closes the overlay (no JS). */
+    .cv-detail-backdrop {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+    }
+
+    .cv-detail-inner {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 640px;
+        max-height: 85vh;
+        overflow: hidden; /* clip the inner scroller to the rounded corners */
+        background-color: #fffdfa;
+        border-radius: 1.25rem;
+        box-shadow: 0 30px 70px rgb(15 23 42 / 40%);
+        transform: scale(0.96);
+        transition: transform 0.25s ease;
+    }
+
+    .cv-detail:target .cv-detail-inner {
+        transform: scale(1);
+    }
+
+    .cv-detail-scroll {
+        max-height: 85vh;
+        padding: 2.75rem;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgb(15 23 42 / 30%) transparent;
+    }
+
+    .cv-detail-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .cv-detail-scroll::-webkit-scrollbar-thumb {
+        background-color: rgb(15 23 42 / 30%);
+        border-radius: 3px;
+    }
+
+    /* Visible close control (top-right of the card) — an anchor so it works with no JS too. Styled
+       as a clear circular button (not a bare glyph) so it reads as an intentional affordance and
+       gives a comfortable tap target; sits above the inner scroller. */
+    .cv-detail-close {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        font-size: 1.4rem;
+        line-height: 1;
+        color: var(--p-slate-2);
+        text-decoration: none;
+        background-color: rgb(15 23 42 / 6%);
+        border-radius: 50%;
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .cv-detail-close:hover,
+    .cv-detail-close:focus-visible {
+        color: var(--p-terra);
+        background-color: rgb(15 23 42 / 12%);
+    }
+
+    .cv-detail-period {
+        color: var(--p-terra);
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+    }
+}
+
+/* =====================================================================================
+   Accessibility hardening (US4): visible keyboard focus + reduced-motion. Screen-only.
+   Spec: FR-012, FR-014, US4. (Keyboard section nav, overlay focus trap/return, and the
+   no-JS :target baseline are handled in deck.js / overlay.js / the CSS above.)
+   ===================================================================================== */
+@media not print {
+    /* Clear, consistent focus ring on the interactive elements (WCAG 2.4.7). Rails use
+       scroll-padding-inline (above) so the ring isn't clipped by the scroll track. */
+    a.cv-summary:focus-visible,
+    .cv-detail-close:focus-visible,
+    .section-nav-list a:focus-visible {
+        outline: 2px solid var(--p-terra);
+        outline-offset: 3px;
+        border-radius: 0.35rem;
+    }
+}
+
+/* Reduced motion: keep everything functional, drop the non-essential animation. Snapping is a
+   resting position (kept); the smooth glide + reveal are already gated above. Here we also
+   neutralise the summary hover-lift and the overlay fade/scale so an overlay opens instantly. */
+@media (prefers-reduced-motion: reduce) {
+    .cv-summary,
+    .cv-detail,
+    .cv-detail-inner {
+        transition: none;
+    }
+
+    a.cv-summary:hover,
+    a.cv-summary:focus-visible {
+        transform: none;
+    }
+
+    .cv-detail-inner {
+        transform: none; /* card appears at full scale immediately (no scale-in) */
+    }
+}
+
+/* =====================================================================================
+   The signature — "The Through-Line" (US5): a fixed terracotta thread in the left gutter with
+   one node per section; the fill + active node advance as you snap. Screen-only (.screen → absent
+   in print). position:fixed reserves no layout box (CLS ≈ 0). deck.js sets --tl-progress + the
+   node states + an aria-live status; with no JS it's a static line of anchor-dot jump links.
+   Hidden below md — the top section-nav serves small screens. Spec: FR-013/014, US5, D8.
+   ===================================================================================== */
+@media not print {
+    .through-line {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1025; /* below the section-nav (1030) */
+        display: flex;
+        align-items: center;
+        width: 2.25rem;
+        pointer-events: none; /* only the node links are interactive (re-enabled below) */
+    }
+
+    .through-line ol {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: min(60vh, 30rem);
+        margin: 0 auto;
+        padding: 0;
+        list-style: none;
+    }
+
+    /* faint full-height rail */
+    .through-line ol::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 1px;
+        background-color: rgb(15 23 42 / 15%);
+        transform: translateX(-50%);
+    }
+
+    /* travelled portion: top → the active node, height driven by --tl-progress (0–1) */
+    .through-line ol::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 1px;
+        height: calc(var(--tl-progress, 0) * 100%);
+        background-color: var(--p-terra);
+        transform: translateX(-50%);
+    }
+
+    .through-line li {
+        position: relative;
+        display: flex;
+    }
+
+    .through-line a {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background-color: var(--p-cream);
+        border: 1px solid rgb(15 23 42 / 30%);
+        pointer-events: auto;
+    }
+
+    .through-line a.is-past,
+    .through-line a.is-active {
+        background-color: var(--p-terra);
+        border-color: var(--p-terra);
+    }
+
+    .through-line a.is-active {
+        transform: scale(1.5);
+    }
+
+    .through-line a:focus-visible {
+        outline: 2px solid var(--p-terra);
+        outline-offset: 3px;
+    }
+
+    /* the node's `.tl-node` span is the visual dot target; the label + live status are for AT only */
+    .through-line .tl-node {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .through-line .tl-label,
+    .through-line .tl-status {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    /* Desktop signature; on small screens the top section-nav is the wayfinding. */
+    @media (width < 768px) {
+        .through-line {
+            display: none;
+        }
+    }
+}
+
+/* Reduced motion: the fill + node scale JUMP (state shown, no tween). */
+@media (prefers-reduced-motion: no-preference) {
+    .through-line ol::after {
+        transition: height 0.4s ease;
+    }
+
+    .through-line a {
+        transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
     }
 }
