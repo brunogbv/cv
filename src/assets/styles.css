@@ -582,8 +582,8 @@ h4 {
         color: var(--p-terra);
     }
 
-    /* ---- Full-screen detail overlay (CSS :target — works with no JS) ---- */
-    /* Full-screen detail = a centered card on a blurred, dimmed backdrop (the CV blooms behind it). */
+    /* ---- Full-screen detail overlay (CSS :target — works with no JS) ----
+       A centered card on a blurred, dimmed backdrop (the CV blooms behind it). */
     .proto-detail {
         position: fixed;
         z-index: 2000;
@@ -611,13 +611,13 @@ h4 {
     }
 
     /* The backdrop is a full-size link: clicking outside the card closes the overlay (no JS). */
-    .proto-detail__backdrop {
+    .proto-detail-backdrop {
         position: absolute;
         inset: 0;
         z-index: 0;
     }
 
-    .proto-detail__inner {
+    .proto-detail-inner {
         position: relative;
         z-index: 1; /* above the backdrop close link */
         width: 100%;
@@ -632,7 +632,7 @@ h4 {
     }
 
     /* The actual scroller lives inside the clipped card, with a thin, integrated scrollbar. */
-    .proto-detail__scroll {
+    .proto-detail-scroll {
         max-height: 85vh;
         padding: 2.75rem;
         overflow-y: auto;
@@ -641,27 +641,39 @@ h4 {
         scrollbar-color: rgb(15 23 42 / 30%) transparent;
     }
 
-    .proto-detail__scroll::-webkit-scrollbar { width: 6px; }
-    .proto-detail__scroll::-webkit-scrollbar-thumb { background-color: rgb(15 23 42 / 30%); border-radius: 3px; }
+    .proto-detail-scroll::-webkit-scrollbar { width: 6px; }
 
-    .proto-detail:target .proto-detail__inner { transform: scale(1); }
+    .proto-detail-scroll::-webkit-scrollbar-thumb {
+        background-color: rgb(15 23 42 / 30%);
+        border-radius: 3px;
+    }
 
-    .proto-detail__period { color: var(--p-terra); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.8rem; }
+    .proto-detail:target .proto-detail-inner { transform: scale(1); }
+
+    .proto-detail-period {
+        color: var(--p-terra);
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+    }
 }
 
 /* Print: render everything as plain linear content. Professional Experience's teaser rail is redundant
    (its detail overlays carry the full content, and overlays are visible by default in print since their
    hidden state is screen-only); Additional/Competitions rails ARE the full content, so they stack. */
 @media print {
-    #experience .proto-rail,
-    .proto-detail__backdrop { display: none; }
-
+    /* `.proto-rail` (lower specificity) is listed before `#experience .proto-rail` to satisfy
+       stylelint no-descending-specificity; they set disjoint properties so order is behaviour-neutral. */
     .proto-rail {
         margin: 0;
         padding: 0;
         list-style: none;
     }
 
+    #experience .proto-rail,
+    .proto-detail-backdrop { display: none; }
+
     .proto-summary,
-    .proto-detail__inner { margin-bottom: 1.5rem; }
+    .proto-detail-inner { margin-bottom: 1.5rem; }
 }
