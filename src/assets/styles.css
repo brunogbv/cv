@@ -773,3 +773,129 @@ h4 {
         transform: none; /* card appears at full scale immediately (no scale-in) */
     }
 }
+
+/* =====================================================================================
+   The signature — "The Through-Line" (US5): a fixed terracotta thread in the left gutter with
+   one node per section; the fill + active node advance as you snap. Screen-only (.screen → absent
+   in print). position:fixed reserves no layout box (CLS ≈ 0). deck.js sets --tl-progress + the
+   node states + an aria-live status; with no JS it's a static line of anchor-dot jump links.
+   Hidden below md — the top section-nav serves small screens. Spec: FR-013/014, US5, D8.
+   ===================================================================================== */
+@media not print {
+    .through-line {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1025; /* below the section-nav (1030) */
+        display: flex;
+        align-items: center;
+        width: 2.25rem;
+        pointer-events: none; /* only the node links are interactive (re-enabled below) */
+    }
+
+    .through-line ol {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: min(60vh, 30rem);
+        margin: 0 auto;
+        padding: 0;
+        list-style: none;
+    }
+
+    /* faint full-height rail */
+    .through-line ol::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 1px;
+        background-color: rgb(15 23 42 / 15%);
+        transform: translateX(-50%);
+    }
+
+    /* travelled portion: top → the active node, height driven by --tl-progress (0–1) */
+    .through-line ol::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 1px;
+        height: calc(var(--tl-progress, 0) * 100%);
+        background-color: var(--p-terra);
+        transform: translateX(-50%);
+    }
+
+    .through-line li {
+        position: relative;
+        display: flex;
+    }
+
+    .through-line a {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background-color: var(--p-cream);
+        border: 1px solid rgb(15 23 42 / 30%);
+        pointer-events: auto;
+    }
+
+    .through-line a.is-past,
+    .through-line a.is-active {
+        background-color: var(--p-terra);
+        border-color: var(--p-terra);
+    }
+
+    .through-line a.is-active {
+        transform: scale(1.5);
+    }
+
+    .through-line a:focus-visible {
+        outline: 2px solid var(--p-terra);
+        outline-offset: 3px;
+    }
+
+    /* the node's `.tl-node` span is the visual dot target; the label + live status are for AT only */
+    .through-line .tl-node {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .through-line .tl-label,
+    .through-line .tl-status {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    /* Desktop signature; on small screens the top section-nav is the wayfinding. */
+    @media (width < 768px) {
+        .through-line {
+            display: none;
+        }
+    }
+}
+
+/* Reduced motion: the fill + node scale JUMP (state shown, no tween). */
+@media (prefers-reduced-motion: no-preference) {
+    .through-line ol::after {
+        transition: height 0.4s ease;
+    }
+
+    .through-line a {
+        transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    }
+}

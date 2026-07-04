@@ -43,4 +43,57 @@
     e.preventDefault()
     els[target].scrollIntoView({ behavior: reduce.matches ? 'auto' : 'smooth', block: 'start' })
   })
+
+  // Through-Line signature (US5): reflect the active section on the left-gutter progress spine.
+  // Screen-only progressive enhancement — with no JS the spine is a static index of jump links.
+  // deck.js loads in <head>, so defer DOM queries until the body exists (mirrors reveal.js).
+  const initThroughLine = () => {
+    const line = document.querySelector('.through-line')
+    if (!line) return
+    const nodes = [].slice.call(line.querySelectorAll('a[data-section]'))
+    if (!nodes.length) return
+    // Panels = the hero (header) followed by each node's section. The nearest-centred panel decides
+    // the active node; while the hero is centred no node is active yet (active = -1, empty fill).
+    const panels = [document.querySelector('header')].concat(nodes.map((n) => document.getElementById(n.dataset.section)))
+    const status = line.querySelector('.tl-status')
+    let ticking = false
+    const paint = () => {
+      ticking = false
+      const mid = window.innerHeight / 2
+      let nearest = 0
+      let best = Infinity
+      for (let i = 0; i < panels.length; i++) {
+        if (!panels[i]) continue
+        const r = panels[i].getBoundingClientRect()
+        const d = Math.abs((r.top + r.bottom) / 2 - mid)
+        if (d < best) { best = d; nearest = i }
+      }
+      const active = nearest - 1 // -1 on the hero; 0..n-1 once a section is centred
+      line.style.setProperty('--tl-progress', (active >= 0 && nodes.length > 1) ? active / (nodes.length - 1) : 0)
+      for (let i = 0; i < nodes.length; i++) {
+        nodes[i].classList.toggle('is-past', i < active)
+        nodes[i].classList.toggle('is-active', i === active)
+        if (i === active) nodes[i].setAttribute('aria-current', 'true')
+        else nodes[i].removeAttribute('aria-current')
+      }
+      if (status) {
+        status.textContent = (active >= 0) ? ('Section ' + (active + 1) + ' of ' + nodes.length + ': ' + (nodes[active].dataset.label || '')) : ''
+      }
+    }
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true
+        window.requestAnimationFrame(paint)
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll, { passive: true })
+    paint()
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initThroughLine)
+  } else {
+    initThroughLine()
+  }
 })()

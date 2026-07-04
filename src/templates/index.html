@@ -56,6 +56,22 @@
         </div>
     </nav>
 
+    <!-- The signature: "The Through-Line" (US5). A fixed terracotta thread down the left margin whose
+         fill advances one node per section as you snap through the deck — an ambient progress spine +
+         a distributed-systems/dispatch nod (a route traversed hop by hop). Screen-only (.screen, hidden
+         in print) and position:fixed (reserves no layout box → CLS ≈ 0); hidden on small screens (the
+         top nav serves mobile). No JS: a static line of anchor-dot jump links. deck.js fills it. -->
+    <nav class="through-line screen" aria-label="Section progress">
+        <ol>
+            {{#if about_me}}<li><a href="#about" target="_self" data-section="about" data-label="About"><span class="tl-node"></span><span class="tl-label">About</span></a></li>{{/if}}
+            {{#if skills}}<li><a href="#skills" target="_self" data-section="skills" data-label="Skills"><span class="tl-node"></span><span class="tl-label">Skills</span></a></li>{{/if}}
+            {{#if positions}}<li><a href="#experience" target="_self" data-section="experience" data-label="Professional Experience"><span class="tl-node"></span><span class="tl-label">Experience</span></a></li>{{/if}}
+            {{#if experience}}<li><a href="#additional" target="_self" data-section="additional" data-label="Additional Experience"><span class="tl-node"></span><span class="tl-label">Additional</span></a></li>{{/if}}
+            {{#if competitions}}<li><a href="#competitions" target="_self" data-section="competitions" data-label="Robotics Competitions"><span class="tl-node"></span><span class="tl-label">Competitions</span></a></li>{{/if}}
+        </ol>
+        <span class="tl-status" aria-live="polite"></span>
+    </nav>
+
     <div class="container page">
         <header class="border-bottom border-2 border-dark mb-5 pb-5 pb-print-0 mb-print-1">
             <div class="row">
