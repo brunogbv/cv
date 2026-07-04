@@ -92,7 +92,7 @@ fine easing control) — none of which a section deck needs.
 
 ## A note on ADR 0004
 
-The interactive redesign (feature 003) is **not yet decided or built** — a re-spec is pending — so
-there is no chosen approach to record. When the 003 interactive build lands, capture the approach it
-settles on as **ADR 0004** in [adr/](adr/). This note is the reusable gotcha list, not that decision
-record.
+The interactive redesign (feature 003) is **spec'd** (re-spec 2026-07-04: an editorial full-viewport
+deck on **native CSS Scroll Snap**, per this doc) but **not yet built**. When the 003 build lands,
+capture the chosen approach as **ADR 0004** in [adr/](adr/). This note is the reusable gotcha list, not
+that decision record.
