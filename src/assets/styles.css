@@ -664,7 +664,11 @@ h4 {
         visibility: visible;
     }
 
-    /* Lock page scroll while an overlay is open so a short overlay can't scroll the CV behind it. */
+    /* Lock page scroll while an overlay is open so a short overlay can't scroll the CV behind it.
+       The deck's scroll container is <html> (scroll-snap-type is set on html, ~line 401), so the
+       lock must target html — locking body alone left the deck scrollable behind the overlay. Both
+       are pinned to stay robust whichever element ends up the scroller. */
+    html:has(.cv-detail:target),
     body:has(.cv-detail:target) {
         overflow: hidden;
     }
@@ -712,20 +716,32 @@ h4 {
         border-radius: 3px;
     }
 
-    /* Visible close control (top-right of the card) — an anchor so it works with no JS too. */
+    /* Visible close control (top-right of the card) — an anchor so it works with no JS too. Styled
+       as a clear circular button (not a bare glyph) so it reads as an intentional affordance and
+       gives a comfortable tap target; sits above the inner scroller. */
     .cv-detail-close {
         position: absolute;
-        top: 0.9rem;
-        right: 1.1rem;
-        font-size: 1.6rem;
+        top: 0.75rem;
+        right: 0.75rem;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        font-size: 1.4rem;
         line-height: 1;
         color: var(--p-slate-2);
         text-decoration: none;
+        background-color: rgb(15 23 42 / 6%);
+        border-radius: 50%;
+        transition: background-color 0.15s ease, color 0.15s ease;
     }
 
     .cv-detail-close:hover,
     .cv-detail-close:focus-visible {
         color: var(--p-terra);
+        background-color: rgb(15 23 42 / 12%);
     }
 
     .cv-detail-period {

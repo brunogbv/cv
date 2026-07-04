@@ -1,4 +1,3 @@
-/* global HTMLElement */
 // Detail-overlay dialog a11y (US2) — SCREEN-ONLY progressive enhancement, layered on the CSS
 // `:target` baseline.
 //
@@ -7,16 +6,20 @@
 // the section, e.g. `#experience`) — NO JavaScript required, and that baseline is what PDF generation
 // renders (the overlays are screen-only). This
 // script only ADDS dialog semantics on top when JS runs: it moves focus into the opened overlay,
-// makes the background inert to AT, traps Tab within the overlay, closes on Escape, and returns
-// focus to the trigger on close. It is a strict enhancement — with no JS the `:target` overlay still
-// opens and closes, and during PDF generation (no keys pressed, no hash) this is a harmless no-op.
-// Every DOM access is guarded so a missing element never throws.
+// traps Tab within the overlay, closes on Escape, and returns focus to the trigger on close. It is a
+// strict enhancement — with no JS the `:target` overlay still opens and closes, and during PDF
+// generation (no keys pressed, no hash) this is a harmless no-op. Every DOM access is guarded so a
+// missing element never throws.
+//
+// Note: we deliberately do NOT mark the background `inert`. The overlays render *inside*
+// `.container.page`, and `inert` propagates to descendants and can't be lifted on one — so inerting
+// an ancestor would freeze the open overlay itself (dead scroller, unclickable backdrop) in browsers
+// that support `inert`. The modal is already scoped by `aria-modal="true"`, the viewport-covering
+// backdrop, and the Tab-trap below, so ancestor-inert is both harmful here and redundant.
 (function () {
   const FOCUSABLE = 'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])'
 
   let trigger = null
-
-  const background = () => document.querySelector('.container.page')
 
   // The currently-open detail overlay (matched by :target), or null. Section-agnostic — overlays
   // live in Experience/Additional/Competitions with ids like e0 / x0 / c0.
@@ -28,41 +31,24 @@
       .filter((el) => el.offsetParent !== null && el.tabIndex >= 0)
   }
 
-  const deactivateBackground = () => {
-    const bg = background()
-    if (!bg) return
-    if ('inert' in HTMLElement.prototype) {
-      bg.inert = true
-    } else {
-      bg.setAttribute('aria-hidden', 'true')
-    }
-  }
-
-  const reactivateBackground = () => {
-    const bg = background()
-    if (!bg) return
-    if ('inert' in HTMLElement.prototype) {
-      bg.inert = false
-    }
-    bg.removeAttribute('aria-hidden')
-  }
-
   const onHashChange = () => {
     const overlay = openOverlay()
     if (overlay) {
       // Remember what to restore focus to only on the first activation of a session.
       if (!trigger) trigger = document.activeElement
-      deactivateBackground()
+      // preventScroll: the overlay is a fixed full-screen layer — moving focus into it must not
+      // scroll the deck behind it.
       const targets = focusables(overlay)
       if (targets.length) {
-        targets[0].focus()
+        targets[0].focus({ preventScroll: true })
       } else {
         overlay.setAttribute('tabindex', '-1')
-        overlay.focus()
+        overlay.focus({ preventScroll: true })
       }
     } else {
-      reactivateBackground()
-      if (trigger && typeof trigger.focus === 'function') trigger.focus()
+      // preventScroll: restoring focus to the triggering card must not yank the deck to it (that
+      // was the "page jumps after close" bug).
+      if (trigger && typeof trigger.focus === 'function') trigger.focus({ preventScroll: true })
       trigger = null
     }
   }
