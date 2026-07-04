@@ -10,10 +10,10 @@
 // this only upgrades key presses to one-section-per-press. In print there is no keyboard scrolling,
 // and the deck layout itself is screen-only (styles.css @media not print), so this never affects the PDF.
 (function () {
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
 
   function isField (t) {
-    var n = (t && t.tagName || '').toLowerCase()
+    const n = ((t && t.tagName) || '').toLowerCase()
     return n === 'input' || n === 'textarea' || n === 'select'
   }
 
@@ -23,11 +23,11 @@
 
   // The section we're resting on = the one whose top is nearest the top of the viewport.
   function currentIndex () {
-    var els = sections()
-    var best = 0
-    var bestDist = Infinity
-    for (var i = 0; i < els.length; i++) {
-      var d = Math.abs(els[i].getBoundingClientRect().top)
+    const els = sections()
+    let best = 0
+    let bestDist = Infinity
+    for (let i = 0; i < els.length; i++) {
+      const d = Math.abs(els[i].getBoundingClientRect().top)
       if (d < bestDist) { bestDist = d; best = i }
     }
     return best
@@ -35,10 +35,10 @@
 
   document.addEventListener('keydown', function (e) {
     if (isField(e.target) || e.repeat) return // ignore auto-repeat: one press = one section
-    var dir = (e.key === 'ArrowDown' || e.key === 'PageDown') ? 1 : (e.key === 'ArrowUp' || e.key === 'PageUp') ? -1 : 0
+    const dir = (e.key === 'ArrowDown' || e.key === 'PageDown') ? 1 : (e.key === 'ArrowUp' || e.key === 'PageUp') ? -1 : 0
     if (!dir) return
-    var els = sections()
-    var target = currentIndex() + dir
+    const els = sections()
+    const target = currentIndex() + dir
     if (target < 0 || target >= els.length) return
     e.preventDefault()
     els[target].scrollIntoView({ behavior: reduce.matches ? 'auto' : 'smooth', block: 'start' })
