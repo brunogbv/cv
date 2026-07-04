@@ -736,3 +736,40 @@ h4 {
         font-size: 0.8rem;
     }
 }
+
+/* =====================================================================================
+   Accessibility hardening (US4): visible keyboard focus + reduced-motion. Screen-only.
+   Spec: FR-012, FR-014, US4. (Keyboard section nav, overlay focus trap/return, and the
+   no-JS :target baseline are handled in deck.js / overlay.js / the CSS above.)
+   ===================================================================================== */
+@media not print {
+    /* Clear, consistent focus ring on the interactive elements (WCAG 2.4.7). Rails use
+       scroll-padding-inline (above) so the ring isn't clipped by the scroll track. */
+    a.cv-summary:focus-visible,
+    .cv-detail-close:focus-visible,
+    .section-nav-list a:focus-visible {
+        outline: 2px solid var(--p-terra);
+        outline-offset: 3px;
+        border-radius: 0.35rem;
+    }
+}
+
+/* Reduced motion: keep everything functional, drop the non-essential animation. Snapping is a
+   resting position (kept); the smooth glide + reveal are already gated above. Here we also
+   neutralise the summary hover-lift and the overlay fade/scale so an overlay opens instantly. */
+@media (prefers-reduced-motion: reduce) {
+    .cv-summary,
+    .cv-detail,
+    .cv-detail-inner {
+        transition: none;
+    }
+
+    a.cv-summary:hover,
+    a.cv-summary:focus-visible {
+        transform: none;
+    }
+
+    .cv-detail-inner {
+        transform: none; /* card appears at full scale immediately (no scale-in) */
+    }
+}

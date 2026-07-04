@@ -25,7 +25,7 @@
   const focusables = (overlay) => {
     return Array.prototype.slice
       .call(overlay.querySelectorAll(FOCUSABLE))
-      .filter((el) => el.offsetParent !== null)
+      .filter((el) => el.offsetParent !== null && el.tabIndex >= 0)
   }
 
   const deactivateBackground = () => {
