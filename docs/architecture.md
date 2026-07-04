@@ -117,6 +117,11 @@ Font Awesome `<i>` tags and `<a>` links.
   `{{#each}}` over the arrays above; a screen-only sticky **section nav** (a `<details>` menu below
   Bootstrap `md`, an inline list at `md+`) links to the section ids, with its link list defined once as
   a Handlebars inline partial.
+- **`<base target="_blank">` gotcha.** The page sets `<base target="_blank">` so external links open
+  in a new tab — but that default also applies to in-page anchors (`href="#…"`), which would then open
+  a new tab and reload the whole page. Every in-page anchor (the section-nav links, and any future
+  card/close/back anchors) must therefore set `target="_self"` to opt back out. See
+  [interaction-gotchas.md](interaction-gotchas.md#in-page-anchors).
 - `src/assets/styles.css` holds project-specific styling on top of Bootstrap: the `screen` / `print`
   visibility rules, the skill-bar styling, the card/section/nav layout, and the scroll-reveal. The
   screen/print split is media-driven — `@media print` flattens the cards, hides the nav, and disables
