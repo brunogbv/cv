@@ -184,41 +184,61 @@
 
     </div>
     <script>
-      // PROTOTYPE: full-viewport "deck" navigation — one full section per gesture, the same for the
-      // keyboard AND the wheel/trackpad (native snap alone still lets a wheel gesture land mid-section).
-      // A short lock coalesces trackpad momentum into a single step. The detail overlay is left alone
-      // (it scrolls normally; Esc / backdrop-click close it).
+      // PROTOTYPE: full-viewport "deck" navigation — one full section per gesture, identical for the
+      // keyboard, wheel/trackpad, touch, AND nav-link clicks. The header is the natural-height hero at
+      // the very top (index 0 → scrollTop 0). "Current section" is the one whose top is NEAREST the
+      // scroll position, so a slightly-imprecise landing still nudges to the right neighbour. A
+      // momentum-safe lock coalesces trackpad inertia into one step: it releases only once wheel events
+      // go quiet AND the glide has had time to finish, so inertia can't fire a second, mid-section jump.
+      // The detail overlay scrolls normally (Esc / backdrop-click close it).
       (function () {
         var reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
+        var scroller = document.scrollingElement || document.documentElement
         var locked = false
+        var releaseTimer = null
+        var minUntil = 0
         function overlayOpen () { return /^#p\d+$/.test(location.hash) }
         function isField (t) { var n = (t && t.tagName || '').toLowerCase(); return n === 'input' || n === 'textarea' || n === 'select' }
-        function goSection (dir) {
-          var scroller = document.scrollingElement || document.documentElement
+        function tops () {
           var y = scroller.scrollTop
-          var vh = window.innerHeight
-          var tops = [].slice.call(document.querySelectorAll('header, .cv-section'))
+          return [].slice.call(document.querySelectorAll('header, .cv-section'))
             .map(function (s) { return Math.round(s.getBoundingClientRect().top + y) })
-          // current section = the last one whose top is at/above the viewport middle (the one you're on)
-          var idx = 0
-          for (var i = 0; i < tops.length; i++) { if (tops[i] <= y + vh / 2) idx = i }
-          var target = idx + dir
-          if (target < 0 || target >= tops.length) return false
+        }
+        function relock () {
+          clearTimeout(releaseTimer)
+          releaseTimer = setTimeout(function () { locked = false }, Math.max(120, minUntil - Date.now()))
+        }
+        function scrollToIndex (i) {
+          var t = tops()
+          if (i < 0 || i >= t.length) return false
           locked = true
-          scroller.scrollTo({ top: tops[target], behavior: reduce.matches ? 'auto' : 'smooth' })
-          setTimeout(function () { locked = false }, reduce.matches ? 60 : 800)
+          minUntil = Date.now() + (reduce.matches ? 80 : 620)
+          scroller.scrollTo({ top: i <= 0 ? 0 : t[i], behavior: reduce.matches ? 'auto' : 'smooth' })
+          relock()
           return true
         }
+        function currentIndex () {
+          var y = scroller.scrollTop
+          var t = tops()
+          var best = 0, bestDist = Infinity
+          for (var i = 0; i < t.length; i++) {
+            var d = Math.abs(t[i] - y)
+            if (d < bestDist) { bestDist = d; best = i }
+          }
+          return best
+        }
+        function goSection (dir) { return scrollToIndex(currentIndex() + dir) }
         document.addEventListener('keydown', function (e) {
           if (e.key === 'Escape' && overlayOpen()) { location.hash = 'experience'; return }
-          if (overlayOpen() || isField(e.target)) return
+          if (overlayOpen() || isField(e.target) || e.repeat) return // ignore auto-repeat: one tap = one section
           var dir = (e.key === 'ArrowDown' || e.key === 'PageDown') ? 1 : (e.key === 'ArrowUp' || e.key === 'PageUp') ? -1 : 0
           if (dir && goSection(dir)) e.preventDefault()
         })
         window.addEventListener('wheel', function (e) {
           if (overlayOpen() || Math.abs(e.deltaY) < 4) return
           e.preventDefault() // take over from native scroll so one gesture = one section
-          if (!locked) goSection(e.deltaY > 0 ? 1 : -1)
+          if (locked) { relock(); return } // inertia: hold the lock until the wheel goes quiet
+          goSection(e.deltaY > 0 ? 1 : -1)
         }, { passive: false })
         var touchStartY = null
         window.addEventListener('touchstart', function (e) { touchStartY = e.touches[0].clientY }, { passive: true })
@@ -231,6 +251,15 @@
           }
           touchStartY = null
         }, { passive: true })
+        // Nav-anchor clicks scroll through the same JS path (keeps them smooth now that CSS
+        // scroll-behavior is off, and lands them exactly like a gesture).
+        var all = [].slice.call(document.querySelectorAll('header, .cv-section'))
+        document.querySelectorAll('.section-nav-list a[href^="#"]').forEach(function (a) {
+          a.addEventListener('click', function (e) {
+            var el = document.getElementById(a.getAttribute('href').slice(1))
+            if (el && all.indexOf(el) >= 0) { e.preventDefault(); scrollToIndex(all.indexOf(el)) }
+          })
+        })
       })()
     </script>
 </body>

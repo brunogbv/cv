@@ -319,12 +319,11 @@ h4 {
     }
 }
 
-/* ---- Smooth in-page scrolling to anchors, disabled when the visitor prefers reduced motion ---- */
-@media (prefers-reduced-motion: no-preference) {
-    html {
-        scroll-behavior: smooth;
-    }
-}
+/* ---- In-page scrolling ----
+   The deck drives its own smooth scrolling from JS (scrollTo({behavior})), so CSS `scroll-behavior:
+   smooth` on the scroller is intentionally NOT set on screen: with both, the native smooth and the
+   programmatic smooth fought each other and landings drifted between sections. Nav-anchor clicks are
+   smoothed in JS instead (see the deck script). */
 
 /* ---- Print: flatten the screen chrome back to the linear PDF document ---- */
 @media print {
@@ -360,18 +359,18 @@ h4 {
 
 /* ---- Scroll reveal (US3): subtle, accessible entrance animation ----
    Base state is fully visible — the no-JS fallback (see reveal.js). Only once reveal.js has set `.js`
-   on the root AND the visitor has not requested reduced motion do `.reveal` elements start hidden and
-   ease in when marked `.is-visible`. Only opacity/transform animate, so there is no layout shift. */
+   on the root AND the visitor has not requested reduced motion do `.reveal` elements fade in when
+   marked `.is-visible`. PROTOTYPE: fade only, NO translate — the deck measures each section's top from
+   getBoundingClientRect to drive JS scrolling, and a transform offset (the old translateY(1.5rem))
+   desynced the scroll target from where the section settled (a 24px mid-section landing drift). */
 @media (prefers-reduced-motion: no-preference) {
     .js .reveal {
         opacity: 0;
-        transform: translateY(1.5rem);
-        transition: opacity 0.5s ease, transform 0.5s ease;
+        transition: opacity 0.5s ease;
     }
 
     .js .reveal.is-visible {
         opacity: 1;
-        transform: none;
     }
 }
 
@@ -447,8 +446,7 @@ h4 {
        driven entirely by JS (one full section per gesture, wheel + keys + touch). We deliberately do
        NOT use CSS scroll-snap: programmatic smooth-scroll fights `scroll-snap-type: mandatory`, which
        force-snaps mid-animation to the wrong point (the hiccup). JS-only scrolling is conflict-free. */
-    .cv-section,
-    body > .container.page > header {
+    .cv-section {
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -458,9 +456,14 @@ h4 {
         box-sizing: border-box;
     }
 
-    /* Neutralize the header's Bootstrap spacing utilities so it behaves as a full-height deck slide. */
+    /* Drop the container's block padding so there's no empty strip above the hero or below the last
+       section — each deck section carries its own padding-block; side insets are kept. */
+    body > .container.page { padding-block: 0; }
+
+    /* Header is a natural-height hero at the very top — NOT a forced full-viewport centered slide (its
+       min-height + centering + the nav above it left blank space and an off-centre first screen). */
     body > .container.page > header.mb-5 { margin-bottom: 0 !important; }
-    body > .container.page > header.pb-5 { padding-bottom: 2.5rem !important; }
+    body > .container.page > header.pb-5 { padding-bottom: 3rem !important; }
 
     /* Nav restyle */
     .section-nav {
