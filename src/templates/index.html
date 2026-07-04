@@ -26,6 +26,9 @@
          CSS Scroll Snap (styles.css) drives wheel/trackpad/touch; this is an additive keyboard-only
          enhancement (screen-only effect; no wheel/touch interception). -->
     <script src="deck.js"></script>
+    <!-- Detail-overlay dialog a11y (US2): layers focus trap/return, inert background and Esc-to-close
+         onto the CSS :target overlays. Progressive enhancement — the overlays open/close with no JS. -->
+    <script src="overlay.js"></script>
     <base target="_blank">
 </head>
 
@@ -130,8 +133,40 @@
         {{#if positions}}
         <section id="experience" class="cv-section reveal">
             <h2 class="cv-section-title" data-eyebrow="Where I've worked">Professional Experience</h2>
+            <!-- SCREEN: horizontal rail of short summary cards; each opens a full-screen :target detail. -->
+            <ul class="cv-rail screen">
+                {{#each positions}}
+                <li>
+                    <a class="cv-summary" href="#e{{@index}}" target="_self">
+                        <div class="period">{{ period }}</div>
+                        <div class="title">{{ title }}</div>
+                        <div class="teaser">{{{markdown contents}}}</div>
+                        <div class="more">Read more →</div>
+                    </a>
+                </li>
+                {{/each}}
+            </ul>
             {{#each positions}}
-            <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
+            <div id="e{{@index}}" class="cv-detail screen" role="dialog" aria-modal="true" aria-labelledby="e{{@index}}-title">
+                <a class="cv-detail-backdrop" href="#experience" aria-label="Close details" target="_self"></a>
+                <div class="cv-detail-inner">
+                    <a class="cv-detail-close" href="#experience" target="_self" aria-label="Close details">&times;</a>
+                    <div class="cv-detail-scroll">
+                        <div class="cv-detail-period">{{ period }}</div>
+                        <h3 id="e{{@index}}-title" class="fs-4 fw-normal">{{ title }}</h3>
+                        <div>{{{markdown contents}}}</div>
+                        <p>
+                            {{#each skills}}
+                            <span class="badge text-body border border-1">{{ this }}</span>
+                            {{/each}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+            <!-- PRINT: the original linear entries, unchanged, so the PDF is pixel-identical (SC-005). -->
+            {{#each positions}}
+            <div class="card cv-card cv-entry print {{#unless @last}}mb-5{{/unless}}">
                 <div class="card-body row-cols-1 d-block d-md-flex">
                     <div class="col-md-2 pt-1 cv-entry-period">
                         {{ period }}
@@ -156,8 +191,39 @@
         {{#if experience}}
         <section id="additional" class="cv-section reveal">
             <h2 class="cv-section-title" data-eyebrow="Courses &amp; training">Additional Experience</h2>
+            <ul class="cv-rail screen">
+                {{#each experience}}
+                <li>
+                    <a class="cv-summary" href="#x{{@index}}" target="_self">
+                        <div class="period">{{ period }}</div>
+                        <div class="title">{{ title }}</div>
+                        <div class="teaser">{{{markdown contents}}}</div>
+                        <div class="more">Read more →</div>
+                    </a>
+                </li>
+                {{/each}}
+            </ul>
             {{#each experience}}
-            <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
+            <div id="x{{@index}}" class="cv-detail screen" role="dialog" aria-modal="true" aria-labelledby="x{{@index}}-title">
+                <a class="cv-detail-backdrop" href="#additional" aria-label="Close details" target="_self"></a>
+                <div class="cv-detail-inner">
+                    <a class="cv-detail-close" href="#additional" target="_self" aria-label="Close details">&times;</a>
+                    <div class="cv-detail-scroll">
+                        <div class="cv-detail-period">{{ period }}</div>
+                        <h3 id="x{{@index}}-title" class="fs-4 fw-normal">{{ title }}</h3>
+                        <div>{{{markdown contents}}}</div>
+                        <p>
+                            {{#each skills}}
+                            <span class="badge text-body border border-1">{{ this }}</span>
+                            {{/each}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+            <!-- PRINT: the original linear entries, unchanged, so the PDF is pixel-identical (SC-005). -->
+            {{#each experience}}
+            <div class="card cv-card cv-entry print {{#unless @last}}mb-5{{/unless}}">
                 <div class="card-body row-cols-1 d-block d-md-flex">
                     <div class="col-md-2 pt-1 cv-entry-period">
                         {{ period }}
@@ -182,8 +248,34 @@
         {{#if competitions}}
         <section id="competitions" class="cv-section reveal">
             <h2 class="cv-section-title" data-eyebrow="Earlier chapters">Robotics Competitions</h2>
+            <ul class="cv-rail screen">
+                {{#each competitions}}
+                <li>
+                    <a class="cv-summary" href="#c{{@index}}" target="_self">
+                        <div class="period">{{ period }}</div>
+                        <div class="title">{{ title }}</div>
+                        <div class="teaser">{{{markdown contents}}}</div>
+                        <div class="more">Read more →</div>
+                    </a>
+                </li>
+                {{/each}}
+            </ul>
             {{#each competitions}}
-            <div class="card cv-card cv-entry {{#unless @last}}mb-5{{/unless}}">
+            <div id="c{{@index}}" class="cv-detail screen" role="dialog" aria-modal="true" aria-labelledby="c{{@index}}-title">
+                <a class="cv-detail-backdrop" href="#competitions" aria-label="Close details" target="_self"></a>
+                <div class="cv-detail-inner">
+                    <a class="cv-detail-close" href="#competitions" target="_self" aria-label="Close details">&times;</a>
+                    <div class="cv-detail-scroll">
+                        <div class="cv-detail-period">{{ period }}</div>
+                        <h3 id="c{{@index}}-title" class="fs-4 fw-normal">{{ title }}</h3>
+                        <div>{{{markdown contents}}}</div>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+            <!-- PRINT: the original linear entries, unchanged, so the PDF is pixel-identical (SC-005). -->
+            {{#each competitions}}
+            <div class="card cv-card cv-entry print {{#unless @last}}mb-5{{/unless}}">
                 <div class="card-body row-cols-1 d-block d-md-flex">
                     <div class="col-md-2 pt-1 cv-entry-period">
                         {{ period }}
