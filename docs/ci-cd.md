@@ -42,7 +42,15 @@ Defined in `config/lint/super-linter.env`:
 | Enabled validators               | Bash (shellcheck), CSS, Dockerfile (hadolint), GitHub Actions, HTML, JavaScript (`standard`), JSON, JSX, Markdown, TypeScript (`standard`), XML, YAML |
 
 JavaScript is checked against the **`standard`** style; CSS uses `stylelint` with
-`stylelint-config-standard` (declared in `package.json`). Shell scripts are checked with
+`stylelint-config-standard` (both declared as devDependencies in `package.json`). In CI,
+Super-Linter has no repo stylelint config, so it uses its own **bundled default**
+(`{ "extends": "stylelint-config-standard" }`, resolved against the *image's* pinned
+stylelint) — do **not** add a `config/lint/.stylelintrc.json`: Super-Linter would load it
+and resolve `stylelint-config-standard` against the repo's *newer* `node_modules`, whose
+rules the image's older bundled stylelint doesn't recognize, breaking the CSS check. The
+native `make lint-fast` CSS step mirrors the same ruleset via `config/lint/stylelint-fast.json`
+(deliberately *not* the auto-loaded filename — see [below](#validate-locally-before-pushing)).
+Shell scripts are checked with
 **shellcheck** (`VALIDATE_BASH`); the vendored spec-kit scripts under `.specify/` are excluded (we
 don't own them and they don't pass), so only repo-owned scripts (`scripts/`, `.claude/hooks/`) are
 gated. `shfmt` formatting is intentionally not enabled — its style conflicts with the scripts'
@@ -63,11 +71,41 @@ Silicon (the image is amd64-only, so the target runs it via `--platform linux/am
 `make worktree` sibling (the target also bind-mounts the shared git dir — a worktree's `.git` is a
 file pointing at the main checkout — so Super-Linter can resolve `main`).
 
-For a quicker inner-loop check, `make lint-fast` runs just the JavaScript (`standard`) and Markdown
-(`markdownlint`) linters natively — no Docker, no full image — calibrated to approximate CI's
-behavior for those file types (`make lint` is the exact mirror). The Dev Container also installs editor extensions (markdownlint, StandardJS,
-Stylelint, Hadolint, YAML) for live in-editor feedback. `make lint` remains the authoritative
-CI-parity check.
+For a quicker inner-loop check, `make lint-fast` runs the JavaScript (`standard`), CSS (`stylelint`),
+and Markdown (`markdownlint`) linters natively — no Docker, no full image — calibrated to approximate
+CI's behavior for those file types (`make lint` is the exact mirror). The CSS step uses
+`config/lint/stylelint-fast.json` (`{ "extends": "stylelint-config-standard" }`, the same base as
+Super-Linter's bundled default) over the same file scope Super-Linter lints (`src/**/*.css` +
+`tests/**/*.css`), so a CSS rule violation now fails `lint-fast` locally instead of only surfacing in
+CI. Like `markdownlint-fast.json`, it's a `*-fast` config that **mirrors** the CI ruleset without being
+picked up by CI: it's deliberately *not* named `.stylelintrc.json`, because that (Super-Linter's default
+CSS config filename under `LINTER_RULES_PATH`) would make Super-Linter load it and resolve
+`stylelint-config-standard` against the repo's newer `node_modules`, whose rules the image's older
+bundled stylelint rejects. So local (`stylelint` 16 + config-standard 36) and CI (the image's bundled
+older pair) share the same *base config* but run different *stylelint versions* — an approximation, not a
+byte-for-byte mirror; `make lint` remains the exact CSS check. The Dev Container also installs editor
+extensions (markdownlint, StandardJS, Stylelint, Hadolint, YAML) for live in-editor feedback. `make
+lint` remains the authoritative CI-parity check.
+
+#### Style conventions this repo trips on
+
+The rules below have repeatedly bitten changes here; know them before writing CSS or Markdown so you
+don't burn a lint round-trip. All are covered by `make lint-fast` (and `make lint`).
+
+- **stylelint `selector-class-pattern`** — class names must be **kebab-case** (`.card-title`), lower
+  case with hyphens only. BEM `__element` / `--modifier` separators are **rejected** — use
+  `.card-title` / `.card-title-active`, not `.card__title` / `.card--active`.
+- **stylelint `comment-empty-line-before`** — a comment needs a blank line before it (unless it's the
+  first thing in its block or directly follows an opening brace).
+- **stylelint `no-descending-specificity`** — a lower-specificity selector must not override a
+  higher-specificity one that appears earlier; order rules so specificity is non-descending (or scope
+  them so they don't collide).
+- **markdownlint `MD040`** — every fenced code block needs a language tag (```` ```sh ````,
+  ```` ```json ````, etc.); a bare ```` ``` ```` fence fails.
+- **markdownlint `MD013`** — lines must be **≤ 400 characters**;
+  `config/lint/markdownlint-fast.json` sets `line_length: 400` to mirror CI (Super-Linter's bundled
+  markdownlint uses the same 400 limit — see the "Markdown line-length" caveat below); wrap long prose
+  and split wide table rows.
 
 Caveats:
 
