@@ -114,10 +114,18 @@ jobs:
             const shortSha = sha.slice(0, 7)
             const env = `preview-pr-${issue_number}`
 
-            // 1) Native surface: a Deployment tied to the head commit. required_contexts: [] so it
-            // never waits on other checks; transient + auto_inactive so superseded previews retire.
-            // Non-fatal: a deployment hiccup must not fail the deploy or block the comment below.
+            // 1) Native surface: a Deployment tied to the head commit → shows in the PR's
+            // "Deployments" box and on the commit. required_contexts: [] so it never waits on other
+            // checks. We explicitly mark the previous preview inactive so only the current commit's
+            // deployment stays active — `auto_inactive` does NOT apply to transient environments, so
+            // it can't do this for us. Non-fatal: a deployment hiccup must not fail the deploy or
+            // block the comment below.
             try {
+              const before = await github.rest.repos.listDeployments({
+                owner, repo, environment: env, per_page: 100
+              })
+              const prevId = before.data.length ? Math.max(...before.data.map((d) => d.id)) : null
+
               const dep = await github.rest.repos.createDeployment({
                 owner, repo, ref: sha, environment: env,
                 transient_environment: true, auto_merge: false, required_contexts: [],
@@ -127,8 +135,15 @@ jobs:
                 await github.rest.repos.createDeploymentStatus({
                   owner, repo, deployment_id: dep.data.id, state: 'success',
                   environment: env, environment_url: url, log_url: url,
-                  auto_inactive: true, description: `Vercel preview for ${shortSha}`
+                  description: `Vercel preview for ${shortSha}`
                 })
+                // Retire the prior preview for this PR so only the latest stays active.
+                if (prevId) {
+                  await github.rest.repos.createDeploymentStatus({
+                    owner, repo, deployment_id: prevId, state: 'inactive',
+                    description: `Superseded by ${shortSha}`
+                  })
+                }
               } else {
                 core.warning(`createDeployment returned no id: ${JSON.stringify(dep.data)}`)
               }
