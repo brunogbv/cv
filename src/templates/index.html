@@ -196,14 +196,16 @@
         function goSection (dir) {
           var scroller = document.scrollingElement || document.documentElement
           var y = scroller.scrollTop
+          var vh = window.innerHeight
           var tops = [].slice.call(document.querySelectorAll('header, .cv-section'))
             .map(function (s) { return Math.round(s.getBoundingClientRect().top + y) })
-          var goTo = null
-          if (dir > 0) { for (var j = 0; j < tops.length; j++) { if (tops[j] > y + 5) { goTo = tops[j]; break } } }
-          else { for (var k = tops.length - 1; k >= 0; k--) { if (tops[k] < y - 5) { goTo = tops[k]; break } } }
-          if (goTo === null) return false
+          // current section = the last one whose top is at/above the viewport middle (the one you're on)
+          var idx = 0
+          for (var i = 0; i < tops.length; i++) { if (tops[i] <= y + vh / 2) idx = i }
+          var target = idx + dir
+          if (target < 0 || target >= tops.length) return false
           locked = true
-          scroller.scrollTo({ top: goTo, behavior: reduce.matches ? 'auto' : 'smooth' })
+          scroller.scrollTo({ top: tops[target], behavior: reduce.matches ? 'auto' : 'smooth' })
           setTimeout(function () { locked = false }, reduce.matches ? 60 : 800)
           return true
         }
@@ -218,6 +220,17 @@
           e.preventDefault() // take over from native scroll so one gesture = one section
           if (!locked) goSection(e.deltaY > 0 ? 1 : -1)
         }, { passive: false })
+        var touchStartY = null
+        window.addEventListener('touchstart', function (e) { touchStartY = e.touches[0].clientY }, { passive: true })
+        window.addEventListener('touchmove', function (e) { if (!overlayOpen()) e.preventDefault() }, { passive: false })
+        window.addEventListener('touchend', function (e) {
+          if (touchStartY === null) return
+          if (!overlayOpen() && !locked) {
+            var dy = touchStartY - e.changedTouches[0].clientY
+            if (Math.abs(dy) > 30) goSection(dy > 0 ? 1 : -1)
+          }
+          touchStartY = null
+        }, { passive: true })
       })()
     </script>
 </body>
