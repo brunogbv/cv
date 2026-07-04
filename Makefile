@@ -132,12 +132,21 @@ lint:
 lint-actions:
 	docker run --rm -v "$(CURDIR):/repo" -w /repo rhysd/actionlint:1.7.1 -color
 
-# Fast local lint (JS via standard, Markdown via markdownlint) — a quick subset of
-# `make lint` for the common edit types. `make lint` (Super-Linter) stays the
-# authoritative CI-parity check.
+# Fast local lint (JS via standard, CSS via stylelint, Markdown via markdownlint) — a
+# quick subset of `make lint` for the common edit types. `make lint` (Super-Linter)
+# stays the authoritative CI-parity check. The stylelint step mirrors Super-Linter's CSS
+# ruleset (config/lint/stylelint-fast.json = stylelint-config-standard, same base
+# Super-Linter's built-in default uses) over the same file scope Super-Linter lints
+# (src/**/*.css + tests/**/*.css; src/templates/** is Handlebars, not CSS). The config is
+# NOT named `.stylelintrc.json` on purpose: that filename would make Super-Linter load it
+# from the repo, resolving stylelint-config-standard against the repo's newer node_modules
+# and tripping the bundled (older) stylelint — like markdownlint-fast.json, it mirrors the
+# rules without being picked up by CI.
 lint-fast:
 	echo "Linting JavaScript (standard)..."
 	npx --no-install standard "src/**/*.js"
+	echo "Linting CSS (stylelint)..."
+	npx --no-install stylelint --config config/lint/stylelint-fast.json "src/**/*.css" "tests/**/*.css"
 	echo "Linting Markdown (markdownlint)..."
 	npx --no-install markdownlint-cli2 --config config/lint/markdownlint-fast.json "**/*.md" "!node_modules/**" "!.specify/**" "!.claude/skills/**" "!dist/**"
 
