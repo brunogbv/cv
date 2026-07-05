@@ -132,8 +132,9 @@ don't just patch it ad-hoc:
   or CI check that mechanically passes or fails) does not. For a **costly or recurring** mistake, the
   fix to reach for is a gate that makes the wrong thing fail loudly and automatically. Documentation
   alone is never the final answer: it's a stopgap only when a gate is genuinely impractical, and then
-  it ships *with* a filed issue to add the gate. This is **Principle VII** of the
-  [constitution](.specify/memory/constitution.md).
+  it ships *with* a filed issue to add the gate. Canonical statement (applies repo-wide, not just under
+  spec-kit): [`docs/engineering-principles.md`](docs/engineering-principles.md) ("Guardrails over
+  guidance"), mirrored as constitution Principle VII.
 - **A near-miss caught only by inspection means a gate is missing.** If you (or a review) catch a real
   problem by eye that no gate would have caught, the catch is not the fix — closing the gap with a gate
   is. File it.

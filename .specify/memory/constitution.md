@@ -49,18 +49,15 @@ gate over a documented practice (Principle VII) — see
 ### VII. Guardrails over guidance — prefer executable gates (NON-NEGOTIABLE)
 
 Documentation states intent; a **gate enforces it**. For a mistake that is **costly or likely to
-recur** — breaking the PDF, shipping a stale visual baseline, leaking a secret, regressing
-accessibility — the durable fix is a **deterministic check** (a test, validation, lint rule, hook, or
-CI gate that mechanically passes or fails), not a line in a doc asking a fallible human or agent to
-remember. Everyone is prone to mistakes; documented best practice relies on memory and diligence at
-exactly the moment they lapse. So when a task surfaces such a mistake (Principle VI), reach for a gate
-first: make the wrong thing fail loudly and automatically. **What is non-negotiable is that
-documentation alone is never the final answer to a real, recurring mistake** — when a gate is
-genuinely impractical today, the documented practice is a stopgap that ships *with* a filed `harness`
-issue to add the gate. A near-miss on something that matters, caught only by inspection, is itself the
-signal that a gate is missing — file it and treat closing that gap as the real fix, not the catch.
-(Self-review under Principle II still backstops everything; this principle is about converting the
-mistakes that recur or bite hard into gates.)
+recur**, the durable fix is a **deterministic check** (a test, validation, lint rule, hook, or CI gate
+that mechanically passes or fails), not a doc asking a fallible human or agent to remember. Reach for a
+gate first; **what is non-negotiable is that documentation alone is never the final answer** to a real,
+recurring mistake — when a gate is impractical today, a documented practice is a stopgap that ships
+*with* a filed `harness` issue to add the gate, and a near-miss caught only by inspection is the signal
+that a gate is missing. This principle applies **repo-wide, not only under spec-kit** — its canonical
+statement (with rationale and the gates we already run) lives in
+[`docs/engineering-principles.md`](../../docs/engineering-principles.md). (Self-review under Principle
+II still backstops everything.)
 
 ## Development Workflow
 

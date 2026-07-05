@@ -29,6 +29,7 @@ Developer documentation lives in [`docs/`](docs/):
 - [Local development](docs/local-development.md) — set up the Dev Container, everyday commands, and the change workflow (start here).
 - [Architecture](docs/architecture.md) — code structure, the build pipeline, the content data model, and how the site is served.
 - [CI/CD](docs/ci-cd.md) — the GitHub Actions workflows (Lint, Dev Container prebuild, Vercel Deploy) and the Vercel deploy model.
+- [Engineering principles](docs/engineering-principles.md) — durable, tooling-agnostic principles (e.g. prefer executable gates over documented practice).
 - [`AGENTS.md`](AGENTS.md) — conventions for working in this repo (build via the Makefile, Dev Container, spec-driven development).
 
 ## Getting started

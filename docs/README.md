@@ -17,6 +17,9 @@ agent-oriented quick reference, see [`AGENTS.md`](../AGENTS.md).
 - **[CI/CD](ci-cd.md)** — the GitHub Actions workflows (Lint, Dev Container prebuild, Vercel Deploy) and the Vercel deploy model.
 - **[Contributing & Issue Tracking](contributing.md)** — how work is tracked in GitHub (issues,
   milestones, labels; projects optional) and how to raise a well-formed issue.
+- **[Engineering principles](engineering-principles.md)** — durable, tooling-agnostic principles for
+  keeping the repo healthy, starting with "guardrails over guidance" (prefer executable gates over
+  documented practice).
 - **[Architecture Decision Records](adr/)** — significant technical decisions and their rationale.
 - **[Spec-driven development](spec-driven.md)** — the spec-kit `/speckit-*` workflow for non-trivial features.
 
