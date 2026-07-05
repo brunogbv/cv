@@ -42,8 +42,22 @@ config.
 ### VI. The harness is a living system
 
 When a task reveals a systemic gap in the harness (conventions, docs, `.claude/` hooks, the Dev
-Container, CI, spec-kit), codify the fix rather than patching the symptom — see
+Container, CI, spec-kit), codify the fix rather than patching the symptom — preferring an executable
+gate over a documented practice (Principle VII) — see
 [`docs/contributing.md`](../../docs/contributing.md) ("Improving the harness").
+
+### VII. Guardrails over guidance — prefer executable gates (NON-NEGOTIABLE)
+
+Documentation states intent; a **gate enforces it**. For a mistake that is **costly or likely to
+recur**, the durable fix is a **deterministic check** (a test, validation, lint rule, hook, or CI gate
+that mechanically passes or fails), not a doc asking a fallible human or agent to remember. Reach for a
+gate first; **what is non-negotiable is that documentation alone is never the final answer** to a real,
+recurring mistake — when a gate is impractical today, a documented practice is a stopgap that ships
+*with* a filed `harness` issue to add the gate, and a near-miss caught only by inspection is the signal
+that a gate is missing. This principle applies **repo-wide, not only under spec-kit** — its canonical
+statement (with rationale and the gates we already run) lives in
+[`docs/engineering-principles.md`](../../docs/engineering-principles.md). (Self-review under Principle
+II still backstops everything.)
 
 ## Development Workflow
 
@@ -62,4 +76,4 @@ that links its issue with `Closes #<n>`.
 This constitution reflects and defers to [`AGENTS.md`](../../AGENTS.md); amendments update both and
 keep them consistent. All PRs are expected to comply, and added complexity must be justified.
 
-**Version**: 1.3.0 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-03
+**Version**: 1.4.0 | **Ratified**: 2026-07-01 | **Last Amended**: 2026-07-05

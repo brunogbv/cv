@@ -127,6 +127,17 @@ don't just patch it ad-hoc:
 
 - **Name the gap and ask** whether to codify the fix into the harness — prefer fixing the system over
   the symptom. Whether to codify now, defer, or skip is the owner's call.
+- **Prefer a gate over a doc.** A documented best practice relies on a fallible human or agent
+  remembering it at the right moment; a **deterministic gate** (a test, validation, lint rule, hook,
+  or CI check that mechanically passes or fails) does not. For a **costly or recurring** mistake, the
+  fix to reach for is a gate that makes the wrong thing fail loudly and automatically. Documentation
+  alone is never the final answer: it's a stopgap only when a gate is genuinely impractical, and then
+  it ships *with* a filed issue to add the gate. Canonical statement (applies repo-wide, not just under
+  spec-kit): [`docs/engineering-principles.md`](docs/engineering-principles.md) ("Guardrails over
+  guidance"), mirrored as constitution Principle VII.
+- **A near-miss caught only by inspection means a gate is missing.** If you (or a review) catch a real
+  problem by eye that no gate would have caught, the catch is not the fix — closing the gap with a gate
+  is. File it.
 - **If the owner agrees**, raise a `harness`-labeled issue (see
   [`docs/contributing.md`](docs/contributing.md)) and handle it as its own change, separate from the
   task that surfaced it. `harness` is a grouping **label, not a milestone** — this work is ongoing.

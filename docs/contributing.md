@@ -155,8 +155,15 @@ deliberately, not ad-hoc. When a task reveals a **systemic gap** in it (a recurr
 missing convention, or an undocumented assumption):
 
 1. **Name it** — state the gap the specific issue revealed.
-2. **Propose codifying** — ask whether to fix the system (a convention / doc / tooling change)
-   rather than patch the symptom once. The owner decides: codify now, defer, or skip.
+2. **Propose codifying, gate first** — ask whether to fix the system rather than patch the symptom
+   once. For a **costly or recurring** mistake, **prefer a deterministic gate** (a test, validation,
+   lint rule, hook, or CI check that mechanically passes or fails) over a documented best practice: a
+   doc relies on a fallible human or agent remembering it, a gate does not (see
+   [`engineering-principles.md`](engineering-principles.md), "Guardrails over guidance"; mirrored as
+   constitution Principle VII). Documentation alone is never the final answer — it's a stopgap only
+   when a gate is genuinely impractical, and then it ships with a filed issue to add the gate. A
+   near-miss on something that matters, caught only by inspection, is itself the signal that a gate is
+   missing. The owner decides: codify now, defer, or skip.
 3. **Track it** — if the owner agrees, raise an issue with the **`harness`** label (create it once
    if missing) plus a type label (`documentation` for convention/doc changes, `maintenance` for
    tooling/CI/Dev Container), and a body covering the recurring problem and the proposed
