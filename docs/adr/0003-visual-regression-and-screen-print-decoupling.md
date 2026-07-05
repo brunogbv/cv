@@ -88,3 +88,9 @@ pinned via `SOURCE_DATE_EPOCH` so the PDF is stable day-to-day. A change to the 
 now fails a PR, and intentional PDF changes update baselines via `make visual-update` (as the screen
 snapshots do). This strengthens decision **1** without changing it (the original `pdf.spec.js`
 validity check stays).
+
+**Update (003):** decision **2** said "a CSS media split … leaves `pdf.js` untouched (no
+`emulateMedia`)." The 003 interactive deck reversed that — `pdf.js` now calls
+`page.emulateMedia({ media: 'print' })` before navigating, so the screen's own webfonts and 100vh deck
+can't leak into the PDF. See [ADR 0004](0004-native-scroll-snap-editorial-deck.md) (decision 5). The
+gate and the screen/print decoupling (decisions 1 and 3) stand.

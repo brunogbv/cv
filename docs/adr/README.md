@@ -27,3 +27,4 @@ supersedes it and flip the old one's **Status** to `Superseded by ADR-XXXX`.
 - [0001 — Modernize the build runtime: Node 22 + Playwright](0001-modernize-build-runtime.md)
 - [0002 — Build in CI and deploy prebuilt to Vercel](0002-vercel-prebuilt-deploy.md)
 - [0003 — Visual-regression gate + screen/print decoupling for the CV redesign](0003-visual-regression-and-screen-print-decoupling.md)
+- [0004 — Interactive CV as a native-scroll-snap editorial deck](0004-native-scroll-snap-editorial-deck.md)
