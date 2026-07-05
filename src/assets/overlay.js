@@ -22,7 +22,7 @@
   let trigger = null
 
   // The currently-open detail overlay (matched by :target), or null. Section-agnostic — overlays
-  // live in Experience/Additional/Competitions with ids like e0 / x0 / c0.
+  // live in Skills/Experience/Additional/Competitions with ids like sk0 / e0 / x0 / c0.
   const openOverlay = () => document.querySelector('.cv-detail:target')
 
   const focusables = (overlay) => {

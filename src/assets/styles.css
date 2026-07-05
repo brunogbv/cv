@@ -109,15 +109,6 @@ h4 {
         flex-wrap: wrap; /* Allow wrapping */
     }
 
-    .col-print-skills {
-        flex: 0 0 50%; /* Take up 50% of the width to create two columns */
-        max-width: 50%; /* Ensure the column does not exceed 50% width */
-    }
-
-    .offset-1, .offset-lg-2, .offset-md-4 {
-        margin-left: 0 !important; /* Remove offsets for print */
-    }
-
     .col-print-1 {
         flex: 0 0 8.3333%;
         max-width: 8.3333%;
@@ -194,29 +185,16 @@ h4 {
     height: 50%; /* Ensure the container takes up the full height of its parent */
 }
 
-.skills {
-    position: relative;
-    display: inline-block;
-    font-size: 1.2rem;
+/* Grouped skills in the PDF: a category heading followed by a linear " · "-separated list. Only
+   rendered in print — these live inside the template's `.print` container, which screen media hides. */
+.cv-skills-print-cat {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0.75rem 0 0.35rem;
 }
 
-.skills::after {
-    display: block;
-    content: '•••••';
-    color: var(--light-color);
-}
-
-.skills-bar {
-    position: absolute;
-    left: 0;
-    top: 0;
-    overflow: hidden;
-}
-
-.skills-bar::after {
-    display: block;
-    content: '•••••';
-    color: red;
+.cv-skills-print-list {
+    margin: 0 0 0.5rem;
 }
 
 /* =====================================================================================
@@ -341,6 +319,16 @@ h4 {
     /* Keep a single experience/competition entry from being split across pages. */
     .cv-entry {
         break-inside: avoid;
+    }
+
+    /* Grouped skills: keep each category's list together and never orphan the category heading from
+       the list below it (the section now has six sub-headings where it used to be one flat block). */
+    .cv-skills-print-list {
+        break-inside: avoid;
+    }
+
+    .cv-skills-print-cat {
+        break-after: avoid;
     }
 
     /* Section dividers + tight spacing, matching the pre-redesign block wrappers
@@ -539,27 +527,9 @@ h4 {
         text-transform: uppercase;
     }
 
-    /* Skills as compact proficiency chips (screen only). Each chip fills with a terracotta tint up to
-       its proficiency % (the --pct set inline). Print keeps the 002 dot-bar grid (see the template's
-       .print block) so the PDF is unchanged. */
-    .cv-skills {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.6rem;
-        max-width: 60rem;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-    }
-
-    .cv-skills li {
-        padding: 0.35rem 0.9rem;
-        border: 1px solid rgb(15 23 42 / 15%);
-        border-radius: 999px;
-        background: linear-gradient(90deg, rgb(194 36 12 / 14%) 0 var(--pct, 0%), #fff var(--pct, 0%));
-        font-size: 0.9rem;
-        color: var(--p-ink);
-    }
+    /* Skills render through the shared rail + detail-overlay components (.cv-rail / .cv-summary /
+       .cv-detail below) — same pattern as the experience sections. The only skills-specific screen
+       style is the overlay's skill list, .cv-detail-skills (near the overlay styles below). */
 }
 
 /* =====================================================================================
@@ -572,6 +542,10 @@ h4 {
    ===================================================================================== */
 @media not print {
     /* ---- Rail of summary cards ---- */
+    .cv-rail-wrap {
+        position: relative; /* anchors the swipe-affordance overlay (below) to the rail's edge */
+    }
+
     .cv-rail {
         display: flex;
         gap: 1.25rem;
@@ -583,6 +557,28 @@ h4 {
         overscroll-behavior: contain; /* an X-fling stays in the rail; never triggers the deck snap */
         touch-action: pan-x pan-y; /* let the browser route horizontal-swipe to the rail, vertical to the deck */
         list-style: none;
+    }
+
+    /* Swipe affordance (all screen widths): every rail overflows — even the 4-card Competitions rail
+       needs more width than the page container — so hint that more cards sit to the right with a soft
+       fade into the page background plus a chevron. Pinned to the wrapper (which doesn't scroll),
+       pointer-events:none so it never blocks a swipe/drag or tap. */
+    .cv-rail-wrap::after {
+        content: "›" / ""; /* empty alt text: purely decorative, keep it out of the a11y tree */
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 1.5rem; /* clear the rail's bottom scroll padding, centre over the cards */
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        width: 3rem;
+        padding-right: 0.4rem;
+        font-size: 1.75rem;
+        line-height: 1;
+        color: var(--p-terra);
+        background: linear-gradient(to right, rgb(250 247 241 / 0%), var(--p-cream) 70%);
+        pointer-events: none;
     }
 
     .cv-rail > li {
@@ -750,6 +746,35 @@ h4 {
         letter-spacing: 0.12em;
         text-transform: uppercase;
         font-size: 0.8rem;
+    }
+
+    /* Skills detail overlay: the full category list as clean bulleted items (no proficiency grading),
+       flowing into columns on wider overlays. */
+    .cv-detail-skills {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+        gap: 0.5rem 1.5rem;
+        margin: 1.25rem 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .cv-detail-skills li {
+        position: relative;
+        padding-left: 1rem;
+        font-size: 1rem;
+        color: var(--p-ink);
+    }
+
+    .cv-detail-skills li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.55em;
+        width: 0.35rem;
+        height: 0.35rem;
+        border-radius: 50%;
+        background-color: var(--p-terra);
     }
 }
 
