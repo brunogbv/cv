@@ -24,43 +24,103 @@ module.exports = {
 
   With over 7 years of experience in Distributed Systems, I'm committed to building scalable, highly available and fault-tolerant services. My goal is to reduce ambiguity and bridge the gap between the engineering and business world.
   `,
+  // Skills are grouped into labelled categories so they read logically and fit the mobile deck panel
+  // (they render as a rail of category cards on screen — each opening a detail overlay with the full
+  // list — and as labelled linear lists in the PDF). Each category carries a `kind` (Hard skills /
+  // Soft skills / Languages) shown as the card eyebrow, and `items` are plain skill names (no
+  // proficiency grading; the lists are representative, not exhaustive). Categories are ordered
+  // most-to-least technical, closing on spoken languages.
   skills: [
-    ['Distributed Systems', 100],
-    ['Teamwork', 100],
-    ['Communication', 90],
-    ['English', 100],
-    ['Portuguese', 100],
-    ['Spanish', 80],
-    ['German', 30],
-    ['Stakeholder Management', 80],
-    ['Leadership', 80],
-    ['People Management', 80],
-    ['Functional Programming', 70],
-    ['Object-Oriented Programming', 100],
-    ['Reactive Programming', 100],
-    ['Event Driven Architecture', 100],
-    ['CQRS', 90],
-    ['Microservices', 100],
-    ['Cloud Native Apps', 100],
-    ['AWS', 80],
-    ['GCP', 50],
-    ['REST API', 100],
-    ['gRPC', 100],
-    ['GraphQL', 60],
-    ['Akka Stack', 100],
-    ['Split-Brain Resolver', 80],
-    ['CAP Theorem', 100],
-    ['Apache Cassandra', 70],
-    ['Apache Flink', 100],
-    ['Apache Kafka', 100],
-    ['SQL', 100],
-    ['Redis', 100],
-    ['Elasticsearch', 70],
-    ['Scala', 100],
-    ['Kotlin', 80],
-    ['Java', 80],
-    ['Go', 70],
-    ['C++', 80]
+    {
+      category: 'Programming Languages',
+      kind: 'Hard skills',
+      items: ['Scala', 'Kotlin', 'Java', 'Go', 'C++']
+    },
+    {
+      category: 'Architecture & Distributed Systems',
+      kind: 'Hard skills',
+      items: [
+        'Distributed Systems',
+        'Microservices',
+        'Event Driven Architecture',
+        'CQRS',
+        'Reactive Programming',
+        'Cloud Native Apps',
+        'CAP Theorem',
+        'Split-Brain Resolver',
+        'Akka Stack',
+        'Functional Programming',
+        'Object-Oriented Programming'
+      ]
+    },
+    {
+      category: 'Engineering Practices',
+      kind: 'Hard skills',
+      items: [
+        'Domain-Driven Design',
+        'Test-Driven Development',
+        'Spec-Driven Development',
+        'Agentic Development',
+        'Harness Engineering',
+        'Event Sourcing',
+        'Hexagonal Architecture',
+        'System Design',
+        'Load Testing',
+        'CI/CD'
+      ]
+    },
+    {
+      category: 'Data & Streaming',
+      kind: 'Hard skills',
+      items: [
+        'Apache Kafka',
+        'Apache Flink',
+        'Apache Cassandra',
+        'SQL',
+        'PostgreSQL',
+        'MySQL',
+        'MongoDB',
+        'Redis',
+        'Elasticsearch',
+        'RabbitMQ',
+        'InfluxDB'
+      ]
+    },
+    {
+      category: 'Cloud & APIs',
+      kind: 'Hard skills',
+      items: ['AWS', 'GCP', 'SQS', 'SNS', 'Kinesis', 'DynamoDB', 'S3', 'REST API', 'gRPC', 'GraphQL']
+    },
+    {
+      category: 'Infrastructure & Delivery',
+      kind: 'Hard skills',
+      items: ['Kubernetes', 'Docker', 'Terraform', 'Helm', 'ArgoCD', 'Spinnaker']
+    },
+    {
+      category: 'Observability & On-Call',
+      kind: 'Hard skills',
+      items: ['Datadog', 'Prometheus', 'Grafana', 'PagerDuty', 'OpsGenie', 'incident.io']
+    },
+    {
+      category: 'Leadership & Collaboration',
+      kind: 'Soft skills',
+      items: [
+        'Leadership',
+        'People Management',
+        'Stakeholder Management',
+        'Hiring & Interviewing',
+        'Mentoring & Onboarding',
+        'Incident Management',
+        'Cross-functional Collaboration',
+        'Teamwork',
+        'Communication'
+      ]
+    },
+    {
+      category: 'Spoken languages',
+      kind: 'Languages',
+      items: ['English', 'Portuguese', 'Spanish']
+    }
   ],
   positions: [
     {
